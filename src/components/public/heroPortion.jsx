@@ -30,7 +30,7 @@ export function HeroPortion() {
 
                         {/* Hero Image */}
                         <img
-                            className="h-[clamp(401px,70vw,620px)] object-cover rounded-[14.62px] border-white border-[6.58px] lg:absolute lg:hidden"
+                            className="h-[clamp(401px,70vw,620px)] object-cover rounded-[14.62px] border-white border-[6.58px] lg:absolute lg:w-[340px] lg:h-[404px] lg:left-[50%] lg:top-[55%] lg:translate-x-[-50%] lg:translate-y-[-50%] z-0 lg:rotate-[-7deg] xl:w-[425px] xl:h-[505px]"
                             src="./Images/hero-Picture.png"
                             alt="hero-pic"
                         />
@@ -45,7 +45,8 @@ export function HeroPortion() {
                             <h1 className="font-bold tracking-[-4.76px] leading-[0.8] 
                                            text-[clamp(68px,17vw,180px)] 
                                            lg:tracking-[-12px] 
-                                           xl:text-[235px]">
+                                           xl:text-[235px]
+                                           z-10">
                                 NATURAL
                             </h1>
                         </div>
@@ -53,7 +54,7 @@ export function HeroPortion() {
                 </div>
 
                 {/* Scroll / Rating / Button Section */}
-                <div className="relative mt-10 z-10 px-6 sm:flex sm:items-center sm:justify-between gap-6">
+                <div className="relative mt-10 lg:mt-20 z-10 px-6 sm:flex sm:items-center sm:justify-between gap-6">
                     {/* Scroll Now */}
                     <div className="hidden sm:flex items-center gap-4 text-white">
                         <img src="./Icons/scroll.svg" alt="scroll-icon" />
