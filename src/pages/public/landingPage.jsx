@@ -1,10 +1,12 @@
+import { ContentBlock } from "../../components/public/ContentBlock";
 import { HeroPortion } from "../../components/public/heroPortion";
 
 export function LandingPage() {
     return (
         <>
-        <main className="font-[Poppins]">
+        <main className="font-[Poppins] bg-[#F5F5F5]">
             <HeroPortion />
+            <ContentBlock/>
         </main>
         </>
     );
