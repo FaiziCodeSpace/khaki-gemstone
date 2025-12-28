@@ -1,3 +1,4 @@
+import { Categories } from "../../components/public/Categories";
 import { ContentBlock } from "../../components/public/ContentBlock";
 import { HeroPortion } from "../../components/public/heroPortion";
 
@@ -7,6 +8,7 @@ export function LandingPage() {
         <main className="font-[Poppins] bg-[#F5F5F5]">
             <HeroPortion />
             <ContentBlock/>
+            <Categories/>
         </main>
         </>
     );
