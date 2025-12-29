@@ -1,3 +1,4 @@
+import { AboutUs } from "../../components/public/aboutUs";
 import { Categories } from "../../components/public/Categories";
 import { ContentBlock } from "../../components/public/ContentBlock";
 import { HeroPortion } from "../../components/public/heroPortion";
@@ -11,6 +12,7 @@ export function LandingPage() {
             <ContentBlock/>
             <Categories/>
             <Showcase/>
+            <AboutUs/>
         </main>
         </>
     );
