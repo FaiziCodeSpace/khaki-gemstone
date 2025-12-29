@@ -1,6 +1,7 @@
 import { Categories } from "../../components/public/Categories";
 import { ContentBlock } from "../../components/public/ContentBlock";
 import { HeroPortion } from "../../components/public/heroPortion";
+import { Showcase } from "../../components/public/Showcase";
 
 export function LandingPage() {
     return (
@@ -9,6 +10,7 @@ export function LandingPage() {
             <HeroPortion />
             <ContentBlock/>
             <Categories/>
+            <Showcase/>
         </main>
         </>
     );

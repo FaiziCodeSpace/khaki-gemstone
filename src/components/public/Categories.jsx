@@ -12,7 +12,7 @@ export function Categories() {
         /* Added 'relative' so the absolute image positions against this div.
            Added 'overflow-x-clip' to allow the 2075px image to bleed out without scrollbars.
         */
-        <div className="relative flex flex-col justify-center text-center items-center mt-20 w-full overflow-x-clip">
+        <section className="relative flex flex-col justify-center text-center items-center mt-20 md:mt-60 w-full overflow-x-clip">
             
             {/* BACKGROUND IMAGE 
                 1. 'max-w-none' prevents Tailwind from capping it at 100%.
@@ -93,6 +93,6 @@ export function Categories() {
                     }
                 }
             `}</style>
-        </div>
+        </section>
     );
 }
