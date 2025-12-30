@@ -3,6 +3,7 @@ import { Categories } from "../../components/public/Categories";
 import { ContentBlock } from "../../components/public/ContentBlock";
 import { Events } from "../../components/public/events";
 import { HeroPortion } from "../../components/public/heroPortion";
+import { LimitedEdition } from "../../components/public/limitedEdition";
 import { Showcase } from "../../components/public/Showcase";
 
 export function LandingPage() {
@@ -15,6 +16,7 @@ export function LandingPage() {
             <Showcase/>
             <AboutUs/>
             <Events/>
+            <LimitedEdition/>
         </main>
         </>
     );
