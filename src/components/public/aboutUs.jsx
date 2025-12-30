@@ -29,21 +29,30 @@ export function AboutUs() {
                     </h1>
 
                     {/* RESTORED: Paragraph exactly as provided */}
-                  <div>
-                      <p className="text-[12px] text-[#7E8492] text-justify text-normal tracking-[0.8px] lg:text-[clamp(12px,1.2vw,16px)] lg:w-[40vw]">
-                        Khaki Gem Stone is built on one simple belief — real stones carry real value.We specialize in sourcing and delivering 100% natural gemstones, carefully selected for their authenticity, quality, and natural beauty.Each gemstone in our collection is ethically sourced from trusted origins and handpicked by experts to ensure clarity, color, and character. From raw and rough stones to finely cut gems and collector specimens, every piece tells a story shaped by nature itself.
-                    </p>
-                    <button className="mt-7 text-[12px] font-bold text-[#282930] text-nowrap py-2 flex justify-left items-center gap-2
-                lg:w-[250px] lg:h-[54px] lg:gap-2.5 lg:text-[18px] font-['Satoshi'] transition-all
-                ">
-                    Learn more <img className="w-4 h-4 lg:w-6 lg:h-6 invert-0 hover:invert" src="./Icons/arrow.svg" alt="Arrow" />
-                </button>
-                  </div>
+                    <div>
+                        <p className="text-[12px] text-[#7E8492] text-justify text-normal tracking-[0.8px] lg:text-[clamp(12px,1.2vw,16px)] lg:w-[40vw]">
+                            Khaki Gem Stone is built on one simple belief — real stones carry real value.We specialize in sourcing and delivering 100% natural gemstones, carefully selected for their authenticity, quality, and natural beauty.Each gemstone in our collection is ethically sourced from trusted origins and handpicked by experts to ensure clarity, color, and character. From raw and rough stones to finely cut gems and collector specimens, every piece tells a story shaped by nature itself.
+                        </p>
+                        <a href="https://yourlink.com" className="group inline-block">
+                            <button className="mt-7 text-[12px] font-bold text-[#282930] text-nowrap flex justify-left items-center gap-2
+                                lg:gap-2.5 lg:text-[18px] font-['Satoshi'] transition-all cursor-pointer hover:underline">
+
+                                Learn more
+
+                                <img
+                                    className="w-4 h-4 lg:w-5 lg:h-6 invert-0 transition-transform duration-300 ease-in-out group-hover:translate-x-1"
+                                    src="./Icons/arrow.svg"
+                                    alt="Arrow"
+                                />
+
+                            </button>
+                        </a>
+                    </div>
 
                     {/* Layer 1.5: The Image (Between ABOUT U and S) */}
-                   <div className="md:flex md:gap-2">
-                     <img
-                        className="
+                    <div className="md:flex md:gap-2">
+                        <img
+                            className="
                             mt-10 lg:mt-0 w-full h-[252px] md:h-[300px]
                             object-cover
                             lg:absolute
@@ -68,13 +77,13 @@ export function AboutUs() {
                             /* Mid-level z-index */
                             lg:z-20 
                         "
-                        src="./Images/hero-Picture.png"
-                        alt="About-Us"
-                    />
+                            src="./Images/hero-Picture.png"
+                            alt="About-Us"
+                        />
 
-                    {/* Background Image remains at z-0 */}
-                    <img
-                        className="
+                        {/* Background Image remains at z-0 */}
+                        <img
+                            className="
                             w-full h-[252px] md:h-[300px]    
                             mt-10 lg:mt-0
                             hidden md:block lg:absolute lg:z-0 object-cover
@@ -96,10 +105,10 @@ export function AboutUs() {
                             lgx:top-28 
                             lgxx:top-26 
                         "
-                        src="./Images/Showcase4.png"
-                        alt="Background Decor"
-                    />
-                   </div>
+                            src="./Images/Showcase4.png"
+                            alt="Background Decor"
+                        />
+                    </div>
                 </div>
             </section>
         </>
