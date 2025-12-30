@@ -1,6 +1,7 @@
 import { AboutUs } from "../../components/public/aboutUs";
 import { Categories } from "../../components/public/Categories";
 import { ContentBlock } from "../../components/public/ContentBlock";
+import { Events } from "../../components/public/events";
 import { HeroPortion } from "../../components/public/heroPortion";
 import { Showcase } from "../../components/public/Showcase";
 
@@ -13,6 +14,7 @@ export function LandingPage() {
             <Categories/>
             <Showcase/>
             <AboutUs/>
+            <Events/>
         </main>
         </>
     );
