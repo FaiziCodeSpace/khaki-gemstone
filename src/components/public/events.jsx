@@ -1,6 +1,6 @@
 export function Events() {
     return (
-        <section className="flex flex-col md:flex-row items-stretch mt-14 mx-6 rounded-3xl overflow-hidden border-[5px] border-white h-[clamp(413px,45.73vw+241.5px,860px)] mt-12 md:mt-20 lg:mt-33">
+        <section className="flex flex-col md:flex-row items-stretch mt-40 lg:mt-60 mx-6 rounded-3xl overflow-hidden border-[5px] border-white h-[clamp(413px,45.73vw+241.5px,860px)]">
 
             {/* Content Section: Scalable branding and messaging */}
             <div className="flex flex-col justify-center items-center bg-[#FFCFE7] py-6 px-6 flex-1 h-1/2 md:h-auto">
