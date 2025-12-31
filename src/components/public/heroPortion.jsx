@@ -3,10 +3,7 @@ import { Navbar } from "../layout/navbar";
 export function HeroPortion() {
     return (
         <>
-            <section className="bg-[#CA0A7F] pb-10 overflow-hidden relative">
-                {/* Navbar */}
-                <Navbar />
-
+            <section className="bg-[#CA0A7F] pt-[100px] pb-10 overflow-hidden relative">
                 {/* Hero Content */}
                 {/* Added clamp to margin-top: Scales from 32px (mt-8) to 100px */}
                 <div className="px-6 flex flex-col items-center text-white relative z-10 mt-[clamp(32px,10vw,100px)]">
@@ -54,7 +51,7 @@ export function HeroPortion() {
                 </div>
 
                 {/* Scroll / Rating / Button Section */}
-                <div className="relative mt-10 lg:mt-20 z-10 px-6 sm:flex sm:items-center sm:justify-between gap-6">
+                <div className="relative mt-10 lg:mt-20 z-10 px-7 md:px-16 sm:flex sm:items-center sm:justify-between gap-6">
                     {/* Scroll Now */}
                     <div className="hidden sm:flex items-center gap-4 text-white">
                         <img src="./Icons/scroll.svg" alt="scroll-icon" />
