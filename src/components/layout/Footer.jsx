@@ -5,7 +5,7 @@ export function Footer() {
         <footer className="bg-white px-6 py-12 md:px-20 md:py-16 text-[#1D212C]">
             <div className="max-w-7xl mx-auto">
                 {/* Top Section: Logo & Newsletter */}
-                <div className="flex flex-col md:flex-row justify-between items-start gap-10 mb-16">
+                <div className="flex flex-col lg:flex-row justify-between items-start gap-10 mb-16">
                     <div className="max-w-sm">
                         <img 
                             className="w-24 h-auto mb-6 object-contain" 
@@ -20,13 +20,13 @@ export function Footer() {
 
                     <div className="flex flex-col gap-4">
                         <h2 className="font-bold text-xl">Newsletter</h2>
-                        <div className="flex items-center justify-between w-full md:w-[473px] p-1.5 pl-6 bg-[#F5F5F5] rounded-full">
+                        <div className="flex items-center justify-between w-[292px] md:w-[473px] p-1.5 pl-6 bg-[#F5F5F5] rounded-full">
                             <input
                                 type="email"
                                 placeholder="Enter your email"
-                                className="bg-transparent outline-none grow text-sm text-gray-700 placeholder:text-[#747986]"
+                                className="bg-transparent outline-none grow text-[12px] md:text-sm text-gray-700 placeholder:text-[#747986]"
                             />
-                            <button className="bg-[#C8107E] text-white px-8 py-3 rounded-full font-medium hover:bg-[#b00e6e] transition-colors text-sm">
+                            <button className="bg-[#C8107E] text-white px-3 py-2.5 md:px-8 md:py-3 rounded-full font-medium hover:bg-[#b00e6e] transition-colors text-[12px] md:text-sm">
                                 Subscribe
                             </button>
                         </div>
@@ -34,11 +34,11 @@ export function Footer() {
                 </div>
 
                 {/* Middle Section: Contact & Links */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
                     {/* Brand/Contact */}
-                    <div className="md:col-span-1">
-                        <h3 className="text-2xl font-bold mb-4">ABCD anywhere on earth</h3>
-                        <p className="text-2xl font-bold text-[#1D212C]">(+1) 234-567-890</p>
+                    <div className="md:col-span-2 font-medium">
+                        <h3 className="md:text-xl lg:text-2xl mb-4">ABCD anywhere on earth</h3>
+                        <p className="md:text-xl lg:text-2xl text-[#1D212C]">(+1) 234-567-890</p>
                     </div>
 
                     {/* Useful Links */}
@@ -64,7 +64,7 @@ export function Footer() {
                     </div>
 
                     {/* Information */}
-                    <div className="flex flex-col gap-4 border-r border-gray-100 md:pl-8">
+                    <div className="flex flex-col gap-4 border-gray-100 md:pl-8">
                         <h4 className="font-bold text-xs uppercase tracking-wider text-gray-900">Information</h4>
                         <ul className="text-[#747986] space-y-3 text-sm font-medium">
                             <li className="hover:text-[#C8107E] cursor-pointer">Privacy Policy</li>

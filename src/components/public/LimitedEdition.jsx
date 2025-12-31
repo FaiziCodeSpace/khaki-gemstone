@@ -10,7 +10,7 @@ const LIMITED_EDITION_DATA = [
 
 export function LimitedEdition() {
     return (
-        <section className="flex flex-col justify-center items-center mt-25 md:mt-60 w-full overflow-hidden" aria-labelledby="limited-edition-title">
+        <section className="flex flex-col justify-center items-center mt-40 lg:mt-60 w-full overflow-hidden" aria-labelledby="limited-edition-title">
             
             {/* HEADER SECTION */}
             <header className="flex flex-col px-6 lg:px-10 items-start md:flex-row md:items-center w-full max-w-[1440px] justify-between">
