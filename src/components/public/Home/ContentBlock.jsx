@@ -1,6 +1,6 @@
 export function ContentBlock() {
     return (
-        <section className="flex flex-col md:flex-row mt-12 md:mt-25 lg:mt-35 px-7 md:justify-between w-full gap-10 lg:gap-22">
+        <section className="flex flex-col md:flex-row mt-12 md:mt-25 lg:mt-35 px-7 md:px-20 md:justify-between w-full gap-10 lg:gap-22">
             {/* Left Image */}
             <img
                 className="hidden md:block h-[clamp(300px,45vw,561px)] w-[clamp(195px,35vw,366px)] object-contain"
