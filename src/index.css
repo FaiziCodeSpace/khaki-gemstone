@@ -7,3 +7,13 @@
   /* 1440px / 16 = 90rem */
   --breakpoint-lgxx: 90rem;
 }
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}

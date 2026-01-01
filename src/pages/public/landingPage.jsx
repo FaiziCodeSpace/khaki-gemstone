@@ -1,19 +1,17 @@
 import { Footer } from "../../components/layout/Footer";
-import { Navbar } from "../../components/layout/navbar";
-import { AboutUs } from "../../components/public/aboutUs";
-import { Categories } from "../../components/public/Categories";
-import { ContentBlock } from "../../components/public/ContentBlock";
-import { Events } from "../../components/public/events";
-import { FAQ } from "../../components/public/Faqs";
-import { HeroPortion } from "../../components/public/heroPortion";
-import { LimitedEdition } from "../../components/public/limitedEdition";
-import { Showcase } from "../../components/public/Showcase";
+import { AboutUs } from "../../components/public/Home/AboutUs";
+import { Categories } from "../../components/public/Home/Categories";
+import { ContentBlock } from "../../components/public/Home/ContentBlock";
+import { Events } from "../../components/public/Home/Events";
+import { FAQ } from "../../components/public/Home/FAQs";
+import { HeroPortion } from "../../components/public/Home/HeroPortion";
+import { LimitedEdition } from "../../components/public/Home/LimitedEdition";
+import { Showcase } from "../../components/public/Home/Showcase";
 
 export function LandingPage() {
     return (
         <>
-        <main className="font-[Poppins] bg-[#F5F5F5]">
-            <Navbar />
+        <main>
             <HeroPortion />
             <ContentBlock/>
             <Categories/>

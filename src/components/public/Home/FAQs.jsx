@@ -27,7 +27,7 @@ export function FAQ() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="max-w-[1200px] mt-20 md:mt-40 mx-auto px-6 py-20 flex flex-col items-center">
+    <section className="max-w-[1200px] mt-20 md:mt-40 mb-20 md:mb-40 mx-auto px-6 py-20 flex flex-col items-center">
       
       {/* Header Section */}
       <header className="text-center mb-12">

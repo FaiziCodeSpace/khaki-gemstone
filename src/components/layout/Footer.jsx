@@ -76,7 +76,7 @@ export function Footer() {
                 {/* Bottom Section: Copyright & Socials */}
                 <div className="pt-8 border-t border-gray-100 flex flex-col md:row md:flex-row justify-between items-center gap-6">
                     <p className="text-[#747986] text-sm">
-                        All Rights Reserved - Khaki Gemstone
+                        &copy; All Rights Reserved - Khaki Gemstone
                     </p>
                     <div className="flex gap-4">
                         <SocialIcon Icon={Instagram} />
