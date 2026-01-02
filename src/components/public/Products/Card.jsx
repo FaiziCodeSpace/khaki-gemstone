@@ -5,6 +5,10 @@ const CardData = [
     { id: 2, name: "Aquamarine Beryl", description: "This is a description of Aquamarine Beryl", price: "$150.00" },
     { id: 3, name: "Morganite Beryl", description: "This is a description of Morganite Beryl", price: "$200.00" },
     { id: 4, name: "Goshenite Beryl", description: "This is a description of Goshenite Beryl", price: "$120.00" },
+    { id: 5, name: "Red Beryl", description: "This is a description of Red Beryl", price: "$300.00" },
+    { id: 6, name: "Emerald Beryl", description: "This is a description of Emerald Beryl", price: "$250.00" },
+    { id: 7, name: "Yellow Beryl", description: "This is a description of Yellow Beryl", price: "$170.00" },
+    { id: 8, name: "Green Beryl", description: "This is a description of Green Beryl", price: "$160.00" },
 ];
 
 export function Card() {
@@ -22,7 +26,7 @@ export function Card() {
     return (
         <>
             {/* Layout Container */}
-            <section className="flex flex-col mid:flex-row mid:flex-wrap gap-6 justify-center px-6 mid:px-12 py-12">
+            <section className="flex flex-col mid:flex-row mid:flex-wrap gap-6 items-start justify-center px-6 mid:px-12 pb-12 flex-5">
                 {CardData.map((item) => (
                     <div
                         key={item.id}
