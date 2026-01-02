@@ -20,7 +20,7 @@ export function Filter() {
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
   return (
-    <section className='my-10 lg:px-20' aria-label="Gemstone Filters">
+    <section className='my-10' aria-label="Gemstone Filters">
       {/* 1. SEO: Screen reader only H1 if this is the main section, or semantic H2 */}
       <div className="flex w-full px-6 md:px-10 items-center justify-center md:justify-between">
         <h2 className="hidden md:block text-2xl font-medium text-gray-800">
