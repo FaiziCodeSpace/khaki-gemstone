@@ -2,6 +2,7 @@
 
 @theme {
   --breakpoint-mid: 38.75rem; 
+  /* --breakpoint-mid: 55.625rem;   */
   --breakpoint-lgx: 82.5rem; 
   --breakpoint-lgxx: 90rem;
 }
@@ -11,7 +12,7 @@
     display: none;
   }
   .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; 
+    scrollbar-width: none;
   }
 }
