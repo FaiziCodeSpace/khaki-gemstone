@@ -1,6 +1,6 @@
 export function Navbar() {
   return (
-    <nav className="absolute top-0 left-0 w-full z-20">
+    <nav className="absolute bg-gray-300 top-0 left-0 w-full z-20">
       <div className="pt-5.5 px-[50px] flex justify-between items-center">
         {/* Logo */}
         <a href="/" className="inline-block">

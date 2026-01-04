@@ -16,3 +16,19 @@
     scrollbar-width: none;
   }
 }
+
+@layer components {
+  .list-heading {
+    /* Use text-base on mobile, text-[18px] on larger screens */
+    @apply text-base md:text-[18px] font-semibold text-gray-900 mb-2 uppercase tracking-wide;
+  }
+
+  .list-styling {
+    /* Clamped list: list-inside for mobile to save space, outside for desktop */
+    @apply text-sm md:text-[18px] text-[#111111B2] list-disc list-inside md:list-outside md:ml-5 space-y-1;
+  }
+  
+  .tab-button {
+    @apply text-sm md:text-[18px] font-normal transition-all capitalize cursor-pointer whitespace-nowrap;
+  }
+}
