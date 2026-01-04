@@ -82,7 +82,7 @@ export function Card() {
                                     </h3>
                                 </div>
 
-                                <button className="active:scale-95 bg-[#2D2636] hover:bg-black px-4 mid:px-6 py-2 mid:py-2.5 text-xs mid:text-sm font-medium text-white rounded-full shadow-lg transition-all duration-300">
+                                <button className="active:scale-95 bg-[#2D2636] hover:bg-black px-4 mid:px-6 py-2 mid:py-2.5 text-xs mid:text-sm font-medium text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer">
                                     Buy Now
                                 </button>
                             </div>

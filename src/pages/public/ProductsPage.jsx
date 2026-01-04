@@ -6,14 +6,15 @@ import { ProductsHeroPortion } from '../../components/public/Products/HeroPortio
 
 export function ProductsPage() {
     return (<>
-        <ProductsHeroPortion />
-        <Filter />
-        <div className='flex'>
-            <Categories />
-            <Card />
-        </div>
-        <Footer />
-
+        <main className='font-[Satoshi]'>
+            <ProductsHeroPortion />
+            <Filter />
+            <div className='flex'>
+                <Categories />
+                <Card />
+            </div>
+            <Footer />
+        </main>
     </>
     )
 }

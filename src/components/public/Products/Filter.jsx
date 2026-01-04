@@ -41,12 +41,6 @@ export function Filter() {
             placeholder="Search Gemstone..."
             className="w-full pl-10 pr-10 py-2 bg-white border border-transparent rounded-full focus:bg-white focus:border-[#CA0A7F] focus:outline-none transition-all"
           />
-          {/* Mobile Filter Icon */}
-          <div className="block md:hidden absolute right-4 top-3 text-gray-400">
-            <button aria-label="Open filters">
-               <SocialIcon Icon={SlidersHorizontal} />
-            </button>
-          </div>
         </div>
       </div>
 
