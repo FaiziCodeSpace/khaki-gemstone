@@ -1,7 +1,7 @@
 import './App.css'
 import { Navbar } from './components/layout/navbar'
 import { LandingPage } from './pages/public/landingPage'
-import { ProductDetail } from './pages/public/ProductDetail'
+import { ProductDetailPage } from './pages/public/ProductDetail'
 import { ProductsPage } from './pages/public/ProductsPage'
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
      <Navbar/>
      {/* <LandingPage/> */}
      {/* <ProductsPage/> */}
-     <ProductDetail/>
+     <ProductDetailPage/>
     </main>
   )
 }
