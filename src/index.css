@@ -7,6 +7,12 @@
   --breakpoint-lgxx: 90rem;
 }
 
+@layer base {
+  button {
+    @apply cursor-pointer;
+  }
+}
+
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;

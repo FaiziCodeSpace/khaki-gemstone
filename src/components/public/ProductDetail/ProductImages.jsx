@@ -21,7 +21,7 @@ export function ProductImages() {
     };
 
     return (
-        <section className="flex flex-col gap-5 w-[600px]">
+        <section className="flex flex-col gap-5 w-full lg:w-[600px]">
             {/* Main Display Image with Amazon-style Zoom */}
             <div 
                 className="relative overflow-hidden border border-gray-200 rounded-lg cursor-zoom-in group"
