@@ -1,5 +1,6 @@
 import './App.css'
 import { Navbar } from './components/layout/navbar'
+import { CartPage } from './pages/public/CartPage'
 import { LandingPage } from './pages/public/landingPage'
 import { ProductDetailPage } from './pages/public/ProductDetail'
 import { ProductsPage } from './pages/public/ProductsPage'
@@ -11,7 +12,8 @@ function App() {
      <Navbar/>
      {/* <LandingPage/> */}
      {/* <ProductsPage/> */}
-     <ProductDetailPage/>
+     {/* <ProductDetailPage/> */}
+     <CartPage/>
     </main>
   )
 }
