@@ -70,7 +70,7 @@ const LoginUser = () => {
               <input
                 type="password"
                 name="password"
-                placeholder="••••••••••"
+                placeholder="Your Password"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
                 onChange={handleChange}
                 required
