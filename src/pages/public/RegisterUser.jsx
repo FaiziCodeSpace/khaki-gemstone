@@ -20,7 +20,7 @@ const RegisterUser = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-white overflow-hidden">
+    <div className="flex h-screen w-full overflow-hidden">
       
       {/* Left Side: Image Section (Hidden on mobile, visible on medium+ screens) */}
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-gray-100">
@@ -37,7 +37,7 @@ const RegisterUser = () => {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-black text-left">
+            <h2 className="text-3xl font-bold text-black text-left mt-40 md:mt-15 ">
               Create Account
             </h2>
             <p className="text-gray-500 mt-2">Please fill in your details to get started.</p>
@@ -48,21 +48,21 @@ const RegisterUser = () => {
             {/* Name & Full Name */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-black mb-1">Username</label>
+                <label className="block text-sm font-medium text-black mb-1">First Name</label>
                 <input
                   type="text"
-                  name="name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
+                  name="firstName"
+                  className="w-full px-4 py-2 border bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
                   onChange={handleChange}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-black mb-1">Full Name</label>
+                <label className="block text-sm font-medium text-black mb-1">Last Name</label>
                 <input
                   type="text"
-                  name="fullName"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
+                  name="lastName"
+                  className="w-full px-4 py-2 border bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
                   onChange={handleChange}
                   required
                 />
@@ -75,7 +75,7 @@ const RegisterUser = () => {
               <input
                 type="email"
                 name="email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
                 onChange={handleChange}
                 required
               />
@@ -87,7 +87,7 @@ const RegisterUser = () => {
               <textarea
                 name="address"
                 rows="2"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
                 onChange={handleChange}
                 required
               />
@@ -100,7 +100,7 @@ const RegisterUser = () => {
                 <input
                   type="password"
                   name="password"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
                   onChange={handleChange}
                   required
                 />
@@ -110,7 +110,7 @@ const RegisterUser = () => {
                 <input
                   type="password"
                   name="confirmPassword"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] focus:border-transparent outline-none transition"
                   onChange={handleChange}
                   required
                 />
