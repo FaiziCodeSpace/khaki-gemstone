@@ -7,10 +7,6 @@ import { ProductsHeroPortion } from '../../components/public/Products/HeroPortio
 import { fetchAllProducts } from '../../services/productsService';
 
 export function ProductsPage() {
-    useEffect(()=>{
-        getAllProducts
-        console.log();
-    },[])
     return (<>
         <main className='font-[Satoshi]'>
             <ProductsHeroPortion />

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { fetchAllProducts } from "../../../services/productsService";
+import { useNavigate } from "react-router-dom";
+import { MoveRight } from 'lucide-react';
 
 export function Showcase() {
     const [products, setProducts] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function getProducts() {
@@ -17,24 +20,26 @@ export function Showcase() {
         }
         getProducts();
     }, []);
+
+    const handleCardClick = (id) => {
+        navigate(`/product/${id}`)
+    }
     return (
         <section className="flex flex-col justify-center items-center mt-25 md:mt-60 w-full overflow-hidden">
             {/* Header Section */}
             <div className="flex flex-col px-6 lg:px-10 items-start lg:flex-row lg:items-end w-full max-w-[1440px] justify-between">
-                <h1 className="text-[clamp(32px,6vw,72px)] tracking-tight leading-none font-regular max-w-[800px]">
+                <h1 className="text-[clamp(32px,6vw,72px)] tracking-tight leading-none font-regular max-w-[800px] z-50">
                     OUR PREMIUM COLLECTION OF NATURAL GEMSTONES
                 </h1>
-                <button className="mt-7 text-[12px] font-bold text-[#282930] text-nowrap border-[1px] px-5.5 py-2 flex justify-center items-center gap-2 rounded-[40px]
-                lg:w-[250px] lg:h-[54px] lg:gap-2.5 lg:text-[18px] font-['Satoshi'] hover:bg-[#282930] hover:text-white transition-all
-                ">
-                    View All <img className="w-4 h-4 lg:w-6 lg:h-6 invert-0 hover:invert" src="./Icons/arrow.svg" alt="Arrow" />
+                  <button 
+                         onClick={() => navigate(`/shop`)}
+                    className="mt-7 z-50 text-[12px] font-bold text-[#282930] text-nowrap border-[1px] px-5.5 py-2 flex justify-center items-center gap-2 rounded-[40px] lg:w-[250px] lg:h-[54px] lg:gap-2.5 lg:text-[18px] font-['Satoshi'] hover:bg-[#282930] hover:text-white transition-all group"
+                    aria-label="View all limited edition products"
+                >
+                    View All<MoveRight />
                 </button>
             </div>
 
-            {/* SLIDER / GRID CONTAINER
-                - Mobile: flex-nowrap + overflow-x-auto (Slider)
-                - md (768px+): grid-cols-2 or 3 + flex-wrap (Grid)
-            */}
             <div className="w-full mt-10 flex flex-nowrap overflow-x-auto snap-x snap-mandatory px-6 gap-6 pb-10
                             md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible md:px-10 lg:px-10 md:max-w-[1440px]
                             scrollbar-hide">
@@ -42,11 +47,12 @@ export function Showcase() {
                 {products.map((product) => (
                     <div
                         key={product._id}
+                        onClick={() => handleCardClick(product._id)}
                         className="relative group overflow-hidden rounded-[32px] border-white border-[5px] shadow-sm
                                    /* Mobile scaling */
                                    w-[85vw] aspect-square max-w-[400px] shrink-0 snap-center
                                    /* Desktop reset */
-                                   md:w-full md:max-w-none md:shrink-1"
+                                   md:w-full md:max-w-none md:shrink-1 cursor-pointer"
                     >
                         {/* Base Image */}
                         <img

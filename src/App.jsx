@@ -6,14 +6,16 @@ import LoginUser from './pages/public/Login';
 import { ProductDetailPage } from './pages/public/ProductDetail';
 import { ProductsPage } from './pages/public/ProductsPage';
 import RegisterUser from './pages/public/RegisterUser';
-import { Navbar } from "./components/layout/Navbar";
+import { Navbar } from "./components/layout/navbar";
+import ScrollToTop from "./services/ScrollToTop";
+
 
 function App() {
   return (
     <Router>
       <main className="font-[Poppins] bg-[#F5F5F5] min-h-screen">
         <Navbar />
-        
+        <ScrollToTop/>
         {/* The Routes determine which component to show based on the URL */}
         <Routes>
           <Route path="/" element={<LandingPage />} />

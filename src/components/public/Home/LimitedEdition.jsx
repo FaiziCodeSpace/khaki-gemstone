@@ -1,20 +1,29 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import { fetchAllProducts } from "../../../services/productsService";
+import { MoveRight } from "lucide-react";
 
 export function LimitedEdition() {
     const [limitedProduct, setLimitedProduct] = useState([]);
-    useEffect(()=>{
-        const getLimitedProduct = async () =>{
-            try{
+    const navigate = useNavigate(); 
+
+    useEffect(() => {
+        const getLimitedProduct = async () => {
+            try {
                 const data = await fetchAllProducts(true, 6);
-                return setLimitedProduct(data);
-            }catch(err){
-                console.error("Limited Products Error:", err.msg);
+                setLimitedProduct(data);
+            } catch (err) {
+                console.error("Limited Products Error:", err);
             }
-        }
+        };
         getLimitedProduct();
-    },[])
-    
+    }, []);
+
+    // 3. Define the navigation handler
+    const handleCardClick = (id) => {
+        navigate(`/product/${id}`);
+    };
+
     return (
         <section className="flex flex-col justify-center items-center mt-40 lg:mt-60 w-full overflow-hidden" aria-labelledby="limited-edition-title">
             
@@ -24,11 +33,10 @@ export function LimitedEdition() {
                     Our Limited Edition
                 </h2>
                 <button 
+                         onClick={() => navigate(`/shop`)}
                     className="mt-7 md:mt-0 text-[12px] font-bold text-[#282930] text-nowrap border-[1px] px-5.5 py-2 flex justify-center items-center gap-2 rounded-[40px] lg:w-[250px] lg:h-[54px] lg:gap-2.5 lg:text-[18px] font-['Satoshi'] hover:bg-[#282930] hover:text-white transition-all group"
-                    aria-label="View all limited edition products"
-                >
-                    View All 
-                    <img className="w-4 h-4 lg:w-6 lg:h-6 transition-all group-hover:invert" src="./Icons/arrow.svg" alt="" aria-hidden="true" />
+                    aria-label="View all limited edition products">
+                    View All<MoveRight />
                 </button>
             </header>
 
@@ -41,7 +49,8 @@ export function LimitedEdition() {
                     <article 
                         key={product._id} 
                         role="listitem"
-                        className="relative group overflow-hidden rounded-[32px] border-white border-[5px] shadow-sm w-[85vw] aspect-square max-w-[400px] shrink-0 snap-center md:w-full md:max-w-none md:shrink-1"
+                        onClick={() => handleCardClick(product._id)}
+                        className="relative group overflow-hidden rounded-[32px] border-white border-[5px] shadow-sm w-[85vw] aspect-square max-w-[400px] shrink-0 snap-center md:w-full md:max-w-none md:shrink-1 cursor-pointer"
                     >
                         <img
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
