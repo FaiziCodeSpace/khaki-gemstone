@@ -1,14 +1,20 @@
-
-const LIMITED_EDITION_DATA = [
-    { id: 1, img: "./Images/Showcase1.png", alt: "Pair of Red Garnet gemstones", name: "Red Garnet Pair", price: "$250" },
-    { id: 2, img: "./Images/Showcase2.png", alt: "Polished Blue Sapphire crystal", name: "Blue Sapphire", price: "$300" },
-    { id: 3, img: "./Images/Showcase3.png", alt: "Deep green Emerald gemstone", name: "Emerald", price: "$280" },
-    { id: 4, img: "./Images/Showcase4.png", alt: "Purple Amethyst quartz", name: "Amethyst", price: "$150" },
-    { id: 5, img: "./Images/Showcase5.png", alt: "Brilliant red Ruby stone", name: "Ruby", price: "$400" },
-    { id: 6, img: "./Images/Showcase6.png", alt: "Golden Topaz gem", name: "Topaz", price: "$220" },
-];
+import { useEffect, useState } from "react";
+import { fetchAllProducts } from "../../../services/productsService";
 
 export function LimitedEdition() {
+    const [limitedProduct, setLimitedProduct] = useState([]);
+    useEffect(()=>{
+        const getLimitedProduct = async () =>{
+            try{
+                const data = await fetchAllProducts(true, 6);
+                return setLimitedProduct(data);
+            }catch(err){
+                console.error("Limited Products Error:", err.msg);
+            }
+        }
+        getLimitedProduct();
+    },[])
+    
     return (
         <section className="flex flex-col justify-center items-center mt-40 lg:mt-60 w-full overflow-hidden" aria-labelledby="limited-edition-title">
             
@@ -31,16 +37,16 @@ export function LimitedEdition() {
                 role="list"
                 className="w-full mt-10 flex flex-nowrap overflow-x-auto snap-x snap-mandatory px-6 gap-6 pb-10 md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible md:px-10 lg:px-10 md:max-w-[1440px] scrollbar-hide"
             >
-                {LIMITED_EDITION_DATA.map((product) => (
+                {limitedProduct.map((product) => (
                     <article 
-                        key={product.id} 
+                        key={product._id} 
                         role="listitem"
                         className="relative group overflow-hidden rounded-[32px] border-white border-[5px] shadow-sm w-[85vw] aspect-square max-w-[400px] shrink-0 snap-center md:w-full md:max-w-none md:shrink-1"
                     >
                         <img
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            src={product.img}
-                            alt={product.alt}
+                            src={product.primary_imgSrc}
+                            alt="Thumbnail Img"
                             loading="lazy"
                         />
 
@@ -50,7 +56,7 @@ export function LimitedEdition() {
                                     {product.name}
                                 </h3>
                                 <p className="font-satoshi font-medium text-[12px] text-[#282930]/60 uppercase mt-0.5">
-                                    <span className="sr-only">Price: </span> From: {product.price}
+                                    <span className="sr-only">Price: </span> From: Rs {product.price} 
                                 </p>
                             </div>
 
@@ -60,7 +66,7 @@ export function LimitedEdition() {
                                     className="cursor-pointer p-1 hover:scale-110 transition-transform"
                                     aria-label={`Add ${product.name} to cart`}
                                 >
-                                    <img className="w-6 h-6" src="./Icons/cart-2.svg" alt="" aria-hidden="true" />
+                                    <img className="w-6 h-6" src="./Icons/cart-2.svg" alt="Cart-icon" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
