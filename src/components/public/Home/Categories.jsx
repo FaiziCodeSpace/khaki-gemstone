@@ -12,14 +12,14 @@ export function Categories() {
         /* Added 'relative' so the absolute image positions against this div.
            Added 'overflow-x-clip' to allow the 2075px image to bleed out without scrollbars.
         */
-        <section className="relative flex flex-col justify-center text-center items-center mt-40 lg:mt-50 w-full overflow-x-clip">
+        <section className="relative flex flex-col justify-center text-center items-center mt-40 lg:mt-50 w-full overflow-x-clip z-0">
             
             {/* BACKGROUND IMAGE 
                 1. 'max-w-none' prevents Tailwind from capping it at 100%.
                 2. 'left-1/2 -translate-x-1/2' centers the giant image perfectly.
             */}
             <img 
-                className='w-[3075px] hidden max-w-none absolute top-90 left-1/2 -translate-x-1/2 half-circle z-0' 
+                className='w-[3075px] hidden max-w-none absolute top-90 left-1/2 -translate-x-1/2 half-circle -z-10' 
                 src="./Icons/half-circle.svg" 
                 alt="Half-Circle" 
             />
