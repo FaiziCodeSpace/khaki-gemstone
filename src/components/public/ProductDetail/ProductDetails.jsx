@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { ArrowRight, Share2, Heart, Loader2, ShoppingCart } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowRight, Share2, Heart, Loader2, ShoppingCart, Check } from 'lucide-react';
 import { fetchProduct } from '../../../services/productsService';
+import { addToCart, fetchCart } from '../../../services/cartService';
+import { getGuestCart, addToGuestCart } from '../../../utils/guestCart';
 
 export function ProductDetails() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('description');
     const [isFavorite, setIsFavorite] = useState(false);
+    const [isInCart, setIsInCart] = useState(false);
 
     useEffect(() => {
         const getProductData = async () => {
@@ -16,6 +20,20 @@ export function ProductDetails() {
                 setLoading(true);
                 const data = await fetchProduct(id);
                 setProduct(data);
+
+                // Check if this product is already in the cart
+                const token = localStorage.getItem("token");
+                let currentCartIds = [];
+
+                if (!token) {
+                    currentCartIds = getGuestCart().map(item => item._id);
+                } else {
+                    const dbItems = await fetchCart();
+                    const items = Array.isArray(dbItems) ? dbItems : dbItems.items || [];
+                    currentCartIds = items.map(item => item._id);
+                }
+
+                setIsInCart(currentCartIds.includes(id));
             } catch (err) {
                 console.error("Failed to load product", err);
             } finally {
@@ -24,6 +42,25 @@ export function ProductDetails() {
         };
         getProductData();
     }, [id]);
+
+    const handleAddToCartAction = async () => {
+        if (isInCart) {
+            navigate('/cart');
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        try {
+            if (!token) {
+                addToGuestCart(product);
+            } else {
+                await addToCart(product._id);
+            }
+            setIsInCart(true);
+        } catch (err) {
+            console.error("Add to cart failed", err);
+        }
+    };
 
     if (loading) {
         return (
@@ -101,20 +138,20 @@ export function ProductDetails() {
                             </div>
                         </div>
 
-                          {/* Color Swatches */}
-            <div className="pb-10">
-                <p className="list-heading font-normal mb-2">Colors:</p>
-                <div className="flex gap-3 md:gap-4">
-                    {product.colors?.map((color, index) => (
-                        <div key={index} className="group cursor-pointer flex flex-col items-center gap-2">
-                            <span
-                                style={{ backgroundColor: color }}
-                                className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white ring-1 ring-gray-200 transition-transform group-hover:scale-110"
-                            ></span>
+                        {/* Color Swatches */}
+                        <div className="pb-10">
+                            <p className="list-heading font-normal mb-2">Colors:</p>
+                            <div className="flex gap-3 md:gap-4">
+                                {product.colors?.map((color, index) => (
+                                    <div key={index} className="group cursor-pointer flex flex-col items-center gap-2">
+                                        <span
+                                            style={{ backgroundColor: color }}
+                                            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white ring-1 ring-gray-200 transition-transform group-hover:scale-110"
+                                        ></span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    ))}
-                </div>
-            </div>
                     </div>
                 )}
 
@@ -129,7 +166,6 @@ export function ProductDetails() {
                 )}
             </div>
 
-
             {/* Pricing and Actions Card */}
             <div className='w-full flex flex-col bg-white p-4 md:p-6 rounded-3xl gap-4 md:gap-5.5 border border-gray-100'>
                 <div className='flex flex-col md:flex-row gap-4 md:gap-8 items-start md:items-end'>
@@ -139,15 +175,30 @@ export function ProductDetails() {
                             {product.price?.toLocaleString()} PKR
                         </p>
                     </div>
-                    <button className='flex w-full md:flex-1 h-12 md:h-[64px] justify-center items-center bg-black text-white text-lg md:text-[20px] font-normal px-6 rounded-full transition-all hover:bg-gray-800 active:scale-95'>
+                    <button 
+                        onClick={() => navigate('/checkout', { state: { product } })}
+                        className='flex w-full md:flex-1 h-12 md:h-[64px] justify-center items-center bg-black text-white text-lg md:text-[20px] font-normal px-6 rounded-full transition-all hover:bg-gray-800 active:scale-95'
+                    >
                         Shop Now <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-2.5" />
                     </button>
                 </div>
 
                 <div className='flex gap-2'>
-                <button className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'>
-                        <ShoppingCart className='w-4 h-4 md:w-5 md:h-5' /> <p>Add To Cart</p>
+                    <button 
+                        onClick={handleAddToCartAction}
+                        className={`flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 rounded-full transition-all gap-1.5 ${
+                            isInCart 
+                            ? 'bg-[#CA0A7F] border-[#CA0A7F] text-white' 
+                            : 'bg-[#FAFAFA] border-[#1111111A] hover:bg-gray-100'
+                        }`}
+                    >
+                        {isInCart ? (
+                            <><Check className='w-4 h-4 md:w-5 md:h-5' /> In Cart</>
+                        ) : (
+                            <><ShoppingCart className='w-4 h-4 md:w-5 md:h-5' /> Add To Cart</>
+                        )}
                     </button>
+
                     <button
                         onClick={() => setIsFavorite(!isFavorite)}
                         className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'
@@ -157,7 +208,11 @@ export function ProductDetails() {
                         />
                         <p>Favorites</p>
                     </button>
-                    <button className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'>
+
+                    <button 
+                        onClick={() => navigator.share?.({ title: product.name, url: window.location.href })}
+                        className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'
+                    >
                         <Share2 className='w-4 h-4 md:w-5 md:h-5' /> Share
                     </button>
                 </div>

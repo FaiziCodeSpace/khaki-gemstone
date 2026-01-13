@@ -1,27 +1,25 @@
 import api from "./api";
 
+// ================= ADD TO CART =================
 export const addToCart = async (productId) => {
-  return api.post(
-    "/addCart",
-    { productId },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
+  const { data } = await api.post("/addCart", { productId });
+  return data;
 };
 
+// ================= FETCH CART =================
 export const fetchCart = async () => {
-  const token = localStorage.getItem("token");
+  const { data } = await api.get("/cart");
 
-  if (!token) return null;
+  // normalize backend cart
+  return (data.items || []).map((item) => ({
+    id: item._id,
+    product: item.product,
+    quantity: item.quantity,
+  }));
+};
 
-  const res = await api.get("/cart", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res.data.items || [];
+// =============== DELETE CART ITEM ===============
+export const deleteFromCart = async (productId) => {
+  const { data } = await api.delete(`/deleteCartItem/${productId}`);
+  return data;
 };
