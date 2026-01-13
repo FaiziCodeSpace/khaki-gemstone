@@ -7,8 +7,7 @@ import { ProductDetailPage } from './pages/public/ProductDetail';
 import { ProductsPage } from './pages/public/ProductsPage';
 import RegisterUser from './pages/public/RegisterUser';
 import { Navbar } from "./components/layout/navbar";
-import ScrollToTop from "./services/ScrollToTop";
-
+import ScrollToTop from "./utils/ScrollToTop";
 
 function App() {
   return (

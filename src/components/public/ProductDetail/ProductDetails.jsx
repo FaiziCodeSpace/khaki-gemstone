@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ArrowRight, Share2, Heart, Loader2 } from 'lucide-react';
+import { ArrowRight, Share2, Heart, Loader2, ShoppingCart } from 'lucide-react';
 import { fetchProduct } from '../../../services/productsService';
 
 export function ProductDetails() {
@@ -100,6 +100,21 @@ export function ProductDetails() {
                                 ))}
                             </div>
                         </div>
+
+                          {/* Color Swatches */}
+            <div className="pb-10">
+                <p className="list-heading font-normal mb-2">Colors:</p>
+                <div className="flex gap-3 md:gap-4">
+                    {product.colors?.map((color, index) => (
+                        <div key={index} className="group cursor-pointer flex flex-col items-center gap-2">
+                            <span
+                                style={{ backgroundColor: color }}
+                                className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white ring-1 ring-gray-200 transition-transform group-hover:scale-110"
+                            ></span>
+                        </div>
+                    ))}
+                </div>
+            </div>
                     </div>
                 )}
 
@@ -114,20 +129,6 @@ export function ProductDetails() {
                 )}
             </div>
 
-            {/* Color Swatches */}
-            <div className="pb-10">
-                <p className="list-heading font-normal mb-2">Colors:</p>
-                <div className="flex gap-3 md:gap-4">
-                    {product.colors?.map((color, index) => (
-                        <div key={index} className="group cursor-pointer flex flex-col items-center gap-2">
-                            <span
-                                style={{ backgroundColor: color }}
-                                className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white ring-1 ring-gray-200 transition-transform group-hover:scale-110"
-                            ></span>
-                        </div>
-                    ))}
-                </div>
-            </div>
 
             {/* Pricing and Actions Card */}
             <div className='w-full flex flex-col bg-white p-4 md:p-6 rounded-3xl gap-4 md:gap-5.5 border border-gray-100'>
@@ -143,18 +144,21 @@ export function ProductDetails() {
                     </button>
                 </div>
 
-                <div className='flex gap-3 md:gap-8'>
+                <div className='flex gap-2'>
+                <button className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'>
+                        <ShoppingCart className='w-4 h-4 md:w-5 md:h-5' /> <p>Add To Cart</p>
+                    </button>
                     <button
                         onClick={() => setIsFavorite(!isFavorite)}
-                        className='flex items-center justify-center w-full text-[12px] md:text-[18px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100'
+                        className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'
                     >
                         <Heart
-                            className={`w-5 h-5 md:w-6 md:h-6 mr-2.5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-black'}`}
+                            className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-black'}`}
                         />
-                        Favorites
+                        <p>Favorites</p>
                     </button>
-                    <button className='flex items-center justify-center w-full text-[12px] md:text-[18px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100'>
-                        <Share2 className='w-5 h-5 md:w-6 md:h-6 mr-2.5' /> Share
+                    <button className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'>
+                        <Share2 className='w-4 h-4 md:w-5 md:h-5' /> Share
                     </button>
                 </div>
             </div>

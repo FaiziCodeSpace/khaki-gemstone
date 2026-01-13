@@ -10,7 +10,7 @@ export function PriceDetails({ selectedItems }) {
                 <p className="mb-4 font-medium">{selectedItems.length} Item(s) selected</p>
                 <ul className="flex flex-col gap-3">
                     {selectedItems.map((item) => (
-                        <li key={item.id} className="flex justify-between">
+                        <li key={item._id} className="flex justify-between">
                             <p className="font-normal text-[#737272]">{item.name}</p>
                             <p className="font-medium">{item.price.toLocaleString()} PKR</p>
                         </li>
