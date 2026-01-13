@@ -1,7 +1,16 @@
 import { Truck, X } from "lucide-react";
 
 export function CartItems({ cartItems, selectedIds, onToggle, onRemove }) {
+  // Count how many gems are currently selected
   const cardCount = Object.values(selectedIds).filter(Boolean).length;
+
+  if (cartItems.length === 0) {
+    return (
+      <section className="w-full py-20 text-center">
+        <p className="text-gray-500 text-lg">Your cart is empty.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full">
@@ -20,7 +29,7 @@ export function CartItems({ cartItems, selectedIds, onToggle, onRemove }) {
               : "border border-[#ECEAEB]"}`}
           >
             {/* Image */}
-            <div className="w-[105px] h-[105px] md:w-[126px] overflow-hidden rounded-3xl">
+            <div className="w-[105px] h-[105px] md:w-[126px] overflow-hidden rounded-3xl shrink-0">
               <img
                 src={item.primary_imgSrc}
                 alt={item.name}
@@ -38,19 +47,20 @@ export function CartItems({ cartItems, selectedIds, onToggle, onRemove }) {
                 </p>
               </div>
               <p className="font-medium text-[18px]">
-                {item.price.toLocaleString()} PKR
+                {item.price?.toLocaleString()} PKR
               </p>
             </div>
 
-            {/* Remove */}
+            {/* Remove Button */}
             <button
               onClick={(e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Prevents toggling selection when clicking delete
                 onRemove(item._id);
               }}
-              className="absolute top-4 right-4 z-30"
+              className="absolute top-4 right-4 z-30 p-2 hover:bg-red-50 rounded-full transition-colors group"
+              aria-label="Remove item"
             >
-              <X className="w-4 h-4 text-gray-400 hover:text-red-500" />
+              <X className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
             </button>
           </div>
         ))}
