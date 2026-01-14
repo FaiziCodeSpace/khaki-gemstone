@@ -17,18 +17,27 @@ const DiscountData = [
     { id: 4, DiscountName: '20%' },
 ];
 
-export function Categories() {
-    const [selectedCategories, setSelectedCategories] = useState([]);
-    const [selectedDiscounts, setSelectedDiscounts] = useState([]);
-    const [otherFilters, setOtherFilters] = useState({ liked: false, newArrival: false });
+// We pass in filters and setFilters from the Parent
+export function Categories({ filters, setFilters }) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleToggle = (id, setState) => {
-        setState(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
+    // This updated handleToggle talks to the Parent state
+    const handleToggle = (name) => {
+        setFilters(prev => {
+            const current = prev.category || [];
+            const next = current.includes(name)
+                ? current.filter(item => item !== name)
+                : [...current, name];
+            return { ...prev, category: next };
+        });
     };
 
+    // Updates availability (liked/newArrival) in parent state
     const handleOtherToggle = (field) => {
-        setOtherFilters(prev => ({ ...prev, [field]: !prev[field] }));
+        setFilters(prev => ({
+            ...prev,
+            [field]: !prev[field]
+        }));
     };
 
     return (
@@ -58,12 +67,13 @@ export function Categories() {
                                     <input
                                         type="checkbox"
                                         id={`cat-${category.id}`} 
-                                        checked={selectedCategories.includes(category.id)}
-                                        onChange={() => handleToggle(category.id, setSelectedCategories)}
+                                        // Check if category name is in the parent filter array
+                                        checked={filters.category.includes(category.CategoryName)}
+                                        onChange={() => handleToggle(category.CategoryName)}
                                         className='accent-black cursor-pointer w-5 h-5 md:w-4 md:h-4'
                                     />
                                     <label 
-                                        className={`${selectedCategories.includes(category.id) ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} 
+                                        className={`${filters.category.includes(category.CategoryName) ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} 
                                         htmlFor={`cat-${category.id}`}
                                     >
                                         {category.CategoryName}
@@ -81,12 +91,13 @@ export function Categories() {
                                     <input
                                         type="checkbox"
                                         id={`disc-${discount.id}`} 
-                                        checked={selectedDiscounts.includes(discount.id)}
-                                        onChange={() => handleToggle(discount.id, setSelectedDiscounts)} 
+                                        // Using the same array logic for simplicity
+                                        checked={filters.category.includes(discount.DiscountName)}
+                                        onChange={() => handleToggle(discount.DiscountName)} 
                                         className='accent-black cursor-pointer w-5 h-5 md:w-4 md:h-4'
                                     />
                                     <label 
-                                        className={`${selectedDiscounts.includes(discount.id) ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} 
+                                        className={`${filters.category.includes(discount.DiscountName) ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} 
                                         htmlFor={`disc-${discount.id}`}
                                     >
                                         {discount.DiscountName} Off
@@ -103,11 +114,11 @@ export function Categories() {
                                 <input
                                     type="checkbox"
                                     id="liked" 
-                                    checked={otherFilters.liked}
+                                    checked={!!filters.liked}
                                     onChange={() => handleOtherToggle('liked')} 
                                     className='accent-black cursor-pointer w-5 h-5'
                                 />
-                                <label className={`${otherFilters.liked ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} htmlFor="liked">
+                                <label className={`${filters.liked ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} htmlFor="liked">
                                     Saved Items
                                 </label>
                             </div>
@@ -116,11 +127,11 @@ export function Categories() {
                                 <input
                                     type="checkbox"
                                     id="new-arrival" 
-                                    checked={otherFilters.newArrival}
+                                    checked={!!filters.newArrival}
                                     onChange={() => handleOtherToggle('newArrival')} 
                                     className='accent-black cursor-pointer w-5 h-5'
                                 />
-                                <label className={`${otherFilters.newArrival ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} htmlFor="new-arrival">
+                                <label className={`${filters.newArrival ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} htmlFor="new-arrival">
                                     New Arrivals
                                 </label>
                             </div>

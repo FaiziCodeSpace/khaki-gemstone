@@ -93,9 +93,8 @@ export function ProductDetails() {
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`whitespace-nowrap transition-colors text-sm lg:text-4.5 capitalize tracking-wider ${
-                            activeTab === tab ? 'text-[#CA0A7F] font-bold' : 'text-gray-500 hover:text-gray-800'
-                        }`}
+                        className={`whitespace-nowrap transition-colors text-sm lg:text-4.5 capitalize tracking-wider ${activeTab === tab ? 'text-[#CA0A7F] font-bold' : 'text-gray-500 hover:text-gray-800'
+                            }`}
                     >
                         {tab}
                     </button>
@@ -139,19 +138,26 @@ export function ProductDetails() {
                         </div>
 
                         {/* Color Swatches */}
-                        <div className="pb-10">
-                            <p className="list-heading font-normal mb-2">Colors:</p>
-                            <div className="flex gap-3 md:gap-4">
-                                {product.colors?.map((color, index) => (
-                                    <div key={index} className="group cursor-pointer flex flex-col items-center gap-2">
-                                        <span
-                                            style={{ backgroundColor: color }}
-                                            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white ring-1 ring-gray-200 transition-transform group-hover:scale-110"
-                                        ></span>
-                                    </div>
-                                ))}
+                        {product.colors && product.colors.length > 0 && (
+                            <div className="pb-10">
+                                <p className="list-heading font-normal mb-2 text-gray-700">Colors:</p>
+                                <div className="flex flex-wrap gap-3 md:gap-4">
+                                    {product.colors.map((color, index) => (
+                                        <button
+                                            key={index}
+                                            type="button"
+                                            aria-label={`Select color ${color}`}
+                                            className="group flex flex-col items-center gap-2 focus:outline-none"
+                                        >
+                                            <span
+                                                style={{ backgroundColor: color }}
+                                                className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white ring-1 ring-gray-200 transition-all duration-200 group-hover:scale-110 group-focus:ring-[#CA0A7F]"
+                                            ></span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
 
@@ -175,7 +181,7 @@ export function ProductDetails() {
                             {product.price?.toLocaleString()} PKR
                         </p>
                     </div>
-                    <button 
+                    <button
                         onClick={() => navigate('/checkout', { state: { product } })}
                         className='flex w-full md:flex-1 h-12 md:h-[64px] justify-center items-center bg-black text-white text-lg md:text-[20px] font-normal px-6 rounded-full transition-all hover:bg-gray-800 active:scale-95'
                     >
@@ -184,13 +190,12 @@ export function ProductDetails() {
                 </div>
 
                 <div className='flex gap-2'>
-                    <button 
+                    <button
                         onClick={handleAddToCartAction}
-                        className={`flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 rounded-full transition-all gap-1.5 ${
-                            isInCart 
-                            ? 'bg-[#CA0A7F] border-[#CA0A7F] text-white' 
-                            : 'bg-[#FAFAFA] border-[#1111111A] hover:bg-gray-100'
-                        }`}
+                        className={`flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 rounded-full transition-all gap-1.5 ${isInCart
+                                ? 'bg-[#CA0A7F] border-[#CA0A7F] text-white'
+                                : 'bg-[#FAFAFA] border-[#1111111A] hover:bg-gray-100'
+                            }`}
                     >
                         {isInCart ? (
                             <><Check className='w-4 h-4 md:w-5 md:h-5' /> In Cart</>
@@ -209,7 +214,7 @@ export function ProductDetails() {
                         <p>Favorites</p>
                     </button>
 
-                    <button 
+                    <button
                         onClick={() => navigator.share?.({ title: product.name, url: window.location.href })}
                         className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'
                     >
