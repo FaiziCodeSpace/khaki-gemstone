@@ -1,4 +1,4 @@
-import { Navbar } from "../../layout/navbar";
+import { Navbar } from "../../common/Navbar";
 
 export function HeroPortion() {
     return (

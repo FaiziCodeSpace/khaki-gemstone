@@ -1,4 +1,4 @@
-import { Footer } from "../../components/layout/Footer";
+import { Footer } from "../../components/common/Footer";
 import { AboutUs } from "../../components/public/Home/AboutUs";
 import { Categories } from "../../components/public/Home/Categories";
 import { ContentBlock } from "../../components/public/Home/ContentBlock";

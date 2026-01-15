@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CartItems } from "../../components/public/Cart/CartItems";
 import { PriceDetails } from "../../components/public/Cart/PriceDetails";
-import { Footer } from "../../components/layout/Footer";
+import { Footer } from "../../components/common/Footer";
 import { fetchCart, deleteFromCart } from "../../services/cartService";
 import { getGuestCart, removeFromGuestCart } from "../../utils/guestCart";
 
@@ -9,26 +9,25 @@ export function CartPage() {
   const [cartItems, setCartItems] = useState([]);
   const [selectedIds, setSelectedIds] = useState({});
 
+  // In CartPage.js
   useEffect(() => {
     async function loadCart() {
       const token = localStorage.getItem("token");
 
       if (!token) {
         setCartItems(getGuestCart());
-        return;
-      }
-
-      try {
-        const backendItems = await fetchCart();
-        // Since backendItems is now a flat array of populated products
-        setCartItems(Array.isArray(backendItems) ? backendItems : []);
-      } catch (err) {
-        console.error("Error loading cart:", err);
+      } else {
+        try {
+          const backendItems = await fetchCart();
+          setCartItems(Array.isArray(backendItems) ? backendItems : []);
+        } catch (err) {
+          console.error("Error loading cart:", err);
+        }
       }
     }
 
     loadCart();
-  }, []);
+  }, [location.pathname]);
 
   // Handle Removal Logic
   const handleRemoveItem = async (productId) => {
@@ -68,7 +67,7 @@ export function CartPage() {
 
   // 🔹 Use _id for MongoDB compatibility
   const selectedItemsList = cartItems.filter(
-    (item) => selectedIds[item._id] 
+    (item) => selectedIds[item._id]
   );
 
   return (
