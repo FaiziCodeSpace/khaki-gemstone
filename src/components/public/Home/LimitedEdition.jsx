@@ -61,6 +61,7 @@ export function LimitedEdition() {
         } catch (err) {
             console.error("Add to cart failed", err);
         }
+        window.dispatchEvent(new Event("cartUpdated"));
     };
 
     return (

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Footer } from "../../components/layout/Footer";
+import { Footer } from "../../components/common/Footer";
 import { ProductDetails } from "../../components/public/ProductDetail/ProductDetails";
 import { ProductImages } from "../../components/public/ProductDetail/ProductImages";
 

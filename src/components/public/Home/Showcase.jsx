@@ -58,6 +58,7 @@ export function Showcase() {
     } catch (err) {
       console.error("Add to cart failed", err);
     }
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   return (

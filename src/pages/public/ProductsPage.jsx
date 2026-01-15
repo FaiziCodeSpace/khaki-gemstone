@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Footer } from '../../components/layout/Footer';
+import { Footer } from '../../components/common/Footer';
 import { Card } from '../../components/public/Products/Card';
 import { Categories } from '../../components/public/Products/Categories';
 import { Filter } from '../../components/public/Products/Filter';

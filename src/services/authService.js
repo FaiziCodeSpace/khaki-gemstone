@@ -6,7 +6,6 @@ const AUTH_URL = "/auth";
 const saveAuth = (data) => {
   localStorage.setItem("token", data.token);
   localStorage.setItem("user", JSON.stringify(data.user));
-  // 🔹 Clear guest cart after successful login/register
   clearGuestCart();
 };
 
@@ -15,7 +14,7 @@ export const registerUser = async (formData) => {
 
   const { data } = await api.post(`${AUTH_URL}/register`, {
     ...formData,
-    guestCart, // Send full objects, backend will extract IDs
+    guestCart,
   });
 
   saveAuth(data);

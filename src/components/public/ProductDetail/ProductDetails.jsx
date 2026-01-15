@@ -60,6 +60,7 @@ export function ProductDetails() {
         } catch (err) {
             console.error("Add to cart failed", err);
         }
+        window.dispatchEvent(new Event("cartUpdated"));
     };
 
     if (loading) {
