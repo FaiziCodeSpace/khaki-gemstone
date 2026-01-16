@@ -9,11 +9,12 @@ import PublicLayout from "./Layout/PublicLayout";
 import InvestorLayout from "./Layout/InvestorLayout";
 import LoginInvestor from "./pages/investment/LoginInvestor";
 import RegisterInvestor from "./pages/investment/RegisterInvestor";
+import InvestorDashboard from "./pages/investment/Dashboard";
 
 function App() {
   return (
     <Router>
-      <main className="font-[Poppins] bg-[#F5F5F5] min-h-screen">
+      <main className="font-[Poppins]">
         <Routes>
 
           {/* 🌍 Public Website */}
@@ -28,6 +29,7 @@ function App() {
 
           {/* 💼 Investor Area */}
           <Route element={<InvestorLayout />}>
+            <Route path="/investor/dashboard" element={<InvestorDashboard/>}/>
             <Route path="/investor/login" element={<LoginInvestor />} />
             <Route path="/investor/register" element={<RegisterInvestor />} />
           </Route>
