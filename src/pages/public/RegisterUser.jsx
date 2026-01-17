@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const RegisterUser = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: '', // Matches input name
+    firstName: '',
     lastName: '',  
     email: '',
     address: '',
@@ -63,7 +63,11 @@ const RegisterUser = () => {
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-black mt-40 md:mt-15">Create Account</h2>
             <p className="text-gray-500 mt-2">Please fill in your details to get started.</p>
-            {error && <p className="text-red-500 mt-2 font-medium">{error}</p>}
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+                {error}
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">

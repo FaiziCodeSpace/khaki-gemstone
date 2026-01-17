@@ -3,16 +3,18 @@ import { LandingPage } from "./pages/public/landingPage";
 import { ProductsPage } from "./pages/public/ProductsPage";
 import { ProductDetailPage } from "./pages/public/ProductDetail";
 import { CartPage } from "./pages/public/CartPage";
-import RegisterUser from "./pages/public/RegisterUser";
 import LoginUser from "./pages/public/Login";
-import InvestorLayout from "./components/Layout/InvestorLayout"
+import RegisterUser from "./pages/public/RegisterUser";
+import PublicLayout from "./Layout/PublicLayout";
+import InvestorLayout from "./Layout/InvestorLayout";
 import LoginInvestor from "./pages/investment/LoginInvestor";
-import PublicLayout from "./components/layout/PublicLayout";
+import RegisterInvestor from "./pages/investment/RegisterInvestor";
+import InvestorDashboard from "./pages/investment/Dashboard";
 
 function App() {
   return (
     <Router>
-      <main className="font-[Poppins] bg-[#F5F5F5] min-h-screen">
+      <main>
         <Routes>
 
           {/* 🌍 Public Website */}
@@ -27,8 +29,9 @@ function App() {
 
           {/* 💼 Investor Area */}
           <Route element={<InvestorLayout />}>
+            <Route path="/investor/dashboard" element={<InvestorDashboard/>}/>
             <Route path="/investor/login" element={<LoginInvestor />} />
-            <Route path="/investor/register" element={<LoginInvestor />} />
+            <Route path="/investor/register" element={<RegisterInvestor />} />
           </Route>
 
         </Routes>
