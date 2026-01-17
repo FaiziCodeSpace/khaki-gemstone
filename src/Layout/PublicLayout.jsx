@@ -10,7 +10,7 @@ const PublicLayout = () => {
   }
 
   return (
-    <div className="bg-[#F5F5F5] min-h-screen">
+    <div className="bg-[#F5F5F5] min-h-screen font-Poppins">
       <Navbar />
       <Outlet />
     </div>

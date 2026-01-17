@@ -14,7 +14,7 @@ import InvestorDashboard from "./pages/investment/Dashboard";
 function App() {
   return (
     <Router>
-      <main className="font-[Poppins]">
+      <main>
         <Routes>
 
           {/* 🌍 Public Website */}
