@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import SideBar from "../components/common/Sidebar(Investor)";
 import TopNavbar from "../components/common/Top(Investor)";
-import { InvestorStats } from "../components/investment/Stats";
+import InvestorDashboard from "../pages/investment/Dashboard";
 // import Navbar from "../components/common/Navbar"; // Assume you have a Navbar
 
 const InvestorLayout = () => {
@@ -21,7 +21,6 @@ const InvestorLayout = () => {
 
         {/* Main content must scroll independently */}
         <main className="flex-1 overflow-y-auto p-6">
-          <InvestorStats/>
           <Outlet />
         </main>
       </div>

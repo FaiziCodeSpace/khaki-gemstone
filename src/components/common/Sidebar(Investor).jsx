@@ -61,17 +61,17 @@ export default function SideBar() {
             </div>
 
             <ul className="space-y-2 text-[#3F3F46]">
-              <SidebarItem onClick={() => setIsOpen(false)} to="/Home" icon={LayoutDashboard} label="Dashboard" />
-              <SidebarItem onClick={() => setIsOpen(false)} to="/products" icon={Package} label="Products" />
-              <SidebarItem onClick={() => setIsOpen(false)} to="/policy" icon={FileText} label="Terms & Policy" />
-              <SidebarItem onClick={() => setIsOpen(false)} to="/wallet" icon={Wallet} label="My Wallet" />
+              <SidebarItem onClick={() => setIsOpen(false)} to="dashboard" icon={LayoutDashboard} label="Dashboard" />
+              <SidebarItem onClick={() => setIsOpen(false)} to="products" icon={Package} label="Products" />
+              <SidebarItem onClick={() => setIsOpen(false)} to="policy" icon={FileText} label="Terms & Policy" />
+              <SidebarItem onClick={() => setIsOpen(false)} to="wallet" icon={Wallet} label="My Wallet" />
             </ul>
           </div>
 
           <div>
             <ul className="space-y-2 pt-4 border-t border-gray-100">
-              <SidebarItem onClick={() => setIsOpen(false)} to="/settings" icon={Settings} label="Settings" />
-              <SidebarItem onClick={() => setIsOpen(false)} to="/logout" icon={LogOut} label="Logout" />
+              <SidebarItem onClick={() => setIsOpen(false)} to="settings" icon={Settings} label="Settings" />
+              <SidebarItem onClick={() => setIsOpen(false)} to="logout" icon={LogOut} label="Logout" />
             </ul>
           </div>
         </div>
@@ -82,14 +82,14 @@ export default function SideBar() {
 
 function SidebarItem({ icon: Icon, label, to, onClick }) {
   const baseClass = "flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] transition-all duration-200";
-  const activeClass = "bg-[#CA0A7F] text-white shadow-md shadow-[#CA0A7F]/20";
+  const activeClass = "bg-[#CA0A7F] text-white";
   const inactiveClass = "hover:bg-gray-50 text-[#3F3F46]";
 
   return (
     <li>
       <NavLink
         onClick={onClick}
-        to={`/investor/dashboard${to}`}
+        to={`/investor/${to}`}
         className={({ isActive }) =>
           `${baseClass} ${isActive ? activeClass : inactiveClass}`
         }
