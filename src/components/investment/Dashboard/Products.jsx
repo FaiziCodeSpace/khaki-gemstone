@@ -43,7 +43,7 @@ export default function InvestorProducts({ activeProducts = [] }) {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-white border-b border-slate-100">
@@ -99,7 +99,7 @@ export default function InvestorProducts({ activeProducts = [] }) {
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-slate-100">
+      <div className="lg:hidden divide-y divide-slate-100">
         {currentItems.map((product, index) => (
           <div key={product.product_id || index} className="p-5 space-y-4">
             <div className="flex items-start justify-between">
@@ -112,7 +112,8 @@ export default function InvestorProducts({ activeProducts = [] }) {
                   </span>
                 </div>
               </div>
-              <div className="flex gap-1">
+              <div className="flex gap-2">
+                <button className="p-2 text-slate-400 bg-slate-50 rounded-lg"><Undo2 size={16} /></button>
                 <button className="p-2 text-slate-400 bg-slate-50 rounded-lg"><Pen size={16} /></button>
               </div>
             </div>
