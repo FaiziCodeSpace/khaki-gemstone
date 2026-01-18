@@ -25,14 +25,7 @@ export default function TopNavbar() {
           </span>
         </div>
 
-        {/* Profile Picture */}
-        <button className="overflow-hidden rounded-full ring-1 ring-gray-100">
-          <img 
-            src="/pfps/pfp-1.png" 
-            alt="User profile" 
-            className="size-8 object-cover md:size-10" 
-          />
-        </button>
+       
       </div>
     </nav>
   );
