@@ -29,8 +29,6 @@ export default function PricingTable() {
                                 {card.value.toLocaleString()}
                             </h2>
                         </div>
-                                    
-
                         <button className="w-full py-3 bg-[#CA0A7F] hover:bg-[#a8086a] transition-colors text-white text-[14.74px] font-bold rounded-lg mt-auto">
                             GET STARTED
                         </button>
