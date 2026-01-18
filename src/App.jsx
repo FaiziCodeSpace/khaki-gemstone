@@ -13,6 +13,7 @@ import InvestorDashboard from "./pages/investment/Dashboard";
 import AddProducts from "./pages/investment/AddProducts";
 import TermsAndPolicies from "./pages/investment/TermsAndPolicies";
 import InvestorWallet from "./pages/investment/Wallet";
+import PricingTable from "./pages/investment/PricingTable";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route path="/investor/dashboard" element={<InvestorDashboard/>}/>
             <Route path="/investor/products" element={<AddProducts/>}/>
             <Route path="/investor/wallet" element={<InvestorWallet/>}/>
+            <Route path="/investor/wallet/addbalance" element={<PricingTable/>}/>
             <Route path="/investor/policy" element={<TermsAndPolicies/>}/>
             <Route path="/investor/login" element={<LoginInvestor />} />
             <Route path="/investor/register" element={<RegisterInvestor />} />
