@@ -6,9 +6,8 @@ const RegisterUser = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
-    lastName: '',  
+    lastName: '',
     email: '',
-    address: '',
     password: '',
     confirmPassword: ''
   });
@@ -18,41 +17,30 @@ const RegisterUser = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // RegisterUser.jsx
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
+    e.preventDefault();
+    setError('');
 
-  if (formData.password !== formData.confirmPassword) {
-    return setError("Passwords do not match");
-  }
+    if (formData.password !== formData.confirmPassword) {
+      return setError("Passwords do not match");
+    }
 
-  try {
-    // 1. Get guest cart items from localStorage
-    const guestCart = getGuestCart(); 
-    
-    // 2. Send registration data PLUS the guestCart
-    await registerUser({ 
-      ...formData, 
-      guestCart: guestCart.map(item => item._id) // Send only the IDs
-    });
-
-    // 3. Success! Clear the local guest cart
-    clearGuestCart();
-    
-    alert('Registration Successful!');
-    navigate('/'); 
-  } catch (err) {
-    setError(err.response?.data?.message || 'Registration failed');
-  }
-};
+    try {
+      await registerUser(formData);
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed');
+    }
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
       {/* Left Side: Image Section */}
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-gray-100">
-        <img 
-          src="./Images/hero-Picture.png" 
-          alt="Registration" 
+        <img
+          src="./Images/hero-Picture.png"
+          alt="Registration"
           className="w-full h-full object-cover"
         />
       </div>
@@ -77,6 +65,7 @@ const RegisterUser = () => {
                 <input
                   type="text"
                   name="firstName"
+                  autoComplete="firstName"
                   className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#CA0A7F] outline-none"
                   onChange={handleChange}
                   required
@@ -87,6 +76,7 @@ const RegisterUser = () => {
                 <input
                   type="text"
                   name="lastName"
+                  autoComplete="lastName"
                   className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#CA0A7F] outline-none"
                   onChange={handleChange}
                   required
@@ -99,6 +89,7 @@ const RegisterUser = () => {
               <input
                 type="email"
                 name="email"
+                autoComplete="email"
                 className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#CA0A7F] outline-none"
                 onChange={handleChange}
                 required
@@ -114,6 +105,7 @@ const RegisterUser = () => {
                   name="password"
                   className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#CA0A7F] outline-none"
                   onChange={handleChange}
+                  autoComplete="newPassword"
                   required
                 />
               </div>
@@ -122,6 +114,7 @@ const RegisterUser = () => {
                 <input
                   type="password"
                   name="confirmPassword"
+                  autoComplete="confirmPassword"
                   className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#CA0A7F] outline-none"
                   onChange={handleChange}
                   required

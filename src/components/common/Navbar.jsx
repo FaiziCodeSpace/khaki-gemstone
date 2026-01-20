@@ -70,7 +70,7 @@ export function Navbar() {
             </li>
 
             <li className="border-b-[0.5px] text-[17px] py-3 border-white/10 hover:text-gray-300">
-              <Link to="/investor" onClick={closeMenu} className="block w-full">Join as Investor</Link>
+              <Link to="/investor-register" onClick={closeMenu} className="block w-full">Join as Investor</Link>
             </li>
 
             {isLoggedIn ? (

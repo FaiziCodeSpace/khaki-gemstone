@@ -7,7 +7,7 @@ import InvestorDashboard from "../pages/investment/Dashboard";
 const InvestorLayout = () => {
   const location = useLocation();
 
-  if (location.pathname === "/investor/login" || location.pathname === "/investor/register") {
+  if (location.pathname === "/investor-login" || location.pathname === "/investor-register") {
     return <Outlet />;
   }
 
