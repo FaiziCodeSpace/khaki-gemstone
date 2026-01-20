@@ -22,33 +22,33 @@ const LoginUser = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
 
-    try {
-      // 1. 🔹 Get the current guest cart items
-      const guestCartItems = getGuestCart();
-      const guestCartIds = guestCartItems.map(item => item._id);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-      // 2. 🔹 Pass login data AND the guest cart IDs to the service
-      // We spread loginData and add the guestCart key
-      await loginUser({ 
-        ...loginData, 
-        guestCart: guestCartIds 
-      });
-      
-      // 3. 🔹 Success! Clear the local guest cart now that it's in the DB
-      clearGuestCart();
-      
-      navigate('/'); 
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const guestCartItems = getGuestCart();
+    // Ensure we only send the IDs string array
+    const guestCartIds = guestCartItems.map(item => item._id || item);
+
+    await loginUser({ 
+      ...loginData, 
+      guestCart: guestCartIds 
+    });
+    
+    // Note: saveAuth in the service already calls clearGuestCart()
+    // but calling it here again doesn't hurt.
+    clearGuestCart();
+    
+    navigate('/'); 
+  } catch (err) {
+    setError(err.response?.data?.message || 'Invalid email or password.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden">
@@ -81,6 +81,7 @@ const LoginUser = () => {
                 type="email"
                 name="email"
                 placeholder="Your Email"
+                autoComplete="email"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] outline-none transition"
                 onChange={handleChange}
                 value={loginData.email}
@@ -96,6 +97,7 @@ const LoginUser = () => {
                 placeholder="Your Password"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#CA0A7F] outline-none transition"
                 onChange={handleChange}
+                autoComplete="current-password"
                 value={loginData.password}
                 required
               />

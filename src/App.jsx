@@ -40,8 +40,8 @@ function App() {
             <Route path="/investor/wallet/addbalance" element={<PricingTable/>}/>
             <Route path="/investor/settings" element={<Settings/>}/>
             <Route path="/investor/policy" element={<TermsAndPolicies/>}/>
-            <Route path="/investor/login" element={<LoginInvestor />} />
-            <Route path="/investor/register" element={<RegisterInvestor />} />
+            <Route path="/investor-login" element={<LoginInvestor />} />
+            <Route path="/investor-register" element={<RegisterInvestor />} />
           </Route>
 
         </Routes>

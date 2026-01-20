@@ -2,8 +2,8 @@ import { Plus, Wallet, ArrowUpRight, Banknote, BanknoteArrowUp } from "lucide-re
 import { Link } from 'react-router-dom';
 const walletDetail = [
   { label: 'Total Balance', value: 70000, color: 'text-indigo-600' },
-  { label: 'Invested', value: 10000, color: 'text-emerald-600' },
-  { label: 'Remaining', value: 150000, color: 'text-slate-900' }
+  { label: 'Earning', value: 150000, color: 'text-slate-900' },
+  { label: 'Investment', value: 10000, color: 'text-emerald-600' }
 ];
 
 export default function InvestorWallet() {

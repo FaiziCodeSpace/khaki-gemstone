@@ -10,10 +10,20 @@ const saveAuth = (data) => {
 };
 
 export const registerUser = async (formData) => {
-  const guestCart = getGuestCart();
-
+  const guestCart = formData.guestCart || getGuestCart();
   const { data } = await api.post(`${AUTH_URL}/register`, {
     ...formData,
+    guestCart,
+  });
+  saveAuth(data);
+  return data;
+};
+
+export const loginUser = async (loginData) => {
+  const guestCart = loginData.guestCart || getGuestCart();
+
+  const { data } = await api.post(`${AUTH_URL}/login`, {
+    ...loginData,
     guestCart,
   });
 
@@ -21,15 +31,15 @@ export const registerUser = async (formData) => {
   return data;
 };
 
-export const loginUser = async (formData) => {
-  const guestCart = getGuestCart();
 
-  const { data } = await api.post(`${AUTH_URL}/login`, {
-    ...formData,
-    guestCart,
-  });
+export const applyInvestor = async (formData) => {
+  const { data } = await api.post(`${AUTH_URL}/investor-register`, formData);
 
-  saveAuth(data);
+  if (data.token) {
+    localStorage.setItem("token", data.token);
+  }
+  localStorage.setItem("user", JSON.stringify(data.user));
+  
   return data;
 };
 

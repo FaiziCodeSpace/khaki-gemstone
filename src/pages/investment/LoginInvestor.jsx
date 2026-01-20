@@ -145,7 +145,7 @@ const LoginInvestor = () => {
           {/* Registration Redirect */}
           <p className="mt-8 text-center text-sm text-gray-600">
             Not a member?{' '}
-            <a href="/investor/register" className="font-semibold text-[#CA0A75] hover:underline">
+            <a href="/investor-register" className="font-semibold text-[#CA0A75] hover:underline">
               Create an account
             </a>
           </p>
