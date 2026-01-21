@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { applyInvestor } from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterInvestor = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -22,28 +25,47 @@ const RegisterInvestor = () => {
   const [isAutoFilled, setIsAutoFilled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Auto-fill for logged-in user and detect status
+  // 🔐 SAFE AUTO-FILL (NO TRUST ON LOCALSTORAGE)
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    try {
+      const storedUser = localStorage.getItem('user');
+
+      if (!storedUser || storedUser === 'undefined' || storedUser === 'null') {
+        return;
+      }
+
       const user = JSON.parse(storedUser);
+
+      if (!user || typeof user !== 'object') {
+        throw new Error('Invalid user object');
+      }
+
       setFormData((prev) => ({
         ...prev,
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
-        password: '********', // UI Placeholder
-        confirmPassword: '********'
       }));
+
       setIsAutoFilled(true);
+    } catch (error) {
+      console.error('Corrupted user in localStorage', error);
+      localStorage.removeItem('user');
     }
   }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    let finalValue = value;
+
+    if (name === 'cnic') {
+      finalValue = formatCNIC(value);
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : finalValue
     }));
 
     if (errors[name]) {
@@ -51,25 +73,48 @@ const RegisterInvestor = () => {
     }
   };
 
+
+  // ✅ STRONG VALIDATION (MINIMAL BUT CORRECT)
   const validate = () => {
     let newErrors = {};
+
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) newErrors.email = 'Please enter a valid email';
-
-    // Password Validation (only if not auto-filled)
     if (!isAutoFilled) {
-      if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = 'Please enter a valid email';
+      }
+    }
+
+    if (!isAutoFilled) {
+      if (formData.password.length < 6) {
+        newErrors.password = 'Password must be at least 6 characters';
+      }
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Passwords do not match';
       }
     }
 
-    if (formData.phone.length < 10) newErrors.phone = 'Enter a valid phone number';
-    if (!formData.cnic.trim()) newErrors.cnic = 'CNIC is required';
-    if (!formData.agreeTerms) newErrors.agreeTerms = 'You must agree to terms';
+    if (!/^\d{10,15}$/.test(formData.phone)) {
+      newErrors.phone = 'Enter a valid phone number';
+    }
+
+    if (!/^\d{5}-\d{7}-\d{1}$/.test(formData.cnic)) {
+      newErrors.cnic = 'Invalid CNIC format';
+    }
+
+    if (formData.dob) {
+      const dobDate = new Date(formData.dob);
+      if (dobDate > new Date()) {
+        newErrors.dob = 'Date of birth cannot be in the future';
+      }
+    }
+
+    if (!formData.agreeTerms) {
+      newErrors.agreeTerms = 'You must agree to terms';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -80,36 +125,51 @@ const RegisterInvestor = () => {
     if (!validate()) return;
 
     setIsLoading(true);
+
     try {
-      // ✅ CLEAN PAYLOAD: Don't send placeholder password strings to backend
-      let payload = { ...formData };
-      if (isAutoFilled) {
-        delete payload.password;
-        delete payload.confirmPassword;
+      // 🧼 CLEAN PAYLOAD (BACKEND SAFE)
+      const {
+        password,
+        confirmPassword,
+        rememberMe,
+        agreeTerms,
+        ...cleanPayload
+      } = formData;
+
+      if (!isAutoFilled) {
+        cleanPayload.password = password;
       }
 
-      const result = await applyInvestor(payload);
-      
-      alert("Application Submitted! Your status is currently: PENDING.");
-      window.location.href = "/investor/dashboard"; 
+      await applyInvestor(cleanPayload);
+
+      navigate('/investor-application-submitted');
     } catch (err) {
-      const errorMsg = err.response?.data?.message || "Something went wrong";
+      const errorMsg = err.response?.data?.message || 'Something went wrong';
       alert(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Reusable Input Style
-  const inputBaseClass = (name) => `mt-1 block w-full rounded-md border ${
-    errors[name] ? 'border-red-500' : 'border-gray-300'
-  } px-3 py-2 shadow-sm focus:border-[#CA0A75] focus:outline-none focus:ring-1 focus:ring-[#CA0A75] transition-colors`;
+  const formatCNIC = (value) => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '').slice(0, 13);
+
+    if (digits.length <= 5) return digits;
+    if (digits.length <= 12) return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+
+    return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12)}`;
+  };
+
+  const inputBaseClass = (name) =>
+    `mt-1 block w-full rounded-md border ${errors[name] ? 'border-red-500' : 'border-gray-300'
+    } px-3 py-2 shadow-sm focus:border-[#CA0A75] focus:outline-none focus:ring-1 focus:ring-[#CA0A75] transition-colors`;
 
   return (
     <main className="flex min-h-screen w-full bg-gray-50">
       <section className="flex w-full flex-col justify-center px-6 py-8 lg:w-1/2 lg:px-12 xl:px-24">
         <div className="mx-auto w-full max-w-lg">
-          
+
           <header className="mb-8 text-center lg:text-left">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Investor Registration
@@ -120,7 +180,7 @@ const RegisterInvestor = () => {
           </header>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700">First Name</label>
@@ -207,11 +267,13 @@ const RegisterInvestor = () => {
                 <input
                   type="text"
                   name="cnic"
+                  maxLength={15}
                   placeholder="00000-0000000-0"
                   className={inputBaseClass('cnic')}
                   value={formData.cnic}
                   onChange={handleChange}
                 />
+
                 {errors.cnic && <p className="mt-1 text-xs text-red-500">{errors.cnic}</p>}
               </div>
               <div>

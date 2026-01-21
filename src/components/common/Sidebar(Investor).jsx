@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { logoutUser } from "../../services/authService";
 import {
   LayoutDashboard,
   Package,
@@ -13,6 +14,14 @@ import {
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); 
+    logoutUser();         
+    setIsOpen(false);      
+    navigate("/investor-login", { replace: true });   
+  };
 
   return (
     <>
@@ -28,32 +37,24 @@ export default function SideBar() {
 
       {/* --- BACKDROP --- */}
       <div
-        className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden transition-opacity ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+        className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden transition-opacity ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
         onClick={() => setIsOpen(false)}
       />
 
       {/* --- SIDEBAR CONTAINER --- */}
-      {/* We use md:h-full to occupy the available flex space and md:py-6 for equal spacing */}
       <aside className={`
-  /* Width and Positioning */
-  w-[280px] fixed md:relative z-50
-  
-  /* Height and Spacing */
-  h-full p-4 md:p-6  
-  top-0 md:top-none
-  /* Animation */
-  transition-transform duration-300 ease-in-out
-  ${isOpen ? "translate-x-0" : "-translate-x-full"} 
-  md:translate-x-0
-`}>
+        w-[280px] fixed md:relative z-50
+        h-full p-4 md:p-6  
+        top-0 md:top-auto
+        transition-transform duration-300 ease-in-out
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+        md:translate-x-0
+      `}>
 
         {/* The Actual Sidebar Card */}
-        <div className="
-    h-full w-full bg-white 
-    flex flex-col justify-between 
-    rounded-2xl px-4 py-6
-  ">
+        <div className="h-full w-full bg-white flex flex-col justify-between rounded-2xl px-4 py-6 shadow-sm border border-gray-100">
           <div>
             <div className="flex items-center justify-between mb-6 md:hidden">
               <span className="text-[#CA0A7F] text-xl px-2 font-bold">Menu</span>
@@ -71,7 +72,8 @@ export default function SideBar() {
           <div>
             <ul className="space-y-2 pt-4 border-t border-gray-100">
               <SidebarItem onClick={() => setIsOpen(false)} to="settings" icon={Settings} label="Settings" />
-              <SidebarItem onClick={() => setIsOpen(false)} to="logout" icon={LogOut} label="Logout" />
+              {/* Logout Item - Passing no "to" prop triggers the button logic */}
+              <SidebarItem onClick={handleLogout} icon={LogOut} label="Logout" />
             </ul>
           </div>
         </div>
@@ -81,10 +83,29 @@ export default function SideBar() {
 }
 
 function SidebarItem({ icon: Icon, label, to, onClick }) {
-  const baseClass = "flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] transition-all duration-200";
+  const baseClass = "flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] transition-all duration-200 cursor-pointer";
   const activeClass = "bg-[#CA0A7F] text-white";
   const inactiveClass = "hover:bg-gray-50 text-[#3F3F46]";
 
+  // 🔴 ACTION ITEM (Logout / Non-navigation)
+  if (!to) {
+    return (
+      <li>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            onClick();
+          }}
+          className={`${baseClass} ${inactiveClass} w-full text-left`}
+        >
+          <Icon size={18} />
+          <span>{label}</span>
+        </button>
+      </li>
+    );
+  }
+
+  // 🟢 NAVIGATION ITEM
   return (
     <li>
       <NavLink

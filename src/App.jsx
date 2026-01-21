@@ -15,35 +15,77 @@ import TermsAndPolicies from "./pages/investment/TermsAndPolicies";
 import InvestorWallet from "./pages/investment/Wallet";
 import PricingTable from "./pages/investment/PricingTable";
 import Settings from "./pages/investment/Settings";
+import NotFound from "./pages/other/NotFound";
+import SuccessNotification from "./pages/other/SuccessNotification";
+import ProtectedRoute from "./routes/InvestorProtectedRoute";
+import PublicRoute from "./routes/PublicProtectedRoute"; 
 
 function App() {
   return (
     <Router>
       <main>
         <Routes>
-
           {/* 🌍 Public Website */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/shop" element={<ProductsPage />} />
             <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/register" element={<RegisterUser />} />
-            <Route path="/login" element={<LoginUser />} />
+            
+            {/* Prevent logged-in users from accessing standard login/register */}
+            <Route 
+              path="/register" 
+              element={<PublicRoute><RegisterUser /></PublicRoute>} 
+            />
+            <Route 
+              path="/login" 
+              element={<PublicRoute><LoginUser /></PublicRoute>} 
+            />
           </Route>
 
           {/* 💼 Investor Area */}
           <Route element={<InvestorLayout />}>
-            <Route path="/investor/dashboard" element={<InvestorDashboard/>}/>
-            <Route path="/investor/products" element={<AddProducts/>}/>
-            <Route path="/investor/wallet" element={<InvestorWallet/>}/>
-            <Route path="/investor/wallet/addbalance" element={<PricingTable/>}/>
-            <Route path="/investor/settings" element={<Settings/>}/>
-            <Route path="/investor/policy" element={<TermsAndPolicies/>}/>
-            <Route path="/investor-login" element={<LoginInvestor />} />
-            <Route path="/investor-register" element={<RegisterInvestor />} />
+            {/* Secured Investor Routes */}
+            <Route
+              path="/investor/dashboard"
+              element={<ProtectedRoute><InvestorDashboard /></ProtectedRoute>}
+            />
+            <Route
+              path="/investor/products"
+              element={<ProtectedRoute><AddProducts /></ProtectedRoute>}
+            />
+            <Route
+              path="/investor/wallet"
+              element={<ProtectedRoute><InvestorWallet /></ProtectedRoute>}
+            />
+            <Route
+              path="/investor/wallet/addbalance"
+              element={<ProtectedRoute><PricingTable /></ProtectedRoute>}
+            />
+            <Route
+              path="/investor/settings"
+              element={<ProtectedRoute><Settings /></ProtectedRoute>}
+            />
+            <Route
+              path="/investor/policy"
+              element={<ProtectedRoute><TermsAndPolicies /></ProtectedRoute>}
+            />
+
+            {/* Prevent logged-in investors from accessing investor login/register */}
+            <Route 
+              path="/investor-login" 
+              element={<PublicRoute><LoginInvestor /></PublicRoute>} 
+            />
+            <Route 
+              path="/investor-register" 
+              element={<PublicRoute><RegisterInvestor /></PublicRoute>} 
+            />
+            
+            <Route path="/investor-application-submitted" element={<SuccessNotification />} />
           </Route>
 
+          {/* 🚫 404 Catch-all Route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </Router>
