@@ -9,40 +9,64 @@ const saveAuth = (data) => {
   clearGuestCart();
 };
 
+// ================= REGISTER =================
 export const registerUser = async (formData) => {
   const guestCart = formData.guestCart || getGuestCart();
+
   const { data } = await api.post(`${AUTH_URL}/register`, {
     ...formData,
     guestCart,
   });
+
   saveAuth(data);
   return data;
 };
 
+// ================= LOGIN =================
 export const loginUser = async (loginData) => {
   const guestCart = loginData.guestCart || getGuestCart();
 
   const { data } = await api.post(`${AUTH_URL}/login`, {
     ...loginData,
     guestCart,
+    role: "user",
   });
 
   saveAuth(data);
   return data;
 };
 
-
+// ================= APPLY INVESTOR =================
 export const applyInvestor = async (formData) => {
-  const { data } = await api.post(`${AUTH_URL}/investor-register`, formData);
+  const guestCart = formData.guestCart || getGuestCart();
 
-  if (data.token) {
-    localStorage.setItem("token", data.token);
-  }
+  const { data } = await api.post(`${AUTH_URL}/investor-register`, {
+    ...formData,
+    guestCart,
+  });
+
+  // Token might not be returned; save user anyway
+  if (data.token) localStorage.setItem("token", data.token);
   localStorage.setItem("user", JSON.stringify(data.user));
-  
+
   return data;
 };
 
+// ================= LOGIN INVESTOR =================
+export const loginInvestor = async (loginData) => {
+  const guestCart = loginData.guestCart || getGuestCart();
+
+  const { data } = await api.post(`${AUTH_URL}/login`, {
+    ...loginData,
+    guestCart,
+    role: "investor",
+  });
+
+  saveAuth(data);
+  return data;
+};
+
+// ================= LOGOUT =================
 export const logoutUser = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");

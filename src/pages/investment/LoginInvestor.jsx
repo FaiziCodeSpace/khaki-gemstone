@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { loginInvestor } from '../../services/authService'; // Adjust path based on your folder structure
 
 const LoginInvestor = () => {
+  const navigate = useNavigate();
+
   // 1. State for login credentials
   const [loginData, setLoginData] = useState({
     email: '',
@@ -8,9 +12,12 @@ const LoginInvestor = () => {
     rememberMe: false
   });
 
+  // 2. State for UI feedback
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 2. Handle input changes
+  // 3. Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setLoginData((prev) => ({
@@ -18,13 +25,16 @@ const LoginInvestor = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
 
-    // Clear specific error when user starts typing
+    // Clear errors when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
+    if (serverError) {
+      setServerError('');
+    }
   };
 
-  // 3. Login Validation
+  // 4. Form Validation
   const validate = () => {
     let newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,12 +52,27 @@ const LoginInvestor = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // 4. Handle form submission
-  const handleSubmit = (e) => {
+  // 5. Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      console.log('Login Attempt:', loginData);
-      // API call logic here (e.g., auth service)
+    
+    if (!validate()) return;
+
+    setIsLoading(true);
+    setServerError('');
+
+    try {
+      // Calling the service you provided earlier
+      await loginInvestor(loginData);
+      
+      // If the backend allows the login (meaning status is approved)
+      navigate("/investor/dashboard", { replace: true });
+    } catch (err) {
+      // Catch 401 (Invalid creds) or 403 (Pending/Rejected)
+      const message = err.response?.data?.message || "An unexpected error occurred. Please try again.";
+      setServerError(message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -67,6 +92,20 @@ const LoginInvestor = () => {
             </p>
           </header>
 
+          {/* --- SERVER ERROR MESSAGE (Shows "Pending", "Rejected", etc) --- */}
+          {serverError && (
+            <div className="mb-6 rounded-md bg-red-50 p-4 border-l-4 border-red-500">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">Login Restricted</h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    <p>{serverError}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             
             {/* Email Field */}
@@ -79,10 +118,10 @@ const LoginInvestor = () => {
                 name="email"
                 id="email"
                 autoComplete="email"
-                required
+                disabled={isLoading}
                 className={`mt-1 block w-full rounded-md border ${
                   errors.email ? 'border-red-500' : 'border-gray-300'
-                } px-3 py-2 shadow-sm focus:border-[#CA0A75] focus:outline-none focus:ring-1 focus:ring-[#CA0A75] transition-all`}
+                } px-3 py-2 shadow-sm focus:border-[#CA0A75] focus:outline-none focus:ring-1 focus:ring-[#CA0A75] transition-all disabled:bg-gray-100`}
                 value={loginData.email}
                 onChange={handleChange}
               />
@@ -106,10 +145,10 @@ const LoginInvestor = () => {
                 name="password"
                 id="password"
                 autoComplete="current-password"
-                required
+                disabled={isLoading}
                 className={`mt-1 block w-full rounded-md border ${
                   errors.password ? 'border-red-500' : 'border-gray-300'
-                } px-3 py-2 shadow-sm focus:border-[#CA0A75] focus:outline-none focus:ring-1 focus:ring-[#CA0A75] transition-all`}
+                } px-3 py-2 shadow-sm focus:border-[#CA0A75] focus:outline-none focus:ring-1 focus:ring-[#CA0A75] transition-all disabled:bg-gray-100`}
                 value={loginData.password}
                 onChange={handleChange}
               />
@@ -135,9 +174,22 @@ const LoginInvestor = () => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md border border-transparent bg-[#CA0A75] px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#A80862] focus:outline-none focus:ring-2 focus:ring-[#CA0A75] focus:ring-offset-2 transition-all transform active:scale-95 uppercase tracking-wide"
+                disabled={isLoading}
+                className={`flex w-full justify-center rounded-md border border-transparent bg-[#CA0A75] px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#A80862] focus:outline-none focus:ring-2 focus:ring-[#CA0A75] focus:ring-offset-2 transition-all transform active:scale-95 uppercase tracking-wide ${
+                  isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
               >
-                Sign In
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Verifying...
+                  </span>
+                ) : (
+                  'Sign In'
+                )}
               </button>
             </div>
           </form>
