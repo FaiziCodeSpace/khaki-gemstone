@@ -1,8 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
-import SideBar from "../components/common/Sidebar(Investor)";
-import TopNavbar from "../components/common/Top(Investor)";
-import InvestorDashboard from "../pages/investment/Dashboard";
-// import Navbar from "../components/common/Navbar"; // Assume you have a Navbar
+import SideBar from "../components/investment/Sidebar";
+import TopNavbar from "../components/investment/Topnav";
 
 const InvestorLayout = () => {
   const location = useLocation();
