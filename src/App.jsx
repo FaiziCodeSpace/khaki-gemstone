@@ -24,6 +24,7 @@ import PublicRoute from "./routes/PublicProtectedRoute";
 import NotFound from "./pages/other/NotFound";
 import SuccessNotification from "./pages/other/SuccessNotification";
 import Dashboard from "./pages/admin/Dashboard";
+import ProductsManagment from "./pages/admin/Products";
 
 /* =======================
    💼 INVESTOR (LAZY)
@@ -178,6 +179,7 @@ function App() {
             }
           >
             <Route path="/admin/dashboard" element={<Dashboard/>} />
+            <Route path="/admin/products" element={<ProductsManagment/>} />
           </Route>
 
           {/* =======================
