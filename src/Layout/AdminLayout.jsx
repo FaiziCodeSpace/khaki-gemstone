@@ -14,7 +14,7 @@ export default function AdminLayout() {
 
       <div className="flex flex-col flex-1 min-w-0">
         {/* Main content area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 mt-20 md:mt-0">
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 mt-20 md:mt-0">
           <div className="max-w-7xl mx-auto">
              <Outlet />
           </div>
