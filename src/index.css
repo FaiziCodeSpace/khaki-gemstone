@@ -3,7 +3,7 @@
 @theme {
   --breakpoint-mid: 38.75rem; 
   /* --breakpoint-mid: 55.625rem;   */
-  --breakpoint-lgx: 82.5rem; 
+  --breakpoint-lgx: 82.5rem; /* 1320px */
   --breakpoint-lgxx: 90rem;
 }
 
