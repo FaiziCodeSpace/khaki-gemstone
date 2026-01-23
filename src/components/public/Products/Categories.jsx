@@ -21,7 +21,6 @@ const DiscountData = [
 export function Categories({ filters, setFilters }) {
     const [isOpen, setIsOpen] = useState(false);
 
-    // This updated handleToggle talks to the Parent state
     const handleToggle = (name) => {
         setFilters(prev => {
             const current = prev.category || [];
@@ -32,7 +31,6 @@ export function Categories({ filters, setFilters }) {
         });
     };
 
-    // Updates availability (liked/newArrival) in parent state
     const handleOtherToggle = (field) => {
         setFilters(prev => ({
             ...prev,
