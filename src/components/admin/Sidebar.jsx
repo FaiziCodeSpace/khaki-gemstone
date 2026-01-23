@@ -3,16 +3,16 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Package, ListTree, UserCheck,
   ShoppingCart, TrendingUp, Users, History,
-  Settings, Menu, X, ShieldCheck, LogOut
+  Settings, Menu, X, ShieldCheck, LogOut, NotebookText 
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { to: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { to: "products", icon: Package, label: "Products" },
-  { to: "categories", icon: ListTree, label: "Categories" },
-  { to: "applications", icon: UserCheck, label: "Investors" },
+  { to: "taxonomyControl", icon: ListTree, label: "Taxonomy Control" },
+  { to: "applications", icon: NotebookText , label: "Applications" },
   { to: "orders", icon: ShoppingCart, label: "Orders" },
-  { to: "investments", icon: TrendingUp, label: "Investments" },
+  { to: "Investments", icon: TrendingUp, label: "Investments" },
   { to: "users", icon: Users, label: "Users" },
   { to: "transactions", icon: History, label: "Transactions" },
 ];

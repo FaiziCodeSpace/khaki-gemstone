@@ -26,6 +26,8 @@ import SuccessNotification from "./pages/other/SuccessNotification";
 import Dashboard from "./pages/admin/Dashboard";
 import ProductsManagment from "./pages/admin/Products";
 import FormBox from "./components/admin/Products/FormBox";
+import CategoriesManagment from "./pages/admin/TaxonomyControl";
+import Investors from "./pages/admin/Investors";
 
 
 /* =======================
@@ -184,6 +186,8 @@ function App() {
             <Route path="/admin/products" element={<ProductsManagment/>} />
             <Route path="/admin/products/formbox" element={<FormBox/>} />
             <Route path="/admin/products/formbox/:productId" element={<FormBox/>} />
+            <Route path="/admin/TaxonomyControl" element={<CategoriesManagment/>}/>
+            <Route path="/admin/applications" element={<Investors/>}/>
           </Route>
 
           {/* =======================
