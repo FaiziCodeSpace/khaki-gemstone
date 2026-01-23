@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from 'react-router-dom';
 import {
     Plus, Search, Edit2, Trash2, Filter,
     MapPin, Eye, ChevronLeft, ChevronRight
@@ -40,13 +41,15 @@ export default function ProductTable() {
                     <p className="text-sm text-gray-500 font-jakarta">Manage gemstone details and portal visibility.</p>
                 </div>
 
-                <button className="flex items-center justify-center gap-2 bg-[#CA0A7F] hover:bg-[#b0086e] text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md shadow-[#CA0A7F]/20 text-sm">
-                    <Plus size={18} />
-                    <span>Add New Gemstone</span>
-                </button>
+                <Link to="/admin/products/formbox">
+                    <button className="flex items-center justify-center gap-2 bg-[#CA0A7F] hover:bg-[#b0086e] text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md shadow-[#CA0A7F]/20 text-sm">
+                        <Plus size={18} />
+                        <span>Add New Gemstone</span>
+                    </button>
+                </Link>
             </div>
 
-            {/* --- SEARCH & FILTERS --- */}
+            {/* --- SEARCH --- */}
             <div className="bg-white p-4 rounded-2xl border border-gray-100 flex flex-col md:flex-row gap-4 items-center shadow-sm">
                 <div className="relative flex-1 w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -93,7 +96,7 @@ export default function ProductTable() {
                                     <td className="px-6 py-4 text-sm font-bold text-gray-900">{product.price}</td>
                                     <td className="px-6 py-4">
                                         {product.status === "In Public" && !product.margin ? (
-                                            <span className="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md border border-gray-100 uppercase tracking-tight">
+                                            <span className="text-[10px] font-bold text-green-400 bg-green-50 px-2 py-1 rounded-md border border-green-100 uppercase tracking-tight">
                                                 Direct Sale
                                             </span>
                                         ) : (
@@ -104,8 +107,8 @@ export default function ProductTable() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${product.status === "In Public"
-                                                ? "bg-blue-50 text-blue-600 border-blue-100"
-                                                : "bg-purple-50 text-purple-600 border-purple-100"
+                                            ? "bg-blue-50 text-blue-600 border-blue-100"
+                                            : "bg-purple-50 text-purple-600 border-purple-100"
                                             }`}>
                                             {product.status}
                                         </span>
@@ -113,7 +116,9 @@ export default function ProductTable() {
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-1 md:gap-2">
                                             <button className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"><Eye size={16} /></button>
-                                            <button className="p-2 text-gray-400 hover:text-[#CA0A7F] hover:bg-pink-50 rounded-lg transition-all"><Edit2 size={16} /></button>
+                                            <Link to={`/admin/products/formbox/${product.id}`}>
+                                                <button className="p-2 text-gray-400 hover:text-[#CA0A7F] hover:bg-pink-50 rounded-lg transition-all"><Edit2 size={16} /></button>
+                                            </Link>
                                             <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"><Trash2 size={16} /></button>
                                         </div>
                                     </td>
@@ -143,8 +148,8 @@ export default function ProductTable() {
                                 key={i}
                                 onClick={() => goToPage(i + 1)}
                                 className={`w-8 h-8 text-xs font-bold rounded-lg transition-all ${currentPage === i + 1
-                                        ? "bg-[#CA0A7F] text-white"
-                                        : "text-gray-500 hover:bg-gray-100 border border-transparent"
+                                    ? "bg-[#CA0A7F] text-white"
+                                    : "text-gray-500 hover:bg-gray-100 border border-transparent"
                                     }`}
                             >
                                 {i + 1}
