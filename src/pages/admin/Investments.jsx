@@ -13,7 +13,7 @@ const INITIAL_INVESTORS = [
     { id: "INV-5520", firstName: "Ayesha", lastName: "Rayyub", productsCount: 3, totalInvested: "Rs. 620,000", status: "Active", joinDate: "30 Dec 2025" },
     { id: "INV-6610", firstName: "Bilal", lastName: "Shah", productsCount: 2, totalInvested: "Rs. 300,000", status: "Active", joinDate: "10 Jan 2026" },
 ];
-
+ 
 export default function InvestmentManagement() {
     const [investors, setInvestors] = useState(INITIAL_INVESTORS);
     const [currentPage, setCurrentPage] = useState(1);
