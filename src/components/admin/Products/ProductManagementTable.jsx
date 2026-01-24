@@ -148,8 +148,8 @@ export default function ProductTable() {
                                 key={i}
                                 onClick={() => goToPage(i + 1)}
                                 className={`w-8 h-8 text-xs font-bold rounded-lg transition-all ${currentPage === i + 1
-                                    ? "bg-[#CA0A7F] text-white"
-                                    : "text-gray-500 hover:bg-gray-100 border border-transparent"
+                                    ? "bg-gray-900 text-white border-gray-900"
+                                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                                     }`}
                             >
                                 {i + 1}

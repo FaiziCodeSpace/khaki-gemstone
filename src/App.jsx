@@ -28,6 +28,9 @@ import ProductsManagment from "./pages/admin/Products";
 import FormBox from "./components/admin/Products/FormBox";
 import CategoriesManagment from "./pages/admin/TaxonomyControl";
 import Investors from "./pages/admin/Investors";
+import OrderManagement from "./pages/admin/Orders";
+import InvestmentManagement from "./pages/admin/Investments";
+import TransactionHistory from "./pages/admin/Transaction";
 
 
 /* =======================
@@ -188,6 +191,9 @@ function App() {
             <Route path="/admin/products/formbox/:productId" element={<FormBox/>} />
             <Route path="/admin/TaxonomyControl" element={<CategoriesManagment/>}/>
             <Route path="/admin/applications" element={<Investors/>}/>
+            <Route path="/admin/orders" element={<OrderManagement/>}/>
+            <Route path="/admin/investments" element={<InvestmentManagement/>}/>
+            <Route path="/admin/transactions" element={<TransactionHistory/>}/>
           </Route>
 
           {/* =======================

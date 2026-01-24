@@ -13,7 +13,6 @@ const NAV_ITEMS = [
   { to: "applications", icon: NotebookText , label: "Applications" },
   { to: "orders", icon: ShoppingCart, label: "Orders" },
   { to: "Investments", icon: TrendingUp, label: "Investments" },
-  { to: "users", icon: Users, label: "Users" },
   { to: "transactions", icon: History, label: "Transactions" },
 ];
 
@@ -80,12 +79,6 @@ export default function AdminSideBar() {
           {/* Footer Section (Settings & Logout) */}
           <div className="p-4 border-t border-gray-50 mt-auto">
             <ul className="flex flex-col gap-1">
-              <SidebarLink
-                to="settings"
-                icon={Settings}
-                label="Settings"
-                onClick={closeSidebar}
-              />
               <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] font-medium text-red-500 hover:bg-red-50 transition-all duration-200">
                 <LogOut size={19} strokeWidth={2} />
                 <span>Logout</span>
