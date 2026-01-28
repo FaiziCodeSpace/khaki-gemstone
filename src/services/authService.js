@@ -47,8 +47,6 @@ export const applyInvestor = async (formData) => {
 
   // Token might not be returned; save user anyway
   if (data.token) localStorage.setItem("token", data.token);
-  localStorage.setItem("user", JSON.stringify(data.user));
-
   return data;
 };
 
