@@ -137,7 +137,7 @@ export default function ProductTable() {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-1.5 text-sm text-gray-600">
                                             <MapPin size={14} className="text-gray-400" />
-                                            {product.more_information?.origin || "N/A"}
+                                            {product?.location || "N/A"}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm font-bold text-gray-900">
