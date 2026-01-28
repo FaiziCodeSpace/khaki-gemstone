@@ -43,7 +43,7 @@ export default function CategoriesManagement() {
 
   return (
     <section className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="mx-auto space-y-8">
         
         {/* HEADER */}
         <div className="flex items-center justify-between border-b border-gray-200 pb-6">
