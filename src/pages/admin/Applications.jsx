@@ -1,27 +1,51 @@
 import { useState, useEffect } from "react";
-import { Search, User, MapPin, CreditCard, ChevronRight, X, Phone, Mail, Calendar, Users, Check, Ban, Loader2 } from "lucide-react";
-import { fetchUsers } from "../../services/adminServices/applications";
+import { Search, User, MapPin, CreditCard, X, Phone, Mail, Calendar, Check, Ban, Loader2, Inbox } from "lucide-react";
+import { fetchUsers, updateInvestorStatus } from "../../services/adminServices/applications";
 
 export default function Applications() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedApp, setSelectedApp] = useState(null);
     const [investors, setInvestors] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isActionLoading, setIsActionLoading] = useState(false);
+
+    const loadData = async () => {
+        try {
+            setIsLoading(true);
+            const data = await fetchUsers("investor");
+            setInvestors(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error("Error loading investors:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                setIsLoading(true);
-                const data = await fetchUsers("investor");
-                setInvestors(Array.isArray(data) ? data : []);
-            } catch (err) {
-                console.error("Error loading investors:", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
         loadData();
     }, []);
+
+    const handleStatusUpdate = async (id, status) => {
+        try {
+            setIsActionLoading(true);
+            await updateInvestorStatus(id, status);
+
+            setInvestors(prevInvestors => 
+                prevInvestors.map(inv => 
+                    inv._id === id 
+                        ? { ...inv, investor: { ...inv.investor, status: status } } 
+                        : inv
+                )
+            );
+
+            setSelectedApp(null);
+        } catch (error) {
+            console.error("Failed to update investor:", error);
+            alert(`Error: Could not ${status} investor.`);
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
 
     const filteredApps = investors.filter(app => {
         const fullName = `${app.firstName} ${app.lastName}`.toLowerCase();
@@ -30,8 +54,8 @@ export default function Applications() {
     });
 
     return (
-        <section className="min-h-screen bg-[#FBFBFC] text-slate-900 font-sans">
-            <div className=" mx-auto">
+        <section className="min-h-screen bg-[#FBFBFC] text-slate-900 font-sans p-6">
+            <div className="max-w-7xl mx-auto">
                 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -51,15 +75,16 @@ export default function Applications() {
                     </div>
                 </div>
 
+                {/* Main Content Area */}
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-32">
                         <Loader2 className="animate-spin text-[#CA0A7F]" size={28} />
                         <p className="text-xs font-medium text-slate-400 mt-4 tracking-wide">Syncing records...</p>
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                ) : filteredApps.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
                         {filteredApps.map((app) => (
-                            <div 
+                            <div
                                 key={app._id}
                                 onClick={() => setSelectedApp(app)}
                                 className="group bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-[#CA0A7F]/30 transition-all cursor-pointer relative"
@@ -70,7 +95,7 @@ export default function Applications() {
                                     </div>
                                     <StatusBadge status={app.investor?.status} />
                                 </div>
-                                
+
                                 <div className="space-y-1">
                                     <h3 className="font-bold text-slate-900 group-hover:text-[#CA0A7F] transition-colors">
                                         {app.firstName} {app.lastName}
@@ -91,10 +116,29 @@ export default function Applications() {
                             </div>
                         ))}
                     </div>
+                ) : (
+                    /* No Applications Found / Empty State */
+                    <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[2rem] border-2 border-dashed border-slate-100">
+                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 mb-4">
+                            <Inbox size={32} />
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900">No applications found</h3>
+                        <p className="text-sm text-slate-500 max-w-xs text-center mt-1">
+                            {searchTerm ? `We couldn't find any results for "${searchTerm}"` : "There are currently no investor applications to review."}
+                        </p>
+                        {searchTerm && (
+                            <button 
+                                onClick={() => setSearchTerm("")}
+                                className="mt-6 text-xs font-bold text-[#CA0A7F] hover:underline"
+                            >
+                                Clear search filter
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
 
-            {/* Modal */}
+            {/* Modal remains the same */}
             {selectedApp && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/20 backdrop-blur-[2px]">
                     <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -107,10 +151,10 @@ export default function Applications() {
 
                         <div className="p-8 pt-4 space-y-8">
                             <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                                <DetailItem icon={<User size={14}/>} label="Full Name" value={`${selectedApp.firstName} ${selectedApp.lastName}`} />
-                                <DetailItem icon={<Mail size={14}/>} label="Email Address" value={selectedApp.email} />
-                                <DetailItem icon={<Phone size={14}/>} label="Contact" value={selectedApp.investor?.phone} />
-                                <DetailItem icon={<Calendar size={14}/>} label="Date of Birth" value={selectedApp.investor?.dob ? new Date(selectedApp.investor.dob).toLocaleDateString() : "N/A"} />
+                                <DetailItem icon={<User size={14} />} label="Full Name" value={`${selectedApp.firstName} ${selectedApp.lastName}`} />
+                                <DetailItem icon={<Mail size={14} />} label="Email Address" value={selectedApp.email} />
+                                <DetailItem icon={<Phone size={14} />} label="Contact" value={selectedApp.investor?.phone} />
+                                <DetailItem icon={<Calendar size={14} />} label="Date of Birth" value={selectedApp.investor?.dob ? new Date(selectedApp.investor.dob).toLocaleDateString() : "N/A"} />
                             </div>
 
                             <div className="bg-[#FBFBFC] p-5 rounded-2xl border border-slate-100">
@@ -126,14 +170,19 @@ export default function Applications() {
                             {selectedApp.investor?.status === "pending" && (
                                 <div className="flex gap-4 pt-2">
                                     <button
-                                    onClick={()=>handleClick("decline")}
-                                    className="flex-1 py-3 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl border border-slate-200 transition-all flex items-center justify-center gap-2">
+                                        disabled={isActionLoading}
+                                        onClick={() => handleStatusUpdate(selectedApp._id, "decline")}
+                                        className="flex-1 py-3 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl border border-slate-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
                                         <Ban size={14} /> Decline
                                     </button>
                                     <button
-                                    onClick={()=>handleClick("approve")}
-                                    className="flex-1 py-3 text-xs font-bold bg-[#CA0A7F] text-white hover:bg-[#A80869] rounded-xl transition-all shadow-lg shadow-[#CA0A7F]/20 flex items-center justify-center gap-2">
-                                        <Check size={14} /> Approve Profile
+                                        disabled={isActionLoading}
+                                        onClick={() => handleStatusUpdate(selectedApp._id, "approve")}
+                                        className="flex-1 py-3 text-xs font-bold bg-[#CA0A7F] text-white hover:bg-[#A80869] rounded-xl transition-all shadow-lg shadow-[#CA0A7F]/20 flex items-center justify-center gap-2 disabled:opacity-70"
+                                    >
+                                        {isActionLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                        {isActionLoading ? "Processing..." : "Approve Profile"}
                                     </button>
                                 </div>
                             )}
@@ -146,14 +195,16 @@ export default function Applications() {
 }
 
 function StatusBadge({ status }) {
-    const isApproved = status === "approved";
+    const statusConfig = {
+        approve: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Approved" },
+        approved: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Approved" },
+        decline: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", label: "Declined" },
+        pending: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", label: "Pending Verification" }
+    };
+    const config = statusConfig[status] || statusConfig.pending;
     return (
-        <span className={`text-[9px] font-bold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${
-            isApproved 
-            ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-            : "bg-amber-50 text-amber-600 border-amber-100"
-        }`}>
-            {status || "Pending"}
+        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border uppercase tracking-wider transition-all duration-500 ${config.bg} ${config.text} ${config.border}`}>
+            {config.label}
         </span>
     );
 }
