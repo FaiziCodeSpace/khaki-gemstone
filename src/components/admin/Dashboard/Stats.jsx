@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { 
   Users, Wallet, TrendingUp, ShoppingBag, 
   Package, UserPlus, BarChart3, Clock, Loader2 
@@ -7,31 +7,40 @@ import { fetchDashboardMetrics } from "../../../services/adminServices/dashboard
 
 export default function AdminStats() {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  useEffect(() => {
-    const getMetrics = async () => {
-      try {
-        const dashboardData = await fetchDashboardMetrics();
-        setData(dashboardData);
-      } catch (err) {
-        console.error("Failed to load metrics");
-      } finally {
-        setLoading(false);
-      }
-    };
-    getMetrics();
+  const getMetrics = useCallback(async (isSilent = false) => {
+    try {
+      const dashboardData = await fetchDashboardMetrics();
+      setData(dashboardData);
+    } catch (err) {
+      console.error("Failed to sync metrics in background");
+    } finally {
+      setIsInitialLoading(false);
+    }
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    getMetrics();
+
+    const interval = setInterval(() => {
+      getMetrics(true); // Call silently
+    }, 20000);
+
+    // 3. Cleanup on component unmount
+    return () => clearInterval(interval);
+  }, [getMetrics]);
+
+  // Only show the big spinner on the very first visit
+  if (isInitialLoading) {
     return (
-      <div className="flex h-48 items-center justify-center">
+      <div className="flex h-64 flex-col items-center justify-center">
         <Loader2 className="animate-spin text-[#CA0A7F]" size={32} />
+        <p className="text-xs text-gray-400 mt-4 font-medium tracking-widest uppercase">Initializing Dashboard...</p>
       </div>
     );
   }
 
-  // Map the API response to your UI structure
   const stats = [
     { 
       label: "Total Users", 
@@ -111,7 +120,7 @@ export default function AdminStats() {
         {stats.map((stat, index) => (
           <div 
             key={index} 
-            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200"
+            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-center justify-between mb-4">
               <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.color}`}>
@@ -120,7 +129,7 @@ export default function AdminStats() {
               {stat.change && (
                 <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider ${
                   stat.isAlert 
-                    ? "bg-red-50 text-red-600 animate-pulse" 
+                    ? "bg-red-50 text-red-600 animate-pulse border border-red-100" 
                     : "bg-gray-50 text-gray-500"
                 }`}>
                   {stat.change}
@@ -128,7 +137,7 @@ export default function AdminStats() {
               )}
             </div>
 
-            <div>
+            <div className="animate-in fade-in slide-in-from-bottom-1 duration-700">
               <p className="text-xs font-semibold text-gray-400 mb-1 uppercase tracking-tight">
                 {stat.label}
               </p>
