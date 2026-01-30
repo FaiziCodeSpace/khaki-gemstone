@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
-  LayoutDashboard, Package, ListTree, UserCheck,
-  ShoppingCart, TrendingUp, Users, History,
-  Settings, Menu, X, ShieldCheck, LogOut, NotebookText 
+  LayoutDashboard, Package, ListTree,
+  ShoppingCart, TrendingUp, History,
+  Menu, X, ShieldCheck, LogOut, NotebookText 
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { to: "taxonomyControl", icon: ListTree, label: "Taxonomy Control" },
   { to: "applications", icon: NotebookText , label: "Applications" },
   { to: "orders", icon: ShoppingCart, label: "Orders" },
-  { to: "Investments", icon: TrendingUp, label: "Investments" },
+  { to: "investors", icon: TrendingUp, label: "Investors" },
   { to: "transactions", icon: History, label: "Transactions" },
 ];
 
