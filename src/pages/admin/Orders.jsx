@@ -75,7 +75,7 @@ export default function OrderManagement() {
     ];
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6 font-jakarta p-4 md:p-0">
+        <div className="mx-auto space-y-6 font-jakarta p-4 md:p-0">
 
             {/* Error Toast */}
             {error && (

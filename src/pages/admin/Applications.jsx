@@ -54,8 +54,8 @@ export default function Applications() {
     });
 
     return (
-        <section className="min-h-screen bg-[#FBFBFC] text-slate-900 font-sans p-6">
-            <div className="max-w-7xl mx-auto">
+        <section className="min-h-screen bg-[#FBFBFC] text-slate-900 font-sans">
+            <div className="mx-auto">
                 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
