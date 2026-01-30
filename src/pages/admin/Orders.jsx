@@ -279,7 +279,8 @@ function OrderDetailModal({ order, onClose, onUpdate }) {
                             order.items.map((item, idx) => (
                                 <div key={idx} className="flex justify-between p-3 border border-gray-100 rounded-xl bg-white">
                                     <span className="text-xs font-bold text-gray-800">
-                                        {item.product?.name || "Gemstone Item"}
+                                        {item.product?.name || "Gemstone Item"} {" | "}
+                                        {item.product?.productNumber}
                                     </span>
                                     <span className="text-xs font-black text-gray-900">
                                         Rs. {item.price?.toLocaleString()}
