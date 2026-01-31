@@ -1,5 +1,5 @@
 import api from "../api";
-
+import adminApi from "./api.authService";
 export const createAdmin = async (adminData) => {
   try {
     const response = await api.post("/admin/create", adminData);
@@ -21,3 +21,4 @@ export const editAdmin = async (id, adminData) => {
     throw new Error(message);
   }
 };
+
