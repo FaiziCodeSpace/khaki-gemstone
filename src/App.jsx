@@ -31,6 +31,7 @@ import CategoriesManagment from "./pages/admin/TaxonomyControl";
 import OrderManagement from "./pages/admin/Orders";
 import TransactionHistory from "./pages/admin/Transaction";
 import InvestorManagement from "./pages/admin/Investors";
+import AdminManagement from "./pages/admin/AdminManagment/AdminManage";
 
 
 /* =======================
@@ -194,6 +195,8 @@ function App() {
             <Route path="/admin/orders" element={<OrderManagement/>}/>
             <Route path="/admin/investors" element={<InvestorManagement/>}/>
             <Route path="/admin/transactions" element={<TransactionHistory/>}/>
+            <Route path="/admin/AdminManagement" element={<AdminManagement/>}/>
+            <Route path="/admin/admin-login" element={<AdminLogin/>}/>
           </Route>
 
           {/* =======================

@@ -84,6 +84,7 @@ export default function TransactionHistory() {
                                     <th className="px-6 py-5">Source</th>
                                     <th className="px-6 py-5">Type</th>
                                     <th className="px-6 py-5">Value</th>
+                                    <th className="px-6 py-5">DATE</th>
                                     <th className="px-8 py-5 text-right">Action</th>
                                 </tr>
                             </thead>
@@ -104,6 +105,11 @@ export default function TransactionHistory() {
                                         </td>
                                         <td className="px-6 py-5 font-black text-gray-900">
                                             Rs. {trx.amount?.toLocaleString()}
+                                        </td>
+                                         <td className="px-6 py-5">
+                                            <span className="text-[10px] font-black uppercase text-gray-500 tracking-tighter">
+                                                {new Date(trx.createdAt).toLocaleString()}
+                                            </span>
                                         </td>
                                         <td className="px-8 py-5 text-right">
                                             <button className="p-2 hover:bg-[#CA0A7F] hover:text-white rounded-lg transition-all text-gray-400">
@@ -170,7 +176,7 @@ export default function TransactionHistory() {
                                 )}
                                 
                                 {selectedTrx.order && (
-                                    <DetailBox icon={<Package size={14}/>} label="Order Ref" value={selectedTrx.order?._id || selectedTrx.order} highlight />
+                                    <DetailBox icon={<Package size={14}/>} label="Order Ref" value={selectedTrx.order?.orderNumber || "N/A"} highlight />
                                 )}
                             </div>
 
