@@ -32,8 +32,9 @@ import OrderManagement from "./pages/admin/Orders";
 import TransactionHistory from "./pages/admin/Transaction";
 import InvestorManagement from "./pages/admin/Investors";
 import AdminManagement from "./pages/admin/AdminManagment/AdminManage";
-
-
+import { AdminLogin } from "./pages/admin/AdminManagment/AdminLogin";
+import { AuthProvider } from "./context/AuthContext";
+import AdminProtectedRoute from "./routes/AdminProtectedRoute";
 /* =======================
    💼 INVESTOR (LAZY)
 ======================= */
@@ -179,24 +180,31 @@ function App() {
           {/* =======================
               🛠️ ADMIN (LAYOUT ONLY)
           ======================= */}
-          <Route
-            element={
-              <Suspense fallback={<Loader />}>
-                <AdminLayout />
-              </Suspense>
-            }
-          >
-            <Route path="/admin/dashboard" element={<Dashboard/>} />
-            <Route path="/admin/products" element={<ProductsManagment/>} />
-            <Route path="/admin/products/formbox" element={<FormBox/>} />
-            <Route path="/admin/products/formbox/:productId" element={<FormBox/>} />
-            <Route path="/admin/TaxonomyControl" element={<CategoriesManagment/>}/>
-            <Route path="/admin/applications" element={<Applications/>}/>
-            <Route path="/admin/orders" element={<OrderManagement/>}/>
-            <Route path="/admin/investors" element={<InvestorManagement/>}/>
-            <Route path="/admin/transactions" element={<TransactionHistory/>}/>
-            <Route path="/admin/AdminManagement" element={<AdminManagement/>}/>
-            <Route path="/admin/admin-login" element={<AdminLogin/>}/>
+          <Route element={<AuthProvider />}>
+            {/* Everything inside here has access to Admin Context */}
+            <Route path="/admin-login" element={<AdminLogin />} />
+
+
+            <Route
+              element={
+                <AdminProtectedRoute>
+                  <Suspense fallback={<Loader />}>
+                    <AdminLayout />
+                  </Suspense>
+                </AdminProtectedRoute>
+              }
+            >
+              <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/products" element={<ProductsManagment />} />
+              <Route path="/admin/products/formbox" element={<FormBox />} />
+              <Route path="/admin/products/formbox/:productId" element={<FormBox />} />
+              <Route path="/admin/TaxonomyControl" element={<CategoriesManagment />} />
+              <Route path="/admin/applications" element={<Applications />} />
+              <Route path="/admin/orders" element={<OrderManagement />} />
+              <Route path="/admin/investors" element={<InvestorManagement />} />
+              <Route path="/admin/transactions" element={<TransactionHistory />} />
+              <Route path="/admin/AdminManagement" element={<AdminManagement />} />
+            </Route>
           </Route>
 
           {/* =======================
