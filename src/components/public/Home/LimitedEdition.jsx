@@ -5,6 +5,8 @@ import { fetchCart, addToCart } from "../../../services/cartService";
 import { getGuestCart, addToGuestCart } from "../../../utils/guestCart";
 import { MoveRight, Check } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
 export function LimitedEdition() {
     const [limitedProduct, setLimitedProduct] = useState([]);
     const [cartIds, setCartIds] = useState([]); // Track items in cart
@@ -97,7 +99,7 @@ export function LimitedEdition() {
                         >
                             <img
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                src={product.primary_imgSrc}
+                                src={`${API_URL}${product.primary_imgSrc}`}
                                 alt={product.name}
                                 loading="lazy"
                             />

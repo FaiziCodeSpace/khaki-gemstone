@@ -118,7 +118,7 @@ export default function ProductTable() {
                                                 <img 
                                                     src={`${API_URL}${product.imgs_src[0]}`} 
                                                     alt={product.name}
-                                                    className="w-full h-full object-cover"
+                                                     className="w-full h-full object-cover"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-gray-300"><Eye size={16}/></div>

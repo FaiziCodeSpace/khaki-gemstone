@@ -1,4 +1,4 @@
-import api from "../api";
+import adminApi from "./api.authService";
 
 export const fetchUsers = async (role, status, page = 1, limit = 10) => {
   try {
@@ -8,7 +8,7 @@ export const fetchUsers = async (role, status, page = 1, limit = 10) => {
     params.append("page", page);
     params.append("limit", limit);
 
-    const response = await api.get(`/admin/getUsers?${params.toString()}`);
+    const response = await adminApi.get(`/admin/getUsers?${params.toString()}`);
 
     return response.data;
   } catch (error) {
@@ -20,7 +20,7 @@ export const fetchUsers = async (role, status, page = 1, limit = 10) => {
 
 export const updateInvestorStatus = async (id, status) => {
   try {
-    await api.post(`/admin/update-investor-status?status=${status}`, { id });
+    await adminApi.post(`/admin/update-investor-status?status=${status}`, { id });
   } catch (error) {
     console.error(`Error updating status to ${status} for investor ${id}:`, error);
     throw error;

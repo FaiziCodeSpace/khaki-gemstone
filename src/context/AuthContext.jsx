@@ -17,11 +17,10 @@ export const AuthProvider = ({ children }) => {
         setAdmin(res.data.admin);
       }
     } catch (err) {
-      // 401 is expected here if not logged in. We just clear everything.
       window.adminAccessToken = null;
       setAdmin(null);
     } finally {
-      setLoading(false); // This is the most important line to stop the white screen
+      setLoading(false); 
     }
   }, []);
 
@@ -47,7 +46,6 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ admin, login, logout, loading }}>
-      {/* 2. Render children if they exist, otherwise render the Outlet */}
       {children ? children : <Outlet />}
     </AuthContext.Provider>
   );

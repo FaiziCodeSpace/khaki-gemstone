@@ -77,7 +77,7 @@ export function CartPage() {
           cartItems={cartItems}
           selectedIds={selectedIds}
           onToggle={toggleSelectItem}
-          onRemove={handleRemoveItem} // 🔹 Passing the handler here
+          onRemove={handleRemoveItem} 
         />
         <PriceDetails selectedItems={selectedItemsList} />
       </main>

@@ -1,8 +1,8 @@
-import api from "../api";
+import adminApi from "./api.authService";
 
 export const fetchOrders = async ({ status = "", page = 1, limit = 10 } = {}) => {
   try {
-    const response = await api.get("/orders", {
+    const response = await adminApi.get("/orders", {
       params: { status, page, limit },
     });
     return response.data; 
@@ -14,7 +14,7 @@ export const fetchOrders = async ({ status = "", page = 1, limit = 10 } = {}) =>
 
 export const updateOrderStatus = async (orderId, payload) => {
   try {
-    const response = await api.patch(`/admin/updateOrder/${orderId}/status`, payload);
+    const response = await adminApi.patch(`/admin/updateOrder/${orderId}/status`, payload);
     return response.data;
   } catch (error) {
     console.error("Error in updateOrderStatus service:", error);
