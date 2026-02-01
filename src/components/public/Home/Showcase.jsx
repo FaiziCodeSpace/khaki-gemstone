@@ -5,6 +5,8 @@ import { addToGuestCart, getGuestCart } from "../../../utils/guestCart";
 import { useNavigate } from "react-router-dom";
 import { Check } from "lucide-react"; // Using a check icon for "added" state
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
 export function Showcase() {
   const [products, setProducts] = useState([]);
   const [cartIds, setCartIds] = useState([]); // Track IDs in cart
@@ -14,7 +16,7 @@ export function Showcase() {
     async function initShowcase() {
       // 1. Fetch Products
       const data = await fetchAllProducts(false, 6);
-      if (data) setProducts(data);
+      if (data) setProducts(data);  
 
       // 2. Fetch Cart IDs to show "Already in cart" state
       const token = localStorage.getItem("token");
@@ -91,7 +93,7 @@ export function Showcase() {
             >
               <img
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                src={product.primary_imgSrc}
+                src={`${API_URL}${product.imgs_src[0]}`} 
                 alt={product.name}
               />
 

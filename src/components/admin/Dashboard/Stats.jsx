@@ -4,10 +4,13 @@ import {
   Package, UserPlus, BarChart3, Clock, Loader2 
 } from "lucide-react";
 import { fetchDashboardMetrics } from "../../../services/adminServices/dashboardMatricsService";
+import { useContext } from "react";
+import { AuthContext } from "../../../context/AuthContext"; 
 
 export default function AdminStats() {
   const [data, setData] = useState(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const { admin } = useContext(AuthContext);
 
   const getMetrics = useCallback(async (isSilent = false) => {
     try {
@@ -41,7 +44,7 @@ export default function AdminStats() {
     );
   }
 
-  const stats = [
+  let stats = [
     { 
       label: "Total Users", 
       value: data?.totalUsers || 0, 
@@ -49,23 +52,6 @@ export default function AdminStats() {
       icon: Users, 
       color: "text-blue-600", 
       bg: "bg-blue-50" 
-    },
-    { 
-      label: "Total Investors", 
-      value: data?.totalInvestors || 0, 
-      change: `${data?.activeInvestors || 0} Active`, 
-      icon: UserPlus, 
-      color: "text-indigo-600", 
-      bg: "bg-indigo-50" 
-    },
-    { 
-      label: "Pending Applications", 
-      value: data?.pendingApplications || 0, 
-      change: "Review Required", 
-      icon: Clock, 
-      color: "text-amber-600", 
-      bg: "bg-amber-50",
-      isAlert: data?.pendingApplications > 0 
     },
     { 
       label: "Total Products", 
@@ -83,31 +69,57 @@ export default function AdminStats() {
       color: "text-orange-600", 
       bg: "bg-orange-50" 
     },
-    { 
-      label: "Total Investments", 
-      value: `Rs ${(data?.totalInvestment || 0).toLocaleString()}`, 
-      change: `${data?.productsInvested || 0} Products`, 
-      icon: TrendingUp, 
-      color: "text-emerald-600", 
-      bg: "bg-emerald-50" 
-    },
-    { 
-      label: "Revenue Overview", 
-      value: `Rs ${(data?.ordersRevenue || 0).toLocaleString()}`, 
-      change: "Gross", 
-      icon: BarChart3, 
-      color: "text-[#CA0A7F]", 
-      bg: "bg-pink-50" 
-    },
-    { 
-      label: "Capital Overview", 
-      value: `Rs ${(data?.capitalOverview?.active || 0).toLocaleString()}`, 
-      change: "Active Equity", 
-      icon: Wallet, 
-      color: "text-slate-700", 
-      bg: "bg-slate-100" 
-    },
   ];
+
+  // Only SUPER_ADMIN sees extra stats
+  if (admin?.role === "SUPER_ADMIN") {
+    stats = [
+      ...stats,
+      { 
+        label: "Total Investors", 
+        value: data?.totalInvestors || 0, 
+        change: `${data?.activeInvestors || 0} Active`, 
+        icon: UserPlus, 
+        color: "text-indigo-600", 
+        bg: "bg-indigo-50" 
+      },
+      { 
+        label: "Pending Applications", 
+        value: data?.pendingApplications || 0, 
+        change: "Review Required", 
+        icon: Clock, 
+        color: "text-amber-600", 
+        bg: "bg-amber-50",
+        isAlert: data?.pendingApplications > 0 
+      },
+      { 
+        label: "Total Investments", 
+        value: `Rs ${(data?.totalInvestment || 0).toLocaleString()}`, 
+        change: `${data?.productsInvested || 0} Products`, 
+        icon: TrendingUp, 
+        color: "text-emerald-600", 
+        bg: "bg-emerald-50" 
+      },
+      { 
+        label: "Revenue Overview", 
+        value: `Rs ${(data?.ordersRevenue || 0).toLocaleString()}`, 
+        change: "Gross", 
+        icon: BarChart3, 
+        color: "text-[#CA0A7F]", 
+        bg: "bg-pink-50" 
+      },
+      { 
+        label: "Capital Overview", 
+        value: `Rs ${(data?.capitalOverview?.active || 0).toLocaleString()}`, 
+        change: "Active Equity", 
+        icon: Wallet, 
+        color: "text-slate-700", 
+        bg: "bg-slate-100" 
+      },
+    ];
+  }
+
+
 
   return (
     <div className="space-y-6">
