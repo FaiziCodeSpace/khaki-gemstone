@@ -1,12 +1,14 @@
+// services/investorServices/investmentService.js
 import api from "../api"; 
 
 export const investorService = {
   investInProduct: async (productId) => {
     try {
       const response = await api.post(`/investor/invest/${productId}`);
-      return response.data;
+      return response.data; 
     } catch (error) {
-      throw error.response?.data?.message || "Investment failed";
+      const message = error.response?.data?.message || error.message || "Investment failed";
+      throw message;
     }
   },
 

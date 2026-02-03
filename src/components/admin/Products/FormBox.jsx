@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { X, MapPin, CheckCircle2, Loader2, Plus, Image as ImageIcon, ChevronDown } from "lucide-react";
 import { createProduct, updateProduct, fetchProduct } from "../../../services/productsService";
 
-// Fetch the API URL from your .env file
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
 
 export default function FormBox() {
@@ -45,10 +44,33 @@ export default function FormBox() {
             (async () => {
                 try {
                     const data = await fetchProduct(productId);
-                    setFormData(data);
-                    setTags(data.tags || []);
 
-                    // Prefix existing paths with API_URL for display
+                    // FIX: Ensure no field is undefined by providing default values during state update
+                    setFormData({
+                        name: data.name || "",
+                        price: data.price || "",
+                        description: data.description || "",
+                        gem_size: data.gem_size || "",
+                        portal: data.portal || "public",
+                        location: data.location || "",
+                        profitMargin: data.profitMargin || "",
+                        productNumber: data.productNumber || "",
+                        details: {
+                            gemstone: data.details?.gemstone || "",
+                            cut_type: data.details?.cut_type || "",
+                            color: data.details?.color || "",
+                            clarity: data.details?.clarity || "",
+                        },
+                        more_information: {
+                            weight: data.more_information?.weight || "",
+                            origin: data.more_information?.origin || "",
+                            treatment: data.more_information?.treatment || "",
+                            refractive_index: data.more_information?.refractive_index || "",
+                        },
+                        isLimitedProduct: data.isLimitedProduct || false,
+                    });
+
+                    setTags(data.tags || []);
                     setPreviews({
                         imgs_src: data.imgs_src?.map(path => `${API_URL}${path}`) || [],
                         lab_test_img_src: data.lab_test_img_src ? `${API_URL}${data.lab_test_img_src}` : null,
@@ -66,25 +88,29 @@ export default function FormBox() {
         let finalValue = type === "checkbox" ? checked : value;
 
         if (name === "profitMargin") {
-            // If the input is empty, allow it so the user can backspace
             if (value === "") {
                 finalValue = "";
             } else {
                 const numericValue = Number(value);
-                // Cap at 100, but allow any positive number (including 0) during typing
                 finalValue = Math.min(100, numericValue);
             }
         }
 
         setFormData((prev) => ({
             ...prev,
-            [name]: finalValue
+            [name]: finalValue ?? "" // Defensive nullish coalescing
         }));
     };
 
     const handleNestedChange = (e, section) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [section]: { ...prev[section], [name]: value } }));
+        setFormData((prev) => ({
+            ...prev,
+            [section]: {
+                ...prev[section],
+                [name]: value ?? "" // Ensures we never store 'undefined'
+            }
+        }));
     };
 
     const handleMultipleFiles = (e) => {
@@ -172,7 +198,7 @@ export default function FormBox() {
                         <div className="flex-1">
                             <label className={labelStyle}>Target Portal</label>
                             <div className="relative">
-                                <select name="portal" value={formData.portal} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded-xl p-4 text-sm font-bold appearance-none cursor-pointer pr-10 focus:ring-2 focus:ring-[#CA0A7F]">
+                                <select name="portal" value={formData.portal || "public"} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded-xl p-4 text-sm font-bold appearance-none cursor-pointer pr-10 focus:ring-2 focus:ring-[#CA0A7F]">
                                     <option value="public">🌐 Public Website</option>
                                     <option value="investor">💼 Investor Portal</option>
                                 </select>
@@ -184,7 +210,7 @@ export default function FormBox() {
                             <div className="w-full md:w-56 animate-in zoom-in-95 duration-300">
                                 <label className={labelStyle}>Margin (%)</label>
                                 <div className="relative">
-                                    <input type="number" name="profitMargin" value={formData.profitMargin} onChange={handleChange} placeholder="0" className={`${inputStyle} font-black p-4! border-none bg-gray-900 text-[#CA0A7F]`} required />
+                                    <input type="number" name="profitMargin" value={formData.profitMargin || ""} onChange={handleChange} placeholder="0" className={`${inputStyle} font-black p-4! border-none bg-gray-900 text-[#CA0A7F]`} required />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-gray-500">%</span>
                                 </div>
                             </div>
@@ -199,7 +225,7 @@ export default function FormBox() {
                                 <input
                                     type="text"
                                     name="name"
-                                    value={formData.name}
+                                    value={formData.name || ""}
                                     onChange={handleChange}
                                     className={inputStyle}
                                     placeholder="Emerald Cut Diamond"
@@ -207,14 +233,13 @@ export default function FormBox() {
                                 />
                             </div>
 
-                            {/* ADDED LOCATION INPUT HERE */}
                             <div>
                                 <label className={labelStyle}>Storage Location</label>
                                 <div className="relative">
                                     <input
                                         type="text"
                                         name="location"
-                                        value={formData.location}
+                                        value={formData.location || ""}
                                         onChange={handleChange}
                                         className={inputStyle}
                                         placeholder="e.g. Dera Ismail, Peshawar"
@@ -227,7 +252,7 @@ export default function FormBox() {
                                 <label className={labelStyle}>Product ID</label>
                                 <input
                                     type="text"
-                                    value={isEditMode ? formData.productNumber : "GEM-XXXXXX"}
+                                    value={isEditMode ? (formData.productNumber || "SYNCING...") : "GEM-XXXXXX"}
                                     disabled
                                     className={`${inputStyle} bg-gray-100 italic opacity-60 cursor-not-allowed`}
                                 />
@@ -238,7 +263,7 @@ export default function FormBox() {
                             <label className={labelStyle}>Description</label>
                             <textarea
                                 name="description"
-                                value={formData.description}
+                                value={formData.description || ""}
                                 onChange={handleChange}
                                 className={`${inputStyle} flex-1 min-h-[120px]`}
                                 placeholder="Describe the rarity and heritage..."
@@ -253,7 +278,13 @@ export default function FormBox() {
                             {['gemstone', 'cut_type', 'color', 'clarity'].map((field) => (
                                 <div key={field}>
                                     <label className={labelStyle}>{field.replace('_', ' ')}</label>
-                                    <input type="text" name={field} value={formData.details[field]} onChange={(e) => handleNestedChange(e, 'details')} className={inputStyle} />
+                                    <input 
+                                        type="text" 
+                                        name={field} 
+                                        value={formData.details[field] || ""} 
+                                        onChange={(e) => handleNestedChange(e, 'details')} 
+                                        className={inputStyle} 
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -263,7 +294,7 @@ export default function FormBox() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                         <div>
                             <label className={labelStyle}>Base Price (Rs)</label>
-                            <input type="number" name="price" value={formData.price} onChange={handleChange} className={`${inputStyle} font-bold text-[#CA0A7F]`} />
+                            <input type="number" name="price" value={formData.price || ""} onChange={handleChange} className={`${inputStyle} font-bold text-[#CA0A7F]`} />
                         </div>
                         {['weight', 'origin', 'treatment', 'refractive_index'].map((info) => (
                             <div key={info}>
@@ -271,10 +302,9 @@ export default function FormBox() {
                                     {info.replace('_', ' ')}
                                 </label>
                                 <input
-                                    // FIX: Removed the brackets and used a simple logical check
                                     type={(info === "weight" || info === "refractive_index") ? "number" : "text"}
                                     name={info}
-                                    value={formData.more_information[info]}
+                                    value={formData.more_information[info] || ""}
                                     onChange={(e) => handleNestedChange(e, 'more_information')}
                                     className={inputStyle}
                                 />
@@ -282,7 +312,13 @@ export default function FormBox() {
                         ))}
                         <div>
                             <label className={labelStyle}>Size (mm)</label>
-                            <input type="number" name="gem_size" value={formData.gem_size} onChange={handleChange} className={inputStyle} />
+                            <input 
+                                type="number" 
+                                name="gem_size" 
+                                value={formData.gem_size || ""} 
+                                onChange={handleChange} 
+                                className={inputStyle} 
+                            />
                         </div>
                     </div>
 
@@ -312,7 +348,7 @@ export default function FormBox() {
                                 <p className="text-[10px] text-pink-400 font-bold uppercase">Badge Visibility</p>
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer scale-110">
-                                <input type="checkbox" name="isLimitedProduct" checked={formData.isLimitedProduct} onChange={handleChange} className="sr-only peer" />
+                                <input type="checkbox" name="isLimitedProduct" checked={formData.isLimitedProduct || false} onChange={handleChange} className="sr-only peer" />
                                 <div className="w-12 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#CA0A7F] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6"></div>
                             </label>
                         </div>
