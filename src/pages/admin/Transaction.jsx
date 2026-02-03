@@ -3,7 +3,7 @@ import {
     Search, CreditCard, Gem, Download, X, Info, 
     Package, Layers, Fingerprint, Loader2
 } from "lucide-react";
-import { getTransactions, formatEnum } from "../../services/adminServices/transactions"; // Adjust path
+import { getTransactions, formatEnum } from "../../services/adminServices/transactions"; 
 
 export default function TransactionHistory() {
     const [transactions, setTransactions] = useState([]);
@@ -17,13 +17,11 @@ export default function TransactionHistory() {
 
     useEffect(() => {
         loadData();
-    }, [page, searchTerm]); // Reload when page or search changes
+    }, [page, searchTerm]); 
 
     const loadData = async () => {
         setLoading(true);
         try {
-            // We pass the search as a param if your backend supports it, 
-            // otherwise we'll filter client-side.
             const response = await getTransactions({ page, limit: 10 });
             setTransactions(response.data);
             setTotalPages(response.totalPages);

@@ -43,7 +43,6 @@ const InvestorDashboard = lazy(() => import("./pages/investment/Dashboard"));
 const AddProducts = lazy(() => import("./pages/investment/AddProducts"));
 const InvestorWallet = lazy(() => import("./pages/investment/Wallet"));
 const PricingTable = lazy(() => import("./pages/investment/PricingTable"));
-const Settings = lazy(() => import("./pages/investment/Settings"));
 const TermsAndPolicies = lazy(() => import("./pages/investment/TermsAndPolicies"));
 const LoginInvestor = lazy(() => import("./pages/investment/LoginInvestor"));
 const RegisterInvestor = lazy(() => import("./pages/investment/RegisterInvestor"));
@@ -137,14 +136,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/investor/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
+           
             <Route
               path="/investor/policy"
               element={

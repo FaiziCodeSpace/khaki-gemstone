@@ -5,7 +5,7 @@ import { addToGuestCart, getGuestCart } from "../../../utils/guestCart";
 import { useNavigate } from "react-router-dom";
 import { Check } from "lucide-react"; // Using a check icon for "added" state
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function Showcase() {
   const [products, setProducts] = useState([]);
@@ -15,8 +15,13 @@ export function Showcase() {
   useEffect(() => {
     async function initShowcase() {
       // 1. Fetch Products
-      const data = await fetchAllProducts(false, 6);
-      if (data) setProducts(data);  
+      const data = await fetchAllProducts({
+        limited: false,
+        limit: 6,
+        portal: "PUBLIC"
+      }); 
+      
+      if (data) setProducts(data);
 
       // 2. Fetch Cart IDs to show "Already in cart" state
       const token = localStorage.getItem("token");
@@ -54,7 +59,7 @@ export function Showcase() {
       } else {
         await addToCart(product._id);
       }
-      
+
       // Update local state so icon changes immediately
       setCartIds((prev) => [...prev, product._id]);
     } catch (err) {
@@ -93,7 +98,7 @@ export function Showcase() {
             >
               <img
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                src={`${API_URL}${product.imgs_src[0]}`} 
+                src={`${API_URL}${product.imgs_src[0]}`}
                 alt={product.name}
               />
 
@@ -114,11 +119,10 @@ export function Showcase() {
 
                   <button
                     onClick={(e) => handleAddToCart(e, product)}
-                    className={`p-2 rounded-xl transition-all duration-300 ${
-                      isInCart 
-                      ? "bg-[#CA0A7F] text-white" 
-                      : "bg-transparent hover:scale-110"
-                    }`}
+                    className={`p-2 rounded-xl transition-all duration-300 ${isInCart
+                        ? "bg-[#CA0A7F] text-white"
+                        : "bg-transparent hover:scale-110"
+                      }`}
                     aria-label={isInCart ? "Already in cart" : "Add to cart"}
                   >
                     {isInCart ? (

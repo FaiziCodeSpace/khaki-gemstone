@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchProduct } from '../../../services/productsService';
 
+const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
+
 export function ProductImages() {
     const { id } = useParams();
     const [images, setImages] = useState([]);
-    // Initialize mainImage as an empty string to avoid crashes
     const [mainImage, setMainImage] = useState('');
     const [zoomPos, setZoomPos] = useState('0% 0%');
     const [showZoom, setShowZoom] = useState(false);
@@ -15,8 +16,9 @@ export function ProductImages() {
             try {
                 const data = await fetchProduct(id);
                 if (data && data.imgs_src) {
-                    setImages(data.imgs_src);
-                    setMainImage(data.imgs_src[0]); 
+                    setImages(data.imgs_src.map(img => `${API_URL}${img}`));
+                    setMainImage(`${API_URL}${data.imgs_src[0]}`);
+                     
                 }
             } catch (err) {
                 console.error("Failed to load product images", err);

@@ -6,7 +6,6 @@ import {
   Package,
   FileText,
   Wallet,
-  Settings,
   LogOut,
   Menu,
   X
@@ -71,8 +70,7 @@ export default function SideBar() {
 
           <div>
             <ul className="space-y-2 pt-4 border-t border-gray-100">
-              <SidebarItem onClick={() => setIsOpen(false)} to="settings" icon={Settings} label="Settings" />
-              {/* Logout Item - Passing no "to" prop triggers the button logic */}
+              {/* Logout */}
               <SidebarItem onClick={handleLogout} icon={LogOut} label="Logout" />
             </ul>
           </div>

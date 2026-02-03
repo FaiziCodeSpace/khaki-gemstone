@@ -27,14 +27,15 @@ export function Categories({ filters, setFilters }) {
             const next = current.includes(name)
                 ? current.filter(item => item !== name)
                 : [...current, name];
-            return { ...prev, category: next };
+            return { ...prev, category: next, page: 1 };
         });
     };
 
     const handleOtherToggle = (field) => {
         setFilters(prev => ({
             ...prev,
-            [field]: !prev[field]
+            [field]: !prev[field],
+            page: 1
         }));
     };
 
