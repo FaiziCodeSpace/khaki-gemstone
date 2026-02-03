@@ -1,5 +1,7 @@
 import { Truck, X } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
+
 export function CartItems({ cartItems, selectedIds, onToggle, onRemove }) {
   // Count how many gems are currently selected
   const cardCount = Object.values(selectedIds).filter(Boolean).length;
@@ -31,7 +33,7 @@ export function CartItems({ cartItems, selectedIds, onToggle, onRemove }) {
             {/* Image */}
             <div className="w-[105px] h-[105px] md:w-[126px] overflow-hidden rounded-3xl shrink-0">
               <img
-                src={item.primary_imgSrc}
+                src={`${API_URL}${item.imgs_src[0]}`}
                 alt={item.name}
                 className="w-full h-full object-cover"
               />

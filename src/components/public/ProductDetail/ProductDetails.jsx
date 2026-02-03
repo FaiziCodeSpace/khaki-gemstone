@@ -5,6 +5,8 @@ import { fetchProduct } from '../../../services/productsService';
 import { addToCart, fetchCart } from '../../../services/cartService';
 import { getGuestCart, addToGuestCart } from '../../../utils/guestCart';
 
+const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
+
 export function ProductDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -21,7 +23,6 @@ export function ProductDetails() {
                 const data = await fetchProduct(id);
                 setProduct(data);
 
-                // Check if this product is already in the cart
                 const token = localStorage.getItem("token");
                 let currentCartIds = [];
 
@@ -165,7 +166,7 @@ export function ProductDetails() {
                 {(activeTab === 'laboratory test' || activeTab === 'certificate') && (
                     <div className="animate-fadeIn">
                         <img
-                            src={activeTab === 'laboratory test' ? product.lab_test_img_src : product.certificate_img_src}
+                            src={activeTab === 'laboratory test' ? `${API_URL}${product.lab_test_img_src}` : `${API_URL}${product.certificate_img_src}`}
                             alt={activeTab}
                             className="rounded-lg w-full h-auto md:h-[320px] object-cover border border-gray-200"
                         />

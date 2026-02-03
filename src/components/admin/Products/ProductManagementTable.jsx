@@ -6,23 +6,39 @@ import {
 } from "lucide-react";
 import { fetchAllProducts, deleteProduct } from "../../../services/productsService";
 
-// Base URL for images stored on your backend
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export default function ProductTable() {
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [paginationInfo, setPaginationInfo] = useState({
+        totalProducts: 0,
+        totalPages: 1
+    });
     const itemsPerPage = 10;
 
-    // 1. Fetch live data from backend
+    // 1. Fetch live data from backend with pagination
     const loadProducts = async () => {
         setIsLoading(true);
         try {
-            // Passing search term to your API service
-            const data = await fetchAllProducts({ search: searchTerm });
+            // Passing search, limit, and page to the service
+            const data = await fetchAllProducts({ 
+                search: searchTerm,
+                limit: itemsPerPage,
+                page: currentPage 
+            });
+
             setProducts(data);
+            
+            // Accessing the metadata we attached in the service
+            if (data.pagination) {
+                setPaginationInfo({
+                    totalProducts: data.pagination.totalProducts,
+                    totalPages: data.pagination.totalPages
+                });
+            }
         } catch (err) {
             console.error("Failed to load inventory:", err);
         } finally {
@@ -30,31 +46,35 @@ export default function ProductTable() {
         }
     };
 
-    // Refetch when search changes (with 500ms debounce)
+    // Refetch when search changes (Reset to page 1 on new search)
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            loadProducts();
+            if (currentPage !== 1) {
+                setCurrentPage(1);
+            } else {
+                loadProducts();
+            }
         }, 500);
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
+
+    // Refetch when page changes
+    useEffect(() => {
+        loadProducts();
+    }, [currentPage]);
 
     // 2. Delete Action
     const handleDelete = async (id, name) => {
         if (window.confirm(`Are you sure you want to delete ${name}?`)) {
             try {
                 await deleteProduct(id);
-                setProducts(products.filter(p => p._id !== id));
+                // Refresh current page after delete
+                loadProducts();
             } catch (err) {
                 alert("Action failed: " + err.message);
             }
         }
     };
-
-    // Pagination Logic
-    const totalPages = Math.ceil(products.length / itemsPerPage);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div className="space-y-4">
@@ -110,7 +130,11 @@ export default function ProductTable() {
                                         Syncing with Vault...
                                     </td>
                                 </tr>
-                            ) : currentProducts.map((product) => (
+                            ) : products.length === 0 ? (
+                                <tr>
+                                    <td colSpan="7" className="px-6 py-10 text-center text-gray-400">No products found.</td>
+                                </tr>
+                            ) : products.map((product) => (
                                 <tr key={product._id} className="hover:bg-gray-50/30 transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
@@ -118,7 +142,7 @@ export default function ProductTable() {
                                                 <img 
                                                     src={`${API_URL}${product.imgs_src[0]}`} 
                                                     alt={product.name}
-                                                     className="w-full h-full object-cover"
+                                                    className="w-full h-full object-cover"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-gray-300"><Eye size={16}/></div>
@@ -182,20 +206,25 @@ export default function ProductTable() {
                 {/* --- FOOTER --- */}
                 <div className="bg-white border-t border-gray-50 px-6 py-4 flex items-center justify-between">
                     <p className="text-xs text-gray-500 font-medium">
-                        Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, products.length)} of {products.length} entries
+                        Showing page {currentPage} of {paginationInfo.totalPages} ({paginationInfo.totalProducts} total items)
                     </p>
                     <div className="flex items-center gap-2">
                         <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(p => p - 1)}
-                            className="p-2 border border-gray-200 rounded-lg disabled:opacity-30"
+                            disabled={currentPage === 1 || isLoading}
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className="p-2 border border-gray-200 rounded-lg disabled:opacity-30 hover:bg-gray-50 transition-colors"
                         >
                             <ChevronLeft size={16} />
                         </button>
+                        
+                        <span className="text-sm font-semibold px-2 text-gray-700">
+                            {currentPage}
+                        </span>
+
                         <button 
-                            disabled={currentPage === totalPages}
+                            disabled={currentPage >= paginationInfo.totalPages || isLoading}
                             onClick={() => setCurrentPage(p => p + 1)}
-                            className="p-2 border border-gray-200 rounded-lg disabled:opacity-30"
+                            className="p-2 border border-gray-200 rounded-lg disabled:opacity-30 hover:bg-gray-50 transition-colors"
                         >
                             <ChevronRight size={16} />
                         </button>

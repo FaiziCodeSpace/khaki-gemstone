@@ -14,14 +14,14 @@ const GEMSTONE_FILTERS = [
 
 export function Filter({ filters, setFilters }) {
   const handleSearch = (e) => {
-    setFilters(prev => ({ ...prev, search: e.target.value }));
+    setFilters(prev => ({ ...prev, search: e.target.value, page: 1 }));
   };
 
   const handleFilterClick = (filter) => {
     setFilters(prev => ({
       ...prev,
-      // If "All" is clicked, clear filter. Otherwise, set it to the gemstone name.
-      filter: filter.slug === 'all' ? [] : [filter.name]
+      filter: filter.slug === 'all' ? [] : [filter.name],
+      page: 1
     }));
   };
 

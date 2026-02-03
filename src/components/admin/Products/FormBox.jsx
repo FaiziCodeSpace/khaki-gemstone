@@ -4,14 +4,13 @@ import { X, MapPin, CheckCircle2, Loader2, Plus, Image as ImageIcon, ChevronDown
 import { createProduct, updateProduct, fetchProduct } from "../../../services/productsService";
 
 // Fetch the API URL from your .env file
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
 
 export default function FormBox() {
     const { productId } = useParams();
     const navigate = useNavigate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
     const [formData, setFormData] = useState({
         name: "",
         price: "",
