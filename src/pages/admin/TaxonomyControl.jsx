@@ -44,7 +44,7 @@ export default function CategoriesManagement() {
   return (
     <section className="min-h-screen bg-gray-50">
       <div className="mx-auto space-y-8">
-        
+
         {/* HEADER */}
         <div className="flex items-center justify-between border-b border-gray-200 pb-6">
           <div>
@@ -62,11 +62,11 @@ export default function CategoriesManagement() {
           <div className={sectionStyle}>
             <label className={labelStyle}><Hash size={14} className="text-[#CA0A7F]" /> Search Filters</label>
             <div className="flex gap-2">
-              <input 
-                type="text" value={filterInput} 
+              <input
+                type="text" value={filterInput}
                 onChange={(e) => setFilterInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addItem('filters', filterInput, setFilterInput)}
-                placeholder="Add filter..." className={inputStyle} 
+                placeholder="Add filter..." className={inputStyle}
               />
               <button onClick={() => addItem('filters', filterInput, setFilterInput)} className="bg-[#CA0A7F] text-white px-4 rounded-xl hover:bg-black transition-all">
                 <Plus size={20} />
@@ -86,11 +86,11 @@ export default function CategoriesManagement() {
           <div className={sectionStyle}>
             <label className={labelStyle}><Layers size={14} className="text-[#CA0A7F]" /> Store Categories</label>
             <div className="flex gap-2">
-              <input 
-                type="text" value={categoryInput} 
+              <input
+                type="text" value={categoryInput}
                 onChange={(e) => setCategoryInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addItem('categories', categoryInput, setCategoryInput)}
-                placeholder="Add category..." className={inputStyle} 
+                placeholder="Add category..." className={inputStyle}
               />
               <button onClick={() => addItem('categories', categoryInput, setCategoryInput)} className="bg-black text-white px-4 rounded-xl hover:bg-[#CA0A7F] transition-all">
                 <Plus size={20} />
@@ -100,7 +100,7 @@ export default function CategoriesManagement() {
               <div className="flex flex-wrap gap-2">
                 {list.categories.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2 bg-gray-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold uppercase hover:bg-[#CA0A7F] transition-all group">
-                    <Tag size={10} className="text-pink-400" /> {item} 
+                    <Tag size={10} className="text-pink-400" /> {item}
                     <X size={12} className="cursor-pointer text-white/30 group-hover:text-white" onClick={() => removeItem('categories', idx)} />
                   </div>
                 ))}
@@ -112,24 +112,24 @@ export default function CategoriesManagement() {
         {/* BOTTOM ROW: SINGLE ACTIVE EVENT */}
         <div className={`${sectionStyle} !h-auto`}>
           <label className={labelStyle}><Megaphone size={14} className="text-[#CA0A7F]" /> Global Announcement</label>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Set Event Form */}
             <form onSubmit={handleSetEvent} className="lg:col-span-1 space-y-4">
               <div className="space-y-1">
                 <p className="text-[9px] font-bold text-gray-400 uppercase ml-1">Update Subject</p>
-                <input 
-                  type="text" placeholder="e.g. Winter Clearance" 
+                <input
+                  type="text" placeholder="e.g. Winter Clearance"
                   className={inputStyle} value={eventForm.subject}
-                  onChange={(e) => setEventForm({...eventForm, subject: e.target.value})}
+                  onChange={(e) => setEventForm({ ...eventForm, subject: e.target.value })}
                 />
               </div>
               <div className="space-y-1">
                 <p className="text-[9px] font-bold text-gray-400 uppercase ml-1">Announcement Details</p>
-                <textarea 
+                <textarea
                   placeholder="Describe the promotion..." rows={3}
                   className={`${inputStyle} resize-none`} value={eventForm.description}
-                  onChange={(e) => setEventForm({...eventForm, description: e.target.value})}
+                  onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
                 />
               </div>
               <button type="submit" className="w-full bg-[#CA0A7F] text-white py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:brightness-110 transition-all shadow-md">
@@ -140,7 +140,7 @@ export default function CategoriesManagement() {
             {/* Current Active Event Status */}
             <div className="lg:col-span-2 border-l border-gray-100 lg:pl-8 flex flex-col justify-center">
               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Live Status</p>
-              
+
               {activeEvent ? (
                 <div className="p-6 rounded-2xl border-2 border-pink-100 bg-pink-50/50 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-2">
@@ -149,7 +149,7 @@ export default function CategoriesManagement() {
                   <div className="relative z-10">
                     <h5 className="font-black text-[#CA0A7F] uppercase text-lg tracking-tight">{activeEvent.subject}</h5>
                     <p className="text-sm text-pink-900/70 mt-2 leading-relaxed font-medium">{activeEvent.description}</p>
-                    <button 
+                    <button
                       onClick={() => setActiveEvent(null)}
                       className="mt-6 flex items-center gap-2 text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-700 transition-colors"
                     >
@@ -168,12 +168,13 @@ export default function CategoriesManagement() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #f1f1f1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #CA0A7F; }
-      `}</style>
+      `}} />
     </section>
   );
 }
