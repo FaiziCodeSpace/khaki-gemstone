@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { 
   Users, Wallet, TrendingUp, ShoppingBag, 
-  Package, UserPlus, BarChart3, Clock, Loader2 
+  Package, UserPlus, BarChart3, Clock, Loader2, Landmark 
 } from "lucide-react";
 import { fetchDashboardMetrics } from "../../../services/adminServices/dashboardMatricsService";
 import { useContext } from "react";
@@ -11,6 +11,9 @@ export default function AdminStats() {
   const [data, setData] = useState(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { admin } = useContext(AuthContext);
+
+  // Your custom brand color
+  const BRAND_COLOR = "#CA0A7F";
 
   const getMetrics = useCallback(async (isSilent = false) => {
     try {
@@ -30,20 +33,19 @@ export default function AdminStats() {
       getMetrics(true); // Call silently
     }, 20000);
 
-    // 3. Cleanup on component unmount
     return () => clearInterval(interval);
   }, [getMetrics]);
 
-  // Only show the big spinner on the very first visit
   if (isInitialLoading) {
     return (
       <div className="flex h-64 flex-col items-center justify-center">
-        <Loader2 className="animate-spin text-[#CA0A7F]" size={32} />
+        <Loader2 className="animate-spin" style={{ color: BRAND_COLOR }} size={32} />
         <p className="text-xs text-gray-400 mt-4 font-medium tracking-widest uppercase">Initializing Dashboard...</p>
       </div>
     );
   }
 
+  // Standard Stats (Visible to all Admins)
   let stats = [
     { 
       label: "Total Users", 
@@ -71,7 +73,7 @@ export default function AdminStats() {
     },
   ];
 
-  // Only SUPER_ADMIN sees extra stats
+  // Specific Financial Stats (Visible only to SUPER_ADMIN)
   if (admin?.role === "SUPER_ADMIN") {
     stats = [
       ...stats,
@@ -84,7 +86,7 @@ export default function AdminStats() {
         bg: "bg-indigo-50" 
       },
       { 
-        label: "Pending Applications", 
+        label: "Pending Apps", 
         value: data?.pendingApplications || 0, 
         change: "Review Required", 
         icon: Clock, 
@@ -93,33 +95,31 @@ export default function AdminStats() {
         isAlert: data?.pendingApplications > 0 
       },
       { 
-        label: "Total Investments", 
-        value: `Rs ${(data?.totalInvestment || 0).toLocaleString()}`, 
-        change: `${data?.productsInvested || 0} Products`, 
-        icon: TrendingUp, 
+        label: "Active Capital", 
+        value: `Rs ${(data?.totalActiveCapital || 0).toLocaleString()}`, 
+        change: `${data?.productsInvested || 0} Assets Funded`, 
+        icon: Landmark, 
         color: "text-emerald-600", 
         bg: "bg-emerald-50" 
       },
       { 
-        label: "Revenue Overview", 
+        label: "Projected Payout", 
+        value: `Rs ${(data?.investmentAnalytics?.projectedPayout || 0).toLocaleString()}`, 
+        change: "Incl. Profits", 
+        icon: TrendingUp, 
+        color: "text-slate-700", 
+        bg: "bg-slate-100" 
+      },
+      { 
+        label: "Order Revenue", 
         value: `Rs ${(data?.ordersRevenue || 0).toLocaleString()}`, 
-        change: "Gross", 
+        change: "Gross Sales", 
         icon: BarChart3, 
         color: "text-[#CA0A7F]", 
         bg: "bg-pink-50" 
       },
-      { 
-        label: "Capital Overview", 
-        value: `Rs ${(data?.capitalOverview?.active || 0).toLocaleString()}`, 
-        change: "Active Equity", 
-        icon: Wallet, 
-        color: "text-slate-700", 
-        bg: "bg-slate-100" 
-      },
     ];
   }
-
-
 
   return (
     <div className="space-y-6">

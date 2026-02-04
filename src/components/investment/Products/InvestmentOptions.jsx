@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   ChevronLeft, ChevronRight, MapPin, Tag, TrendingUp, 
-  Search, ImageOff, Loader2, AlertCircle, CheckCircle2, X 
+  Search, ImageOff, Loader2, AlertCircle, CheckCircle2, X, Info,
+  DollarSign, ShoppingCart
 } from 'lucide-react';
 import { investorService } from '../../../services/investorServices/investmentService';
 
@@ -59,6 +60,17 @@ export default function InvestmentOptions({
     }).format(val).replace('PKR', 'Rs.');
   };
 
+  // --- INDUSTRY CALCULATION HELPERS ---
+  const calculateFinalSalePrice = (price, marginPercent) => {
+    return price + (price * (marginPercent / 100));
+  };
+
+  const calculateInvestorReturn = (price, marginPercent, sharingPercent) => {
+    const totalMarkup = price * (marginPercent / 100);
+    const investorProfitShare = (totalMarkup * sharingPercent) / 100;
+    return price + investorProfitShare;
+  };
+
   return (
     <section id="investment-section" className="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       
@@ -83,10 +95,30 @@ export default function InvestmentOptions({
               <TrendingUp size={32} />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">Confirm Investment</h3>
-            <p className="text-slate-500 text-sm leading-relaxed mb-6">
-              You are about to invest <span className="font-bold text-slate-900">{formatCurrency(selectedProduct.price)}</span> into 
-              <span className="font-bold text-slate-900"> {selectedProduct.name}</span>. This action cannot be reversed.
+            
+            <div className="space-y-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Asset Name:</span>
+                    <span className="font-bold text-slate-900">{selectedProduct.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Your Capital:</span>
+                    <span className="font-bold text-slate-900">{formatCurrency(selectedProduct.price)}</span>
+                </div>
+                <div className="flex justify-between text-sm border-t border-slate-200 pt-2">
+                    <span className="text-slate-500">Final Sale Price:</span>
+                    <span className="font-bold text-indigo-600">{formatCurrency(calculateFinalSalePrice(selectedProduct.price, selectedProduct.profitMargin))}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                    <span className="text-emerald-600 font-bold tracking-tight">Your Expected Return:</span>
+                    <span className="font-black text-emerald-600">{formatCurrency(calculateInvestorReturn(selectedProduct.price, selectedProduct.profitMargin, selectedProduct.profitSharingModel))}</span>
+                </div>
+            </div>
+
+            <p className="text-slate-400 text-[11px] leading-tight mb-6 text-center italic">
+              By confirming, you agree to the {selectedProduct.profitSharingModel}% profit sharing model for this specific asset.
             </p>
+
             <div className="flex gap-3">
               <button 
                 disabled={isSubmitting}
@@ -137,13 +169,12 @@ export default function InvestmentOptions({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-white border-b border-slate-100">
-              <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Asset Details</th>
-              <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Location</th>
-              <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Asset ID</th>
-              <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Price</th>
-              <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Profit Margin</th>
-              <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Expected Return</th>
-              <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Asset Details</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Capital</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-indigo-500">Sale Price</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Split</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Exp. Return</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -163,52 +194,49 @@ export default function InvestmentOptions({
                           <ImageOff size={16} />
                         </div>
                       )}
-                      <div className="absolute -bottom-1 -right-1 bg-white p-0.5 rounded-full ring-1 ring-slate-200 shadow-sm">
-                        <TrendingUp size={10} className="text-emerald-600" />
-                      </div>
                     </div>
-                    <span className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors truncate max-w-[150px]">
-                      {product.name}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                    <MapPin size={14} className="text-slate-400" />
-                    <span className="truncate max-w-[120px]">{product.location || "Global"}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-1.5 text-xs font-mono text-slate-400">
-                    <Tag size={12} />
-                    {product.productNumber}
+                    <div>
+                        <p className="text-sm font-semibold text-slate-900 leading-none mb-1">{product.name}</p>
+                        <p className="text-[10px] font-mono text-slate-400 uppercase tracking-tighter flex items-center gap-1">
+                            <Tag size={8} /> {product.productNumber} • {product.location || "Global"}
+                        </p>
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-slate-900 tabular-nums">
                   {formatCurrency(product.price)}
                 </td>
                 <td className="px-6 py-4">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-emerald-600">+{product.profitMargin}%</span>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-tighter">Net Margin</span>
+                    <div className="flex flex-col">
+                        <span className="text-sm font-bold text-indigo-600">{formatCurrency(calculateFinalSalePrice(product.price, product.profitMargin))}</span>
+                        <span className="text-[9px] uppercase font-bold text-slate-400 tracking-tighter">Public Listing</span>
+                    </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex flex-col items-center">
+                    <span className="text-sm font-bold text-slate-900">{product.profitSharingModel || 0}%</span>
+                    <span className="text-[9px] uppercase font-bold text-indigo-400 bg-indigo-50 px-1.5 py-0.5 rounded tracking-tighter">Investor Split</span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="text-sm font-bold text-emerald-600">
-                    {formatCurrency((product.profitMargin * product.price / 100) + product.price)}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-emerald-600">
+                      {formatCurrency(calculateInvestorReturn(product.price, product.profitMargin, product.profitSharingModel))}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Net ROI</span>
+                  </div>
                 </td>
                 <td className="px-6 py-4 text-right">
                   <button
                     onClick={() => setSelectedProduct(product)}
                     className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-95 transition-all">
-                    Invest Now
+                    Fund Asset
                   </button>
                 </td>
               </tr>
             )) : (
               <tr>
-                <td colSpan="7" className="py-20 text-center text-slate-400 text-sm italic">
+                <td colSpan="6" className="py-20 text-center text-slate-400 text-sm italic">
                   No assets found for "{filters.search}"
                 </td>
               </tr>
@@ -234,26 +262,28 @@ export default function InvestmentOptions({
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start gap-2">
                   <h3 className="text-sm font-bold text-slate-900 leading-tight truncate">{product.name}</h3>
-                  <span className="text-sm font-bold text-emerald-600 shrink-0">+{product.profitMargin}%</span>
+                  <div className="text-right">
+                    <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase">{product.profitSharingModel}% Split</span>
+                  </div>
                 </div>
                 <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
                   <MapPin size={12} /> {product.location || "Global"}
                 </p>
-                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono text-slate-400 uppercase">
-                  <Tag size={10} /> {product.productNumber}
+                <div className="text-[10px] font-bold text-indigo-500 mt-1 uppercase">
+                    Sale Price: {formatCurrency(calculateFinalSalePrice(product.price, product.profitMargin))}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl mb-4">
+            <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl mb-4 border border-slate-100">
               <div className="text-center">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Asset Price</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Your Capital</p>
                 <p className="text-sm font-bold text-slate-900">{formatCurrency(product.price)}</p>
               </div>
               <div className="text-center border-l border-slate-200">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Expected Return</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Exp. Return</p>
                 <p className="text-sm font-bold text-emerald-600">
-                    {formatCurrency((product.profitMargin * product.price / 100) + product.price)}
+                    {formatCurrency(calculateInvestorReturn(product.price, product.profitMargin, product.profitSharingModel))}
                 </p>
               </div>
             </div>
@@ -261,7 +291,7 @@ export default function InvestmentOptions({
             <button
               onClick={() => setSelectedProduct(product)}
               className="w-full py-3 bg-slate-900 text-white text-sm font-bold rounded-xl active:scale-[0.98] transition-all shadow-md">
-              Invest Now
+              Fund Asset
             </button>
           </div>
         )) : (
