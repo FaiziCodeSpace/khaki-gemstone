@@ -11,7 +11,7 @@ const InvestorLayout = () => {
 
   return (
     // h-screen prevents the container from collapsing
-    <div className="bg-[#F1F1F1] h-screen flex flex-col overflow-hidden font-jakarta">
+    <div className="bg-[#F8F9FA] h-screen flex flex-col overflow-hidden font-jakarta">
       <TopNavbar />
       {/* --- Main Area --- */}
       <div className="flex flex-1 overflow-hidden">

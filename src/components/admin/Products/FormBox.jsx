@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { X, MapPin, CheckCircle2, Loader2, Plus, Image as ImageIcon, ChevronDown } from "lucide-react";
+import { X, MapPin, CheckCircle2, Loader2, Plus, Image as ImageIcon, ChevronDown, Calculator, TrendingUp, UserCheck, Wallet } from "lucide-react";
 import { createProduct, updateProduct, fetchProduct } from "../../../services/productsService";
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
@@ -18,6 +18,7 @@ export default function FormBox() {
         portal: "public",
         location: "",
         profitMargin: "",
+        profitSharingModel: "",
         details: { gemstone: "", cut_type: "", color: "", clarity: "" },
         more_information: { weight: "", origin: "", treatment: "", refractive_index: "" },
         isLimitedProduct: false,
@@ -38,14 +39,40 @@ export default function FormBox() {
         certificate: null,
     });
 
+    // --- INDUSTRY STANDARD PROFIT SPLIT LOGIC ---
+    const calculateFinancials = () => {
+        const baseCost = parseFloat(formData.price) || 0;
+        const marginPercent = parseFloat(formData.profitMargin) || 0;
+        const sharingPercent = parseFloat(formData.profitSharingModel) || 0; // % of profit for Investor
+
+        // 1. Calculate the Net Profit (Markup)
+        const netProfit = (baseCost * marginPercent) / 100;
+        
+        // 2. The Final Selling Price
+        const totalRevenue = baseCost + netProfit;
+        
+        // 3. Investor's share (Calculated strictly from the Profit)
+        const investorProfitShare = (netProfit * sharingPercent) / 100;
+        
+        // 4. Admin's share (Base Cost recovery + remaining Profit)
+        const adminTotalRecovery = baseCost + (netProfit - investorProfitShare);
+
+        return {
+            netProfit: netProfit.toLocaleString(),
+            investorShare: investorProfitShare.toLocaleString(),
+            adminShare: adminTotalRecovery.toLocaleString(),
+            totalRevenue: totalRevenue.toLocaleString(),
+        };
+    };
+
+    const financials = calculateFinancials();
+
     useEffect(() => {
         if (productId) {
             setIsEditMode(true);
             (async () => {
                 try {
                     const data = await fetchProduct(productId);
-
-                    // FIX: Ensure no field is undefined by providing default values during state update
                     setFormData({
                         name: data.name || "",
                         price: data.price || "",
@@ -54,6 +81,7 @@ export default function FormBox() {
                         portal: data.portal || "public",
                         location: data.location || "",
                         profitMargin: data.profitMargin || "",
+                        profitSharingModel: data.profitSharingModel || "",
                         productNumber: data.productNumber || "",
                         details: {
                             gemstone: data.details?.gemstone || "",
@@ -87,18 +115,18 @@ export default function FormBox() {
         const { name, value, type, checked } = e.target;
         let finalValue = type === "checkbox" ? checked : value;
 
-        if (name === "profitMargin") {
+        if (name === "profitMargin" || name === "profitSharingModel") {
             if (value === "") {
                 finalValue = "";
             } else {
                 const numericValue = Number(value);
-                finalValue = Math.min(100, numericValue);
+                finalValue = Math.min(500, numericValue); // Increased limit for margin
             }
         }
 
         setFormData((prev) => ({
             ...prev,
-            [name]: finalValue ?? "" // Defensive nullish coalescing
+            [name]: finalValue ?? "" 
         }));
     };
 
@@ -108,7 +136,7 @@ export default function FormBox() {
             ...prev,
             [section]: {
                 ...prev[section],
-                [name]: value ?? "" // Ensures we never store 'undefined'
+                [name]: value ?? "" 
             }
         }));
     };
@@ -150,6 +178,7 @@ export default function FormBox() {
             data.append("location", formData.location);
             data.append("isLimitedProduct", formData.isLimitedProduct);
             if (formData.profitMargin) data.append("profitMargin", formData.profitMargin);
+            if (formData.profitSharingModel) data.append("profitSharingModel", formData.profitSharingModel);
 
             data.append("details", JSON.stringify(formData.details));
             data.append("more_information", JSON.stringify(formData.more_information));
@@ -193,25 +222,75 @@ export default function FormBox() {
 
                 <form onSubmit={handleSubmit} className="p-6 md:p-10 lg:p-14 space-y-10 md:space-y-16">
 
-                    {/* DISTRIBUTION CHANNEL */}
-                    <div className="bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-200 flex flex-col md:flex-row items-stretch md:items-end gap-6">
-                        <div className="flex-1">
-                            <label className={labelStyle}>Target Portal</label>
-                            <div className="relative">
-                                <select name="portal" value={formData.portal || "public"} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded-xl p-4 text-sm font-bold appearance-none cursor-pointer pr-10 focus:ring-2 focus:ring-[#CA0A7F]">
-                                    <option value="public">🌐 Public Website</option>
-                                    <option value="investor">💼 Investor Portal</option>
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={18} />
+                    {/* PROFIT DISTRIBUTION & PORTAL SELECTION */}
+                    <div className="space-y-6">
+                        <div className="bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-200 flex flex-col md:flex-row items-stretch md:items-end gap-6">
+                            <div className="flex-1">
+                                <label className={labelStyle}>Target Portal</label>
+                                <div className="relative">
+                                    <select name="portal" value={formData.portal || "public"} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded-xl p-4 text-sm font-bold appearance-none cursor-pointer pr-10 focus:ring-2 focus:ring-[#CA0A7F]">
+                                        <option value="public">🌐 Public Website</option>
+                                        <option value="investor">💼 Investor Portal</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={18} />
+                                </div>
                             </div>
+
+                            {formData.portal === "investor" && (
+                                <>
+                                    <div className="w-full md:w-44 animate-in zoom-in-95 duration-300">
+                                        <label className={labelStyle}>Profit Margin (%)</label>
+                                        <div className="relative">
+                                            <input type="number" name="profitMargin" value={formData.profitMargin || ""} onChange={handleChange} placeholder="0" className={`${inputStyle} font-black p-4! border-none bg-gray-900 text-[#CA0A7F]`} required />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-gray-500">%</span>
+                                        </div>
+                                    </div>
+                                    <div className="w-full md:w-44 animate-in zoom-in-95 duration-300">
+                                        <label className={labelStyle}>Investor Share (%)</label>
+                                        <div className="relative">
+                                            <input type="number" name="profitSharingModel" value={formData.profitSharingModel || ""} onChange={handleChange} placeholder="50" className={`${inputStyle} font-black p-4! border-none bg-gray-900 text-[#CA0A7F]`} required />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-gray-500">%</span>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
-                        {formData.portal === "investor" && (
-                            <div className="w-full md:w-56 animate-in zoom-in-95 duration-300">
-                                <label className={labelStyle}>Margin (%)</label>
-                                <div className="relative">
-                                    <input type="number" name="profitMargin" value={formData.profitMargin || ""} onChange={handleChange} placeholder="0" className={`${inputStyle} font-black p-4! border-none bg-gray-900 text-[#CA0A7F]`} required />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-gray-500">%</span>
+                        {/* INDUSTRY-STYLE FINANCIAL BREAKDOWN */}
+                        {formData.portal === "investor" && formData.price && (
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-in slide-in-from-top-4 duration-500">
+                                <div className="bg-white border border-gray-200 p-5 rounded-2xl">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <TrendingUp size={16} className="text-emerald-500" />
+                                        <p className="text-[10px] font-black uppercase text-gray-400">Net Profit</p>
+                                    </div>
+                                    <p className="text-lg font-black text-gray-900">Rs. {financials.netProfit}</p>
+                                </div>
+
+                                <div className="bg-gray-900 p-5 rounded-2xl">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <UserCheck size={16} className="text-pink-400" />
+                                        <p className="text-[10px] font-black uppercase text-pink-300">Investor (Profit Split)</p>
+                                    </div>
+                                    <p className="text-lg font-black text-white">Rs. {financials.investorShare}</p>
+                                    <p className="text-[8px] text-pink-500 font-bold mt-1 uppercase">{formData.profitSharingModel || 0}% of net profit</p>
+                                </div>
+
+                                <div className="bg-[#CA0A7F] p-5 rounded-2xl">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Calculator size={16} className="text-white" />
+                                        <p className="text-[10px] font-black uppercase text-pink-100">Admin Recovery</p>
+                                    </div>
+                                    <p className="text-lg font-black text-white">Rs. {financials.adminShare}</p>
+                                    <p className="text-[8px] text-pink-200 font-bold mt-1 uppercase tracking-tighter">Cost + Remaining Profit</p>
+                                </div>
+
+                                <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Wallet size={16} className="text-emerald-600" />
+                                        <p className="text-[10px] font-black uppercase text-emerald-600">Total List Price</p>
+                                    </div>
+                                    <p className="text-lg font-black text-emerald-900">Rs. {financials.totalRevenue}</p>
                                 </div>
                             </div>
                         )}
@@ -242,7 +321,7 @@ export default function FormBox() {
                                         value={formData.location || ""}
                                         onChange={handleChange}
                                         className={inputStyle}
-                                        placeholder="e.g. Dera Ismail, Peshawar"
+                                        placeholder="e.g. Peshawar Office"
                                     />
                                     <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
                                 </div>
@@ -293,7 +372,7 @@ export default function FormBox() {
                     {/* PRICING & TECH */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                         <div>
-                            <label className={labelStyle}>Base Price (Rs)</label>
+                            <label className={labelStyle}>Base Cost / Price (Rs)</label>
                             <input type="number" name="price" value={formData.price || ""} onChange={handleChange} className={`${inputStyle} font-bold text-[#CA0A7F]`} />
                         </div>
                         {['weight', 'origin', 'treatment', 'refractive_index'].map((info) => (
