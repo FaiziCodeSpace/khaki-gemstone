@@ -22,11 +22,11 @@ export function Card({ products }) {
     }
 
     return (
-        <section className="flex flex-col mid:flex-row mid:flex-wrap gap-6 items-start justify-center px-6 mid:px-12 pb-12 flex-5">
+        <section className="flex flex-col mid:flex-row mid:flex-wrap gap-10 items-start justify-center px-6 mid:px-12 pb-12 flex-5">
             {products.map((item) => (
                 <div key={item._id}
                     onClick={() => handleCardClick(item._id)}
-                    className="group relative flex flex-row mid:flex-col bg-white p-3 mid:p-4 rounded-[24px] mid:rounded-[32px] w-full mid:w-[260px] shadow-sm hover:shadow-xl mid:hover:-translate-y-2 transition-all duration-500 ease-out">
+                    className="group relative flex flex-row mid:flex-col bg-white p-3 mid:p-4 rounded-[24px] mid:rounded-[32px] w-full mid:w-[300px] shadow-sm hover:shadow-xl mid:hover:-translate-y-2 transition-all duration-500 ease-out">
                     <button
                         onClick={() => toggleLike(item._id)}
                         className="absolute rounded-full bg-white/80 backdrop-blur-sm top-4 right-4 mid:top-6 mid:right-6 p-2 z-20 cursor-pointer shadow-md active:scale-90 transition-transform"
@@ -44,7 +44,7 @@ export function Card({ products }) {
                             src={`${API_URL}${item.imgs_src[0]}`}
                             alt={item.name} />
                     </div>
-                
+
                     <div className="flex flex-col justify-between flex-1 ml-4 mid:ml-0 mid:mt-4 mid:px-1">
                         <div>
                             <h2 className="font-bold text-lg mid:text-xl text-gray-800 tracking-tight leading-tight">{item.name}</h2>
@@ -54,7 +54,7 @@ export function Card({ products }) {
                         <div className="mt-auto pt-2 mid:mt-5 flex justify-between items-center">
                             <div className="flex flex-col">
                                 <span className="text-[9px] mid:text-[10px] uppercase text-gray-400 font-bold tracking-widest">Price</span>
-                                <h3 className="font-black text-base mid:text-lg text-[#2D2636] leading-none">${item.price}</h3>
+                                <h3 className="font-black text-base mid:text-lg text-[#2D2636] leading-none">{item.publicPrice?.toLocaleString()} PKR</h3>
                             </div>
                             <button className="active:scale-95 bg-[#2D2636] hover:bg-black px-4 mid:px-6 py-2 mid:py-2.5 text-xs mid:text-sm font-medium text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer">Buy Now</button>
                         </div>

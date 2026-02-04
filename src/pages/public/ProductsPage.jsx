@@ -8,14 +8,14 @@ import { fetchAllProducts } from '../../services/productsService';
 
 export function ProductsPage() {
     const [products, setProducts] = useState([]);
-    const [pagination, setPagination] = useState({ totalPages: 1, totalProducts: 0 }); // To store metadata
+    const [pagination, setPagination] = useState({ totalPages: 1, totalProducts: 0 }); 
     
     const [filters, setFilters] = useState({
         search: '',
         category: [], 
         filter: [],   
         limited: undefined,
-        portal: 'PUBLIC',
+        portal: 'ALL_PUBLIC', 
         page: 1,      
         limit: 12  
     });
@@ -23,11 +23,26 @@ export function ProductsPage() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                // This calls the service with { ..., page: 1, limit: 12 }
-                const data = await fetchAllProducts(filters);
-                setProducts(data);
+                // If your backend doesn't support 'ALL_PUBLIC', we fetch without 
+                // the portal param and filter in the result.
+                const queryFilters = { ...filters };
+                if (filters.portal === 'ALL_PUBLIC') {
+                    delete queryFilters.portal; // Fetching broadly to filter locally or via service logic
+                }
 
-                // Capture pagination metadata from the array property we added in the service
+                const data = await fetchAllProducts(queryFilters);
+                
+                // If data comes back as an object with a products array
+                let rawProducts = data.products || data;
+                
+                // Filter locally to ensure we only show PUBLIC and PUBLIC BY INVESTED
+                // This prevents 'INVESTOR' (raw stones) from appearing on the public site
+                const filteredProducts = Array.isArray(rawProducts) 
+                    ? rawProducts.filter(p => p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED")
+                    : [];
+
+                setProducts(filteredProducts);
+
                 if (data.pagination) {
                     setPagination({
                         totalPages: data.pagination.totalPages,
@@ -41,7 +56,6 @@ export function ProductsPage() {
         loadData();
     }, [filters]);
 
-    // Helper to change page
     const handlePageChange = (newPage) => {
         setFilters(prev => ({ ...prev, page: newPage }));
     };
@@ -53,7 +67,9 @@ export function ProductsPage() {
             <div className='flex'>
                 <Categories filters={filters} setFilters={setFilters} />
                 <div className="flex-1">
+                    {/* The Card component will now receive products from both portals */}
                     <Card products={products} />
+                    
                     {pagination.totalPages > 1 && (
                         <div className="flex justify-center gap-4 pb-10">
                             <button 

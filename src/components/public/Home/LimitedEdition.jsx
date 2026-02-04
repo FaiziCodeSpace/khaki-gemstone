@@ -15,13 +15,25 @@ export function LimitedEdition() {
     useEffect(() => {
         const initLimitedEdition = async () => {
             try {
-                // 1. Fetch Products
+                  
                 const data = await fetchAllProducts({
                     limited: true,
-                    limit: 6,
-                    portal: "PUBLIC"
+                    limit: 10, 
                 });
-                if (data) setLimitedProduct(data);
+
+                if (data && data.products) {
+                    const filtered = data.products.filter(p => 
+                        p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
+                    ).slice(0, 6); // Take top 6
+                    
+                    setLimitedProduct(filtered);
+                } else if (Array.isArray(data)) {
+                    // Fallback if the service returns the array directly
+                    const filtered = data.filter(p => 
+                        p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
+                    ).slice(0, 6);
+                    setLimitedProduct(filtered);
+                }
 
                 // 2. Fetch Cart IDs to show current state
                 const token = localStorage.getItem("token");
@@ -93,6 +105,15 @@ export function LimitedEdition() {
             >
                 {limitedProduct.map((product) => {
                     const isInCart = cartIds.includes(product._id);
+                    
+                    // Logic to display the correct price based on portal
+                    // If your backend virtual 'publicPrice' is ready, use product.publicPrice
+                    // Otherwise, calculate it here as a fallback
+                    const displayPrice = product.publicPrice || (
+                        product.portal === "PUBLIC BY INVESTED" 
+                        ? (product.price + (product.price * (product.profitMargin / 100))).toFixed(2)
+                        : product.price
+                    );
 
                     return (
                         <article
@@ -114,7 +135,7 @@ export function LimitedEdition() {
                                         {product.name}
                                     </h3>
                                     <p className="font-satoshi font-medium text-[12px] text-[#282930]/60 uppercase mt-0.5">
-                                        <span className="sr-only">Price: </span> From: Rs {product.price}
+                                        <span className="sr-only">Price: </span> Rs {displayPrice}
                                     </p>
                                 </div>
 

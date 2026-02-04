@@ -1,47 +1,60 @@
+import React from 'react';
 import { Plus, ArrowUp } from 'lucide-react';
 
-export function InvestorStats() {
+export function InvestorStats({ externalData }) {
+  const BRAND_COLOR = "#CA0A7F";
+
+  // If dashboard hasn't provided data yet, use null-safety
+  const data = externalData;
+
   const stats = [
-    { label: "YOUR PRODUCTS", value: "17" },
-    { label: "TOTAL INVESTMENT", value: "Rs 1000" },
-    { label: "PROFIT THIS WEEK", value: "Rs 33,223", trend: "+36%" },
-    { label: "TOTAL BALANCE", value: "Rs 1000" },
+    { label: "YOUR PRODUCTS", value: data?.yourProducts || "0" },
+    { label: "TOTAL INVESTMENT", value: `Rs ${(data?.totalInvestment || 0).toLocaleString()}` },
+    { label: "PROFIT (SOLD)", value: `Rs ${(data?.profitFromSold || 0).toLocaleString()}`, trend: data?.trend },
+    { label: "TOTAL BALANCE", value: `Rs ${(data?.totalBalance || 0).toLocaleString()}` },
   ];
 
   return (
     <section className="flex flex-col gap-6 p-4 md:p-0 md:gap-8.5">
-      {/* Header: Title and Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-2xl font-bold md:text-[28px]">Hey Mariana!</h2>
+        <div className="flex flex-col gap-1">
+            <h2 className="text-2xl font-black md:text-[28px] text-slate-900 leading-tight">
+                Hey {data?.firstName || 'Investor'}!
+            </h2>
+            <p className="text-xs text-slate-500 font-medium">Your current market standing and earnings.</p>
+        </div>
+        
         <div className="flex items-center gap-3">
-          <button className="h-10 flex-1 rounded-lg border border-[#D2D2D2] bg-[#EBEBEB] text-[13px] text-[#979797] sm:w-[140px] md:w-[169px] font-bold">
-            Check out
+          <button className="h-10 flex-1 rounded-xl border border-slate-200 bg-slate-50 text-[13px] text-slate-600 sm:w-[140px] md:w-[169px] font-bold hover:bg-slate-100 transition-all">
+            Statements
           </button>
-          <button className="flex h-10 flex-1 items-center justify-center gap-1 rounded-lg bg-[#4F46E5] text-[13px] text-white sm:w-[140px] md:w-[169px] font-bold">
-            <Plus size={18} />
+          <button 
+            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-[13px] text-white sm:w-[140px] md:w-[169px] font-bold shadow-lg shadow-pink-200 hover:brightness-110 active:scale-95 transition-all"
+            style={{ backgroundColor: BRAND_COLOR }}
+          >
+            <Plus size={18} strokeWidth={3} />
             <span>Add Product</span>
           </button>
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6.5">
         {stats.map((stat, index) => (
           <div 
             key={index} 
-            className="flex min-h-[100px] flex-col justify-between rounded-xl border border-[#E4E4E7] bg-white p-4 shadow-sm"
+            className="group flex min-h-[110px] flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md hover:border-pink-100 transition-all duration-300"
           >
-            <p className="text-[11px] font-medium tracking-wider text-[#71717A]">
+            <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
               {stat.label}
             </p>
             <div className="flex items-end justify-between">
-              <h3 className="text-xl font-bold md:text-[22px]">
+              <h3 className="text-xl font-black md:text-[24px] text-slate-900 tracking-tight transition-all duration-500">
                 {stat.value}
               </h3>
-              {stat.trend && (
-                <span className="flex items-center text-[13px] font-medium text-[#22C55E]">
+              {stat.trend && stat.trend !== "+0%" && (
+                <span className="flex items-center gap-0.5 text-[13px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg">
                   {stat.trend}
-                  <ArrowUp size={14} />
+                  <ArrowUp size={14} strokeWidth={3} />
                 </span>
               )}
             </div>

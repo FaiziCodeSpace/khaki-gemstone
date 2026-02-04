@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   ChevronLeft, ChevronRight, MapPin, Tag, TrendingUp, 
   Search, ImageOff, Loader2, AlertCircle, CheckCircle2, X, Info,
-  DollarSign, ShoppingCart
 } from 'lucide-react';
 import { investorService } from '../../../services/investorServices/investmentService';
 
