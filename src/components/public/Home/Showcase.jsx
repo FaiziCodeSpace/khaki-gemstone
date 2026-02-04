@@ -3,7 +3,7 @@ import { fetchAllProducts } from "../../../services/productsService";
 import { addToCart, fetchCart } from "../../../services/cartService";
 import { addToGuestCart, getGuestCart } from "../../../utils/guestCart";
 import { useNavigate } from "react-router-dom";
-import { Check } from "lucide-react"; // Using a check icon for "added" state
+import { Check } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
@@ -14,25 +14,40 @@ export function Showcase() {
 
   useEffect(() => {
     async function initShowcase() {
-      // 1. Fetch Products
-      const data = await fetchAllProducts({
-        limited: false,
-        limit: 6,
-        portal: "PUBLIC"
-      }); 
-      
-      if (data) setProducts(data);
+      try {
+        // 1. Fetch Products
+        // We remove the strict portal filter here to allow our logic to filter multiple types
+        const data = await fetchAllProducts({
+          limited: false,
+          limit: 12, // Fetch more to allow for portal filtering locally
+        });
+        
+        if (data && data.products) {
+          // Filter for both standard public and investor-funded public products
+          const filtered = data.products.filter(p => 
+            p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
+          ).slice(0, 6); // Display the top 6
+          
+          setProducts(filtered);
+        } else if (Array.isArray(data)) {
+          const filtered = data.filter(p => 
+            p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
+          ).slice(0, 6);
+          setProducts(filtered);
+        }
 
-      // 2. Fetch Cart IDs to show "Already in cart" state
-      const token = localStorage.getItem("token");
-      if (!token) {
-        const guestItems = getGuestCart();
-        setCartIds(guestItems.map((item) => item._id));
-      } else {
-        const dbItems = await fetchCart();
-        // Handle both possible structures (array or object with items array)
-        const items = Array.isArray(dbItems) ? dbItems : dbItems.items || [];
-        setCartIds(items.map((item) => item._id));
+        // 2. Fetch Cart IDs to show "Already in cart" state
+        const token = localStorage.getItem("token");
+        if (!token) {
+          const guestItems = getGuestCart();
+          setCartIds(guestItems.map((item) => item._id));
+        } else {
+          const dbItems = await fetchCart();
+          const items = Array.isArray(dbItems) ? dbItems : dbItems.items || [];
+          setCartIds(items.map((item) => item._id));
+        }
+      } catch (err) {
+        console.error("Showcase Init Error:", err);
       }
     }
     initShowcase();
@@ -45,9 +60,9 @@ export function Showcase() {
   const handleAddToCart = async (e, product) => {
     e.stopPropagation();
 
-    // Prevent adding if already in cart (since products are unique)
+    // Prevent adding if already in cart
     if (cartIds.includes(product._id)) {
-      navigate("/cart"); // Optional: Redirect to cart instead of adding again
+      navigate("/cart");
       return;
     }
 
@@ -72,12 +87,15 @@ export function Showcase() {
     <section className="flex flex-col justify-center items-center mt-25 md:mt-60 w-full overflow-hidden">
       {/* Header Section */}
       <div className="flex flex-col px-6 lg:px-10 items-start lg:flex-row lg:items-end w-full max-w-[1440px] justify-between">
-        <h1 className="text-[clamp(32px,6vw,72px)] tracking-tight leading-none font-regular max-w-[800px]">
-          OUR PREMIUM COLLECTION OF NATURAL GEMSTONES
+        <h1 className="text-[clamp(32px,6vw,72px)] tracking-tight leading-none font-regular max-w-[800px] uppercase">
+          Our Premium Collection of Natural Gemstones
         </h1>
-        <button className="mt-7 text-[12px] font-bold text-[#282930] text-nowrap border-[1px] px-5.5 py-2 flex justify-center items-center gap-2 rounded-[40px]
-                lg:w-[250px] lg:h-[54px] lg:gap-2.5 lg:text-[18px] font-['Satoshi'] hover:bg-[#282930] hover:text-white transition-all">
-          View All <img className="w-4 h-4 lg:w-6 lg:h-6 invert-0 hover:invert" src="./Icons/arrow.svg" alt="Arrow" />
+        <button 
+          onClick={() => navigate('/shop')}
+          className="mt-7 text-[12px] font-bold text-[#282930] text-nowrap border-[1px] px-5.5 py-2 flex justify-center items-center gap-2 rounded-[40px]
+                lg:w-[250px] lg:h-[54px] lg:gap-2.5 lg:text-[18px] font-['Satoshi'] hover:bg-[#282930] hover:text-white transition-all group"
+        >
+          View All <img className="w-4 h-4 lg:w-6 lg:h-6 transition-all group-hover:invert" src="./Icons/arrow.svg" alt="Arrow" />
         </button>
       </div>
 
@@ -87,6 +105,13 @@ export function Showcase() {
 
         {products.map((product) => {
           const isInCart = cartIds.includes(product._id);
+
+          // Calculate display price: Use virtual publicPrice or calculate manually for INVESTED products
+          const displayPrice = product.publicPrice || (
+            product.portal === "PUBLIC BY INVESTED" 
+            ? (product.price + (product.price * (product.profitMargin / 100))).toFixed(0)
+            : product.price
+          );
 
           return (
             <div
@@ -106,11 +131,11 @@ export function Showcase() {
                               p-4 flex justify-between items-center bg-white rounded-2xl shadow-lg">
 
                 <div className="flex flex-col">
-                  <p className="text-[16px] font-normal text-[#282930]">
+                  <p className="text-[16px] font-normal text-[#282930] font-satoshi">
                     {product.name}
                   </p>
-                  <p className="text-[12px] text-[#282930]/60 uppercase">
-                    From: Rs {product.price}
+                  <p className="text-[12px] text-[#282930]/60 uppercase font-satoshi font-medium">
+                    Rs {displayPrice}
                   </p>
                 </div>
 
@@ -138,6 +163,13 @@ export function Showcase() {
           );
         })}
       </div>
+
+      {/* Utilities */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}} />
     </section>
   );
 }

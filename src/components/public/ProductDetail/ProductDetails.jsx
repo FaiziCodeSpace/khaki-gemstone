@@ -13,7 +13,6 @@ export function ProductDetails() {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('description');
-    const [isFavorite, setIsFavorite] = useState(false);
     const [isInCart, setIsInCart] = useState(false);
 
     useEffect(() => {
@@ -109,7 +108,7 @@ export function ProductDetails() {
                     <div className="animate-fadeIn flex flex-col gap-6 mt-4 md:mt-8">
                         <div>
                             <h2 className="list-heading text-lg font-bold">Gem Size</h2>
-                            <ul className='list-styling'><li>{product.gem_size}</li></ul>
+                            <ul className='list-styling'><li>{product.gem_size} mm</li></ul>
                         </div>
 
                         <div>
@@ -180,7 +179,7 @@ export function ProductDetails() {
                     <div className='w-full md:w-auto'>
                         <p className='text-[#111111B2] text-sm md:text-base'>Price</p>
                         <p className='font-normal text-3xl md:text-[40px] leading-none'>
-                            {product.price?.toLocaleString()} PKR
+                            {product.publicPrice?.toLocaleString()} PKR
                         </p>
                     </div>
                     <button
@@ -206,15 +205,7 @@ export function ProductDetails() {
                         )}
                     </button>
 
-                    <button
-                        onClick={() => setIsFavorite(!isFavorite)}
-                        className='flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] transition-all hover:bg-gray-100 gap-1.5'
-                    >
-                        <Heart
-                            className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-black'}`}
-                        />
-                        <p>Favorites</p>
-                    </button>
+                   
 
                     <button
                         onClick={() => navigator.share?.({ title: product.name, url: window.location.href })}
