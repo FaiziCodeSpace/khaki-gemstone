@@ -4,6 +4,7 @@ import { ArrowRight, Share2, Heart, Loader2, ShoppingCart, Check } from 'lucide-
 import { fetchProduct } from '../../../services/productsService';
 import { addToCart, fetchCart } from '../../../services/cartService';
 import { getGuestCart, addToGuestCart } from '../../../utils/guestCart';
+import { CheckoutModal } from '../UI/CheckoutModal';
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
@@ -14,7 +15,7 @@ export function ProductDetails() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('description');
     const [isInCart, setIsInCart] = useState(false);
-
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     useEffect(() => {
         const getProductData = async () => {
             try {
@@ -183,19 +184,25 @@ export function ProductDetails() {
                         </p>
                     </div>
                     <button
-                        onClick={() => navigate('/checkout', { state: { product } })}
+                        onClick={() => setIsCheckoutOpen(true)}
                         className='flex w-full md:flex-1 h-12 md:h-[64px] justify-center items-center bg-black text-white text-lg md:text-[20px] font-normal px-6 rounded-full transition-all hover:bg-gray-800 active:scale-95'
                     >
                         Shop Now <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-2.5" />
                     </button>
+                    <CheckoutModal
+                        isOpen={isCheckoutOpen}
+                        onClose={() => setIsCheckoutOpen(false)}
+                        items={[product]}
+                        totalAmount={product.publicPrice}
+                    />
                 </div>
 
                 <div className='flex gap-2'>
                     <button
                         onClick={handleAddToCartAction}
                         className={`flex items-center justify-center w-full text-[12px] md:text-[16px] py-3 md:py-3.5 border-2 rounded-full transition-all gap-1.5 ${isInCart
-                                ? 'bg-[#CA0A7F] border-[#CA0A7F] text-white'
-                                : 'bg-[#FAFAFA] border-[#1111111A] hover:bg-gray-100'
+                            ? 'bg-[#CA0A7F] border-[#CA0A7F] text-white'
+                            : 'bg-[#FAFAFA] border-[#1111111A] hover:bg-gray-100'
                             }`}
                     >
                         {isInCart ? (
@@ -205,7 +212,7 @@ export function ProductDetails() {
                         )}
                     </button>
 
-                   
+
 
                     <button
                         onClick={() => navigator.share?.({ title: product.name, url: window.location.href })}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Undo2, Pen, ChevronLeft, ChevronRight, MapPin, Package, TrendingUp, Circle, Loader2, Inbox } from 'lucide-react';
+import { Undo2, ChevronLeft, ChevronRight, MapPin, Package, TrendingUp, Circle, Loader2, Inbox } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
@@ -181,7 +181,7 @@ const StatusBadge = ({ status, className = "" }) => (
 );
 
 const ActionButtons = ({ onRefund, isProcessing }) => (
-    <div className="flex gap-2">
+    <div className="flex justify-center gap-2">
         <button 
             onClick={onRefund}
             disabled={isProcessing}
@@ -190,9 +190,7 @@ const ActionButtons = ({ onRefund, isProcessing }) => (
         >
             {isProcessing ? <Loader2 size={18} className="animate-spin text-red-600" /> : <Undo2 size={18} />}
         </button>
-        <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg">
-            <Pen size={18} />
-        </button>
+        
     </div>
 );
 
