@@ -15,18 +15,15 @@ export function Showcase() {
   useEffect(() => {
     async function initShowcase() {
       try {
-        // 1. Fetch Products
-        // We remove the strict portal filter here to allow our logic to filter multiple types
         const data = await fetchAllProducts({
           limited: false,
-          limit: 12, // Fetch more to allow for portal filtering locally
+          limit: 12, 
         });
         
         if (data && data.products) {
-          // Filter for both standard public and investor-funded public products
           const filtered = data.products.filter(p => 
             p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
-          ).slice(0, 6); // Display the top 6
+          ).slice(0, 6); 
           
           setProducts(filtered);
         } else if (Array.isArray(data)) {
@@ -36,7 +33,6 @@ export function Showcase() {
           setProducts(filtered);
         }
 
-        // 2. Fetch Cart IDs to show "Already in cart" state
         const token = localStorage.getItem("token");
         if (!token) {
           const guestItems = getGuestCart();
