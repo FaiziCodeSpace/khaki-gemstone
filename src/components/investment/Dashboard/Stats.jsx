@@ -25,11 +25,11 @@ export function InvestorStats({ externalData }) {
         </div>
         
         <div className="flex items-center gap-3">
-          <button className="h-10 flex-1 rounded-xl border border-slate-200 bg-slate-50 text-[13px] text-slate-600 sm:w-[140px] md:w-[169px] font-bold hover:bg-slate-100 transition-all">
+          <button className="h-10 flex-1 rounded-xl border border-slate-200 bg-slate-50 text-[13px] text-slate-600 sm:w-35 md:w-42.25 font-bold hover:bg-slate-100 transition-all">
             Statements
           </button>
           <button 
-            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-[13px] text-white sm:w-[140px] md:w-[169px] font-bold shadow-lg shadow-pink-200 hover:brightness-110 active:scale-95 transition-all"
+            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-[13px] text-white sm:w-35 md:w-42.25 font-bold shadow-lg shadow-pink-200 hover:brightness-110 active:scale-95 transition-all"
             style={{ backgroundColor: BRAND_COLOR }}
           >
             <Plus size={18} strokeWidth={3} />
@@ -42,7 +42,7 @@ export function InvestorStats({ externalData }) {
         {stats.map((stat, index) => (
           <div 
             key={index} 
-            className="group flex min-h-[110px] flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md hover:border-pink-100 transition-all duration-300"
+            className="group flex min-h-27.5 flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md hover:border-pink-100 transition-all duration-300"
           >
             <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
               {stat.label}

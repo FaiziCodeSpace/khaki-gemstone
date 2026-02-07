@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import InvestmentOptions from "../../components/investment/Products/InvestmentOptions";
 import { fetchAllProducts } from "../../services/productsService";
-// Assuming you have a way to fetch user profile/balance
-// import { getInvestorProfile } from "../../services/userService"; 
+
 
 export default function AddProducts() {
     const [products, setProducts] = useState([]);

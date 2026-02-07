@@ -4,20 +4,12 @@ export function HeroPortion() {
     return (
         <>
             <section className="bg-[#CA0A7F] pt-[100px] pb-10 overflow-hidden relative">
-                {/* Hero Content */}
-                {/* Added clamp to margin-top: Scales from 32px (mt-8) to 100px */}
                 <div className="px-6 flex flex-col items-center text-white relative z-10 mt-[clamp(32px,10vw,100px)]">
                     <div className="flex w-full justify-between px-4 text-[9px] sm:text-[14px]">
                         <p>SINCE</p>
                         <p>[1997]</p>
                     </div>
-
-                    {/* Main Headings */}
                     <div className="text-center flex flex-col gap-5 mt-5 lg:mt-10 lg:gap-0">
-                        {/* Since 1997 */}
-
-                        {/* AUTHENTIC */}
-                        {/* Added clamp to text size: Scales from 68px to 180px based on viewport width */}
                         <h1 className="m-0 font-bold text-[#fbfff6d6] tracking-[-4.76px] leading-none 
                                        text-[clamp(68px,17vw,180px)] 
                                        lg:tracking-[-12px] 
@@ -28,7 +20,7 @@ export function HeroPortion() {
                         {/* Hero Image */}
                         <img
                             className="h-[clamp(401px,70vw,620px)] object-cover rounded-[14.62px] border-white border-[6.58px] lg:absolute lg:w-[340px] lg:h-[404px] lg:left-[50%] lg:top-[55%] lg:translate-x-[-50%] lg:translate-y-[-50%] z-0 lg:rotate-[-7deg] xl:w-[425px] xl:h-[505px]"
-                            src="./Images/hero-Picture.png"
+                            src="./Images/hero.png"
                             alt="hero-pic"
                         />
 

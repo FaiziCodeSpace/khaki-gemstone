@@ -162,6 +162,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
                                             label="Cash on Delivery"
                                         />
                                         <PaymentTab 
+                                            disabled={true} // Set to true to show "Coming Soon"
                                             active={formData.paymentMethod === 'PAYFAST'} 
                                             onClick={() => setFormData(f => ({...f, paymentMethod: 'PAYFAST'}))}
                                             icon={<CreditCard size={18}/>}
@@ -257,16 +258,27 @@ function FloatingInput({ label, ...props }) {
     );
 }
 
-function PaymentTab({ active, onClick, icon, label }) {
+function PaymentTab({ active, onClick, icon, label, disabled }) {
     return (
         <div 
-            onClick={onClick}
-            className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-                active ? 'border-[#CA0A7F] bg-[#CA0A7F]/5 text-[#CA0A7F]' : 'border-gray-50 bg-white hover:border-gray-200 text-gray-500'
+            onClick={disabled ? null : onClick}
+            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 ${
+                disabled 
+                    ? 'border-gray-50 bg-gray-50/50 cursor-not-allowed opacity-60' 
+                    : active 
+                        ? 'border-[#CA0A7F] bg-[#CA0A7F]/5 text-[#CA0A7F] cursor-pointer' 
+                        : 'border-gray-50 bg-white hover:border-gray-200 text-gray-500 cursor-pointer'
             }`}
         >
             <div className={`${active ? 'text-[#CA0A7F]' : 'text-gray-400'}`}>{icon}</div>
-            <span className="text-sm font-bold uppercase tracking-widest">{label}</span>
+            <div className="flex flex-col">
+                <span className="text-sm font-bold uppercase tracking-widest">{label}</span>
+                {disabled && (
+                    <span className="text-[10px] font-black text-[#CA0A7F] uppercase tracking-tighter">
+                        Coming Soon
+                    </span>
+                )}
+            </div>
             <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center ${active ? 'border-[#CA0A7F]' : 'border-gray-200'}`}>
                 {active && <div className="w-2.5 h-2.5 rounded-full bg-[#CA0A7F]" />}
             </div>

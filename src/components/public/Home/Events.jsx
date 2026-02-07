@@ -111,7 +111,7 @@ export function Events() {
 
                     <img
                         src="./Icons/cart.svg"
-                        alt=""
+                        alt="Shopping Cart Icon"
                         aria-hidden="true"
                         className="block w-3 h-3 md:w-5 md:h-5 md:invert"
                     />
@@ -121,7 +121,7 @@ export function Events() {
             {/* ===================== Visual Section ===================== */}
             <div className="flex-1 h-1/2 md:h-auto">
                 <img
-                    src="./Images/Showcase2.png"
+                    src="./Images/Events-Image.png"
                     alt="Featured Summer Gemstone Collection"
                     className="w-full h-full object-cover"
                 />

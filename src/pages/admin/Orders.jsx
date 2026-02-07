@@ -46,7 +46,6 @@ export default function OrderManagement() {
         }
     }, [currentPage]);
 
-    // Initial Load + 20s Polling Logic
     useEffect(() => {
         loadData();
 
@@ -61,7 +60,7 @@ export default function OrderManagement() {
         try {
             await updateOrderStatus(orderId, payload);
             setSelectedOrder(null);
-            loadData(); // Manual refresh after update
+            loadData(); 
         } catch (err) {
             alert("Update Failed: " + (err.message || err));
         }
@@ -322,17 +321,9 @@ function OrderDetailModal({ order, onClose, onUpdate }) {
                     </div>
 
                     {/* FINANCIALS */}
-                    <div className="space-y-1.5 border-t border-gray-100 pt-4 text-sm font-jakarta">
-                        <div className="flex justify-between text-gray-500">
-                            <span>Subtotal</span>
-                            <span>Rs. {(order.totalAmount - DELIVERY_FEE).toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between text-emerald-600 font-bold">
-                            <span>Delivery Fee</span>
-                            <span>Rs. {DELIVERY_FEE}</span>
-                        </div>
+                    <div className="space-y-1.5 border-t border-gray-100 pt-4 text-sm font-jakarta">            
                         <div className="flex justify-between font-black text-gray-900 pt-1 text-base">
-                            <span>Grand Total</span>
+                            <span>Total</span>
                             <span>Rs. {order.totalAmount.toLocaleString()}</span>
                         </div>
                     </div>

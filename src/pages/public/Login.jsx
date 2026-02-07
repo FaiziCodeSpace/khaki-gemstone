@@ -55,7 +55,7 @@ const handleSubmit = async (e) => {
       {/* Left Side: Image Section */}
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-gray-100">
         <img 
-          src="./Images/Showcase1.png" 
+          src="./Images/registration-side-img.png" 
           alt="Login Showcase" 
           className="w-full h-full object-cover"
         />
