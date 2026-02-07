@@ -39,7 +39,7 @@ const RegisterUser = () => {
       {/* Left Side: Image Section */}
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-gray-100">
         <img
-          src="./Images/hero-Picture.png"
+          src="./Images/registration-side-img.png"
           alt="Registration"
           className="w-full h-full object-cover"
         />

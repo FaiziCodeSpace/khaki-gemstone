@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function LimitedEdition() {
     const [limitedProduct, setLimitedProduct] = useState([]);
-    const [cartIds, setCartIds] = useState([]); // Track items in cart
+    const [cartIds, setCartIds] = useState([]); 
     const navigate = useNavigate();
 
     useEffect(() => {

@@ -69,8 +69,7 @@ export default function InvestorDashboard() {
 
     return (
         <main className="flex flex-col gap-9">
-            {/* Pass stats directly so it doesn't fetch internally */}
-            <InvestorStats externalData={stats} />
+           <InvestorStats externalData={stats} />
 
             <InvestorProducts
                 investments={investments}

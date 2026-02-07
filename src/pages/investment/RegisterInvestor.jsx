@@ -375,11 +375,10 @@ const RegisterInvestor = () => {
 
       <aside className="hidden w-1/2 lg:block relative" aria-hidden="true">
         <img
-          src="/Images/InvestorBg.png"
+          src="/Images/Investor-side-img.png"
           alt="Investment Background"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/10"></div>
       </aside>
     </main>
   );

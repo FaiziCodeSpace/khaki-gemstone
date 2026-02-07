@@ -35,6 +35,9 @@ import AdminManagement from "./pages/admin/AdminManagment/AdminManage";
 import { AdminLogin } from "./pages/admin/AdminManagment/AdminLogin";
 import { AuthProvider } from "./context/AuthContext";
 import AdminProtectedRoute from "./routes/AdminProtectedRoute";
+import { AboutUs } from "./components/public/Home/AboutUs";
+import AboutUsPage from "./pages/public/AboutUs";
+import TermsAndConditions from "./pages/public/TermsAndConditions";
 /* =======================
    💼 INVESTOR (LAZY)
 ======================= */
@@ -75,6 +78,8 @@ function App() {
             <Route path="/shop" element={<ProductsPage />} />
             <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/aboutUs" element={<AboutUsPage />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
 
             <Route
               path="/register"

@@ -77,7 +77,7 @@ export function AboutUs() {
                             /* Mid-level z-index */
                             lg:z-20 
                         "
-                            src="./Images/hero-Picture.png"
+                            src="./Images/AboutUs-Image.png"
                             alt="About-Us"
                         />
 
@@ -104,8 +104,9 @@ export function AboutUs() {
                             lg:top-33 
                             lgx:top-28 
                             lgxx:top-26 
+                            opacity-70
                         "
-                            src="./Images/Showcase4.png"
+                            src="./Images/AboutUs-Background.png"
                             alt="Background Decor"
                         />
                     </div>
