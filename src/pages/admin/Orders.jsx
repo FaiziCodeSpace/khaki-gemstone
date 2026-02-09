@@ -6,19 +6,18 @@ import {
 import { fetchDashboardMetrics } from "../../services/adminServices/dashboardMatricsService";
 import { fetchOrders, updateOrderStatus } from "../../services/adminServices/OrdersService";
 
-const DELIVERY_FEE = 250;
-const REFRESH_INTERVAL = 20000; // 20 Seconds
+const REFRESH_INTERVAL = 20000; 
 
 export default function OrderManagement() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null); // New Error State
+    const [error, setError] = useState(null); 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [orderStats, setOrderStats] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [isRefetching, setIsRefetching] = useState(false); // Visual cue for auto-refresh
+    const [isRefetching, setIsRefetching] = useState(false); 
 
     const itemsPerPage = 10;
 
@@ -70,7 +69,7 @@ export default function OrderManagement() {
         { label: "New", value: orderStats?.newOrders || 0, icon: <Package size={18} />, color: "bg-blue-50 text-blue-600" },
         { label: "On Way", value: orderStats?.dispatchedOrders ?? 0, icon: <Truck size={18} />, color: "bg-orange-50 text-orange-600" },
         { label: "Revenue", value: orderStats?.ordersRevenue || 0, icon: <BanknoteArrowUp size={18} />, color: "bg-[#CA0A7F]/10 text-[#CA0A7F]" },
-        { label: "Customers", value: orderStats?.customers || 0, icon: <Users size={18} />, color: "bg-gray-100 text-gray-600" },
+        { label: "Customers", value: orderStats?.totalCustomers || 0, icon: <Users size={18} />, color: "bg-gray-100 text-gray-600" },
     ];
 
     return (

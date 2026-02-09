@@ -73,8 +73,6 @@ export function LimitedEdition() {
             } else {
                 await addToCart(product._id);
             }
-
-            // Instantly update the icon state locally
             setCartIds((prev) => [...prev, product._id]);
         } catch (err) {
             console.error("Add to cart failed", err);

@@ -57,6 +57,7 @@ export function PriceDetails({ cartItems = [] }) {
                 onClose={() => setIsCheckoutOpen(false)}
                 items={cartItems}
                 totalAmount={totalPrice}
+                source="cart"
             />
         </section>
     );
