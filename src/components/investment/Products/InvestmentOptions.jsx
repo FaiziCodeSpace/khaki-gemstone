@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
-import { 
-  ChevronLeft, ChevronRight, MapPin, Tag, TrendingUp, 
+import {
+  ChevronLeft, ChevronRight, MapPin, Tag, TrendingUp,
   Search, ImageOff, Loader2, AlertCircle, CheckCircle2, X, Info,
 } from 'lucide-react';
 import { investorService } from '../../../services/investorServices/investmentService';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
-export default function InvestmentOptions({ 
-  availableProducts = [], 
-  filters, 
-  setFilters, 
+export default function InvestmentOptions({
+  availableProducts = [],
+  filters,
+  setFilters,
   pagination,
-  refreshData 
+  refreshData
 }) {
   // --- PRODUCTION STATES ---
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null); // For Confirmation Modal
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const navigate = useNavigate();
 
   const handleSearchChange = (e) => {
     setFilters(prev => ({ ...prev, search: e.target.value, page: 1 }));
+  };
+
+  const handleCardClick = (id) => {
+    navigate(`/investor/product/${id}`);
   };
 
   const showNotify = (msg, type = 'success') => {
@@ -30,13 +36,13 @@ export default function InvestmentOptions({
 
   const executeInvestment = async () => {
     if (!selectedProduct) return;
-    
+
     setIsSubmitting(true);
     try {
       await investorService.investInProduct(selectedProduct._id);
       showNotify(`Successfully invested in ${selectedProduct.name}!`, 'success');
       setSelectedProduct(null);
-      if (refreshData) refreshData(); 
+      if (refreshData) refreshData();
     } catch (error) {
       showNotify(error || "Investment failed", 'error');
     } finally {
@@ -72,12 +78,11 @@ export default function InvestmentOptions({
 
   return (
     <section id="investment-section" className="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      
+
       {/* --- NATIVE NOTIFICATION TOAST --- */}
       {notification.show && (
-        <div className={`fixed top-5 right-5 z-[100] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border animate-in slide-in-from-right-full duration-300 ${
-          notification.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'
-        }`}>
+        <div className={`fixed top-5 right-5 z-[100] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border animate-in slide-in-from-right-full duration-300 ${notification.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
           {notification.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
           <p className="text-sm font-bold">{notification.message}</p>
           <button onClick={() => setNotification({ ...notification, show: false })} className="ml-4 opacity-50 hover:opacity-100">
@@ -94,24 +99,24 @@ export default function InvestmentOptions({
               <TrendingUp size={32} />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">Confirm Investment</h3>
-            
+
             <div className="space-y-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Asset Name:</span>
-                    <span className="font-bold text-slate-900">{selectedProduct.name}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Your Capital:</span>
-                    <span className="font-bold text-slate-900">{formatCurrency(selectedProduct.price)}</span>
-                </div>
-                <div className="flex justify-between text-sm border-t border-slate-200 pt-2">
-                    <span className="text-slate-500">Final Sale Price:</span>
-                    <span className="font-bold text-indigo-600">{formatCurrency(calculateFinalSalePrice(selectedProduct.price, selectedProduct.profitMargin))}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-emerald-600 font-bold tracking-tight">Your Expected Return:</span>
-                    <span className="font-black text-emerald-600">{formatCurrency(calculateInvestorReturn(selectedProduct.price, selectedProduct.profitMargin, selectedProduct.profitSharingModel))}</span>
-                </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Asset Name:</span>
+                <span className="font-bold text-slate-900">{selectedProduct.name}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Your Capital:</span>
+                <span className="font-bold text-slate-900">{formatCurrency(selectedProduct.price)}</span>
+              </div>
+              <div className="flex justify-between text-sm border-t border-slate-200 pt-2">
+                <span className="text-slate-500">Final Sale Price:</span>
+                <span className="font-bold text-indigo-600">{formatCurrency(calculateFinalSalePrice(selectedProduct.price, selectedProduct.profitMargin))}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-emerald-600 font-bold tracking-tight">Your Expected Return:</span>
+                <span className="font-black text-emerald-600">{formatCurrency(calculateInvestorReturn(selectedProduct.price, selectedProduct.profitMargin, selectedProduct.profitSharingModel))}</span>
+              </div>
             </div>
 
             <p className="text-slate-400 text-[11px] leading-tight mb-6 text-center italic">
@@ -119,14 +124,14 @@ export default function InvestmentOptions({
             </p>
 
             <div className="flex gap-3">
-              <button 
+              <button
                 disabled={isSubmitting}
                 onClick={() => setSelectedProduct(null)}
                 className="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all disabled:opacity-50"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 disabled={isSubmitting}
                 onClick={executeInvestment}
                 className="flex-1 py-3 px-4 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-indigo-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
@@ -150,14 +155,14 @@ export default function InvestmentOptions({
           </div>
           <p className="text-xs text-slate-500 mt-0.5 font-medium">Verified active assets available for funding.</p>
         </div>
-        
+
         <div className="relative group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={14} />
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={filters.search}
             onChange={handleSearchChange}
-            placeholder="Search by name, ID, or location..." 
+            placeholder="Search by name, ID, or location..."
             className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all w-full sm:w-64"
           />
         </div>
@@ -178,15 +183,15 @@ export default function InvestmentOptions({
           </thead>
           <tbody className="divide-y divide-slate-50">
             {availableProducts.length > 0 ? availableProducts.map((product) => (
-              <tr key={product._id} className="group hover:bg-slate-50/50 transition-colors">
+              <tr onClick={() => handleCardClick(product._id)} key={product._id} className="group hover:bg-slate-50/50 transition-colors button">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 shrink-0">
                       {product.imgs_src?.[0] ? (
-                        <img 
-                          src={`${API_URL}${product.imgs_src[0]}`} 
-                          alt={product.name} 
-                          className="w-full h-full rounded-xl object-cover ring-1 ring-slate-200" 
+                        <img
+                          src={`${API_URL}${product.imgs_src[0]}`}
+                          alt={product.name}
+                          className="w-full h-full rounded-xl object-cover ring-1 ring-slate-200"
                         />
                       ) : (
                         <div className="w-full h-full rounded-xl bg-slate-100 flex items-center justify-center text-slate-300">
@@ -195,10 +200,10 @@ export default function InvestmentOptions({
                       )}
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-slate-900 leading-none mb-1">{product.name}</p>
-                        <p className="text-[10px] font-mono text-slate-400 uppercase tracking-tighter flex items-center gap-1">
-                            <Tag size={8} /> {product.productNumber} • {product.location || "Global"}
-                        </p>
+                      <p className="text-sm font-semibold text-slate-900 leading-none mb-1">{product.name}</p>
+                      <p className="text-[10px] font-mono text-slate-400 uppercase tracking-tighter flex items-center gap-1">
+                        <Tag size={8} /> {product.productNumber} • {product.location || "Global"}
+                      </p>
                     </div>
                   </div>
                 </td>
@@ -206,10 +211,10 @@ export default function InvestmentOptions({
                   {formatCurrency(product.price)}
                 </td>
                 <td className="px-6 py-4">
-                    <div className="flex flex-col">
-                        <span className="text-sm font-bold text-indigo-600">{formatCurrency(calculateFinalSalePrice(product.price, product.profitMargin))}</span>
-                        <span className="text-[9px] uppercase font-bold text-slate-400 tracking-tighter">Public Listing</span>
-                    </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-indigo-600">{formatCurrency(calculateFinalSalePrice(product.price, product.profitMargin))}</span>
+                    <span className="text-[9px] uppercase font-bold text-slate-400 tracking-tighter">Public Listing</span>
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-col items-center">
@@ -227,7 +232,10 @@ export default function InvestmentOptions({
                 </td>
                 <td className="px-6 py-4 text-right">
                   <button
-                    onClick={() => setSelectedProduct(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedProduct(product);
+                    }}
                     className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-95 transition-all">
                     Fund Asset
                   </button>
@@ -247,7 +255,7 @@ export default function InvestmentOptions({
       {/* --- MOBILE CARD VIEW --- */}
       <div className="md:hidden divide-y divide-slate-100">
         {availableProducts.length > 0 ? availableProducts.map((product) => (
-          <div key={product._id} className="p-5 active:bg-slate-50 transition-colors">
+          <div onClick={() => handleCardClick(product._id)} key={product._id} className="p-5 active:bg-slate-50 transition-colors">
             <div className="flex gap-4 mb-4">
               <div className="w-16 h-16 shrink-0">
                 {product.imgs_src?.[0] ? (
@@ -269,7 +277,7 @@ export default function InvestmentOptions({
                   <MapPin size={12} /> {product.location || "Global"}
                 </p>
                 <div className="text-[10px] font-bold text-indigo-500 mt-1 uppercase">
-                    Sale Price: {formatCurrency(calculateFinalSalePrice(product.price, product.profitMargin))}
+                  Sale Price: {formatCurrency(calculateFinalSalePrice(product.price, product.profitMargin))}
                 </div>
               </div>
             </div>
@@ -282,13 +290,16 @@ export default function InvestmentOptions({
               <div className="text-center border-l border-slate-200">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Exp. Return</p>
                 <p className="text-sm font-bold text-emerald-600">
-                    {formatCurrency(calculateInvestorReturn(product.price, product.profitMargin, product.profitSharingModel))}
+                  {formatCurrency(calculateInvestorReturn(product.price, product.profitMargin, product.profitSharingModel))}
                 </p>
               </div>
             </div>
 
             <button
-              onClick={() => setSelectedProduct(product)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedProduct(product);
+              }}
               className="w-full py-3 bg-slate-900 text-white text-sm font-bold rounded-xl active:scale-[0.98] transition-all shadow-md">
               Fund Asset
             </button>
@@ -326,11 +337,10 @@ export default function InvestmentOptions({
                   <button
                     key={pageNum}
                     onClick={() => handlePageChange(pageNum)}
-                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                      filters.page === pageNum
-                        ? "bg-slate-900 text-white shadow-md shadow-slate-200"
-                        : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                    }`}
+                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${filters.page === pageNum
+                      ? "bg-slate-900 text-white shadow-md shadow-slate-200"
+                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
                   >
                     {pageNum}
                   </button>
@@ -349,7 +359,8 @@ export default function InvestmentOptions({
         )}
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .animate-in { animation: fade-in 0.2s ease-out; }

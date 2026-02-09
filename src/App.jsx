@@ -38,6 +38,7 @@ import AdminProtectedRoute from "./routes/AdminProtectedRoute";
 import { AboutUs } from "./components/public/Home/AboutUs";
 import AboutUsPage from "./pages/public/AboutUs";
 import TermsAndConditions from "./pages/public/TermsAndConditions";
+import { InvestorProductDetailPage } from "./pages/investment/ProductDetail";
 /* =======================
    💼 INVESTOR (LAZY)
 ======================= */
@@ -147,6 +148,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <TermsAndPolicies />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/investor/product/:id"
+              element={
+                <ProtectedRoute>
+                  <InvestorProductDetailPage />
                 </ProtectedRoute>
               }
             />
