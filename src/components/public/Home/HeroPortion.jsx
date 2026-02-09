@@ -18,11 +18,19 @@ export function HeroPortion() {
                         </h1>
 
                         {/* Hero Image */}
-                        <img
-                            className="h-[clamp(401px,70vw,620px)] object-cover rounded-[14.62px] border-white border-[6.58px] lg:absolute lg:w-[340px] lg:h-[404px] lg:left-[50%] lg:top-[55%] lg:translate-x-[-50%] lg:translate-y-[-50%] z-0 lg:rotate-[-7deg] xl:w-[425px] xl:h-[505px]"
-                            src="./Images/hero.png"
-                            alt="hero-pic"
-                        />
+                       <img
+    className="h-[clamp(401px,70vw,620px)] object-cover rounded-[14.62px] border-white border-[6.58px] 
+               lg:absolute lg:w-[340px] lg:h-[404px] lg:left-[50%] lg:top-[55%] 
+               lg:translate-x-[-50%] lg:translate-y-[-50%] z-0 
+               lg:rotate-[-7deg] 
+               
+               /* Enhanced Animation Classes */
+               transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]
+               hover:rotate-0 hover:scale-105 hover:z-20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]
+               xl:w-[425px] xl:h-[505px]"
+    src="./Images/hero.png"
+    alt="hero-pic"
+/>
 
                         {/* NATURAL + Subtext */}
                         <div className="lg:flex lg:items-center lg:justify-between lg:gap-4">

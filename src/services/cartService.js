@@ -26,3 +26,14 @@ export const deleteFromCart = async (productId) => {
   const { data } = await api.delete(`/deleteCartItem/${productId}`);
   return data.items || data;
 };
+
+// =============== DELETE CART ITEM ===============
+export const clearCart = async () => {
+  try {
+    const { data } = await api.delete("/clearCart");
+    return data.items || []; 
+  } catch (error) {
+    console.error("Frontend Clear Cart Error:", error);
+    throw error; 
+  }
+}

@@ -194,6 +194,7 @@ export function ProductDetails() {
                         onClose={() => setIsCheckoutOpen(false)}
                         items={[product]}
                         totalAmount={product.publicPrice}
+                        source="product"
                     />
                 </div>
 

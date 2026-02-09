@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function Showcase() {
   const [products, setProducts] = useState([]);
-  const [cartIds, setCartIds] = useState([]); // Track IDs in cart
+  const [cartIds, setCartIds] = useState([]); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,7 +56,6 @@ export function Showcase() {
   const handleAddToCart = async (e, product) => {
     e.stopPropagation();
 
-    // Prevent adding if already in cart
     if (cartIds.includes(product._id)) {
       navigate("/cart");
       return;
@@ -71,7 +70,6 @@ export function Showcase() {
         await addToCart(product._id);
       }
 
-      // Update local state so icon changes immediately
       setCartIds((prev) => [...prev, product._id]);
     } catch (err) {
       console.error("Add to cart failed", err);

@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShieldCheck, CreditCard, Wallet, MapPin, ShoppingBag, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
-import { bookOrder } from '../../../services/adminServices/OrdersService'; 
+import { bookOrder } from '../../../services/adminServices/OrdersService';
+import { clearGuestCart, clearGuestItem } from '../../../utils/guestCart';
+import { clearCart, deleteFromCart } from '../../../services/cartService';
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
-export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
+export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
     const [loading, setLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [error, setError] = useState(null); // Added for error feedback
+    const [error, setError] = useState(null);
     const [formData, setFormData] = useState({
-        firstName: '', 
-        lastName: '', 
-        email: '', 
-        phone: '', 
-        address: '', 
-        city: '', 
-        postalCode: '', 
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        postalCode: '',
         paymentMethod: 'COD'
     });
 
@@ -23,7 +25,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
     useEffect(() => {
         if (isOpen) {
             window.history.pushState({ modalOpen: true }, "");
-            
+
             const handlePopState = (e) => {
                 onClose();
             };
@@ -46,7 +48,6 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
         setError(null);
 
         try {
-            // Prepare payload for backend
             const orderPayload = {
                 customer: {
                     name: `${formData.firstName} ${formData.lastName}`,
@@ -59,26 +60,49 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
                     postalCode: formData.postalCode
                 },
                 items: items.map(item => ({
-                    product: item._id, // Backend expects item.product
+                    product: item._id,
                 })),
                 paymentMethod: formData.paymentMethod
             };
 
             const result = await bookOrder(orderPayload);
 
-            if (result.type === 'SUCCESS') {
+            // DEBUG: console.log("Order Result:", result); 
+
+            if (result.type === 'SUCCESS' || result._id) {
+                // 1. Show success immediately
                 setLoading(false);
                 setIsSuccess(true);
-                // For COD, we show success then close. 
-                // For PayFast, bookOrder service handles the redirect and never returns here.
-                setTimeout(() => { 
-                    onClose(); 
-                    setIsSuccess(false); 
+
+                // 2. Perform cleanup in the background
+                try {
+                    const token = localStorage.getItem("token");
+                    if (source === "cart") {
+                        token ? await clearCart() : clearGuestCart();
+                    } else {
+                        for (const item of items) {
+                            token ? await deleteFromCart(item._id) : clearGuestItem(item._id);
+                        }
+                    }
+                    // Always dispatch to sync the Navbar count
+                    window.dispatchEvent(new Event("cartUpdated"));
+                } catch (cleanupError) {
+                    console.error("Cart cleanup failed, but order was placed:", cleanupError);
+                }
+
+                // 3. Close modal after delay
+                setTimeout(() => {
+                    onClose();
+                    setIsSuccess(false);
                 }, 4000);
+            } else {
+                throw new Error("Order processed but confirmation failed.");
             }
         } catch (err) {
             setLoading(false);
-            setError(err.message || "Something went wrong. Please try again.");
+            // If the order actually booked (checked via logs), you might want to show success anyway
+            // For now, let's catch the error properly:
+            setError(err.response?.data?.message || err.message || "Server Error (500)");
             console.error("Checkout Error:", err);
         }
     };
@@ -87,7 +111,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white md:bg-black/40 md:backdrop-blur-sm animate-in fade-in duration-300">
             {/* Main Container */}
             <div className="bg-white w-full h-full md:h-[90vh] md:max-w-6xl md:rounded-[24px] shadow-2xl flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
-                
+
                 {/* --- HEADER (Mobile Only) --- */}
                 <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-100 sticky top-0 bg-white z-10">
                     <h2 className="font-bold text-[#CA0A7F]">Checkout</h2>
@@ -118,7 +142,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
                     ) : (
                         <form onSubmit={handleSubmit} className="max-w-xl mx-auto">
                             <h1 className="text-3xl font-bold mb-8 tracking-tight hidden md:block">Checkout</h1>
-                            
+
                             {error && (
                                 <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 animate-in slide-in-from-top-2">
                                     <AlertCircle size={20} />
@@ -130,7 +154,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
                                 {/* Shipping Info */}
                                 <div>
                                     <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
-                                        <MapPin size={14}/> 01. Shipping Details
+                                        <MapPin size={14} /> 01. Shipping Details
                                     </h3>
                                     <div className="grid grid-cols-2 gap-x-4 gap-y-6">
                                         <FloatingInput label="First Name" name="firstName" value={formData.firstName} onChange={handleInputChange} />
@@ -152,30 +176,29 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
                                 {/* Payment Method */}
                                 <div>
                                     <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
-                                        <CreditCard size={14}/> 02. Payment Method
+                                        <CreditCard size={14} /> 02. Payment Method
                                     </h3>
                                     <div className="flex flex-col gap-3">
-                                        <PaymentTab 
-                                            active={formData.paymentMethod === 'COD'} 
-                                            onClick={() => setFormData(f => ({...f, paymentMethod: 'COD'}))}
-                                            icon={<Wallet size={18}/>}
+                                        <PaymentTab
+                                            active={formData.paymentMethod === 'COD'}
+                                            onClick={() => setFormData(f => ({ ...f, paymentMethod: 'COD' }))}
+                                            icon={<Wallet size={18} />}
                                             label="Cash on Delivery"
                                         />
-                                        <PaymentTab 
-                                            disabled={true} // Set to true to show "Coming Soon"
-                                            active={formData.paymentMethod === 'PAYFAST'} 
-                                            onClick={() => setFormData(f => ({...f, paymentMethod: 'PAYFAST'}))}
-                                            icon={<CreditCard size={18}/>}
+                                        <PaymentTab
+                                            disabled={true}
+                                            active={formData.paymentMethod === 'PAYFAST'}
+                                            onClick={() => setFormData(f => ({ ...f, paymentMethod: 'PAYFAST' }))}
+                                            icon={<CreditCard size={18} />}
                                             label="Online Payment (PayFast)"
                                         />
                                     </div>
                                 </div>
 
-                                <button 
+                                <button
                                     disabled={loading}
-                                    className={`w-full py-5 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] ${
-                                        loading ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#111] hover:bg-[#CA0A7F] text-white shadow-black/10'
-                                    }`}
+                                    className={`w-full py-5 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] ${loading ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#111] hover:bg-[#CA0A7F] text-white shadow-black/10'
+                                        }`}
                                 >
                                     {loading ? (
                                         <div className="flex items-center gap-2">
@@ -202,10 +225,10 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
                         {items.map((item) => (
                             <div key={item._id} className="flex gap-4 group">
                                 <div className="w-20 h-20 bg-white rounded-xl border border-gray-200 overflow-hidden flex-shrink-0 shadow-sm">
-                                    <img 
-                                        src={item.imgs_src ? `${API_URL}${item.imgs_src}` : '/placeholder.jpg'} 
-                                        alt={item.name} 
-                                        className="w-full h-full object-cover" 
+                                    <img
+                                        src={item.imgs_src ? `${API_URL}${item.imgs_src}` : '/placeholder.jpg'}
+                                        alt={item.name}
+                                        className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <div className="flex-1 flex flex-col justify-center">
@@ -222,7 +245,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
                             <span className="text-gray-500">Subtotal</span>
                             <span className="font-medium">{totalAmount.toLocaleString()} PKR</span>
                         </div>
-                       
+
                         <div className="flex justify-between items-center pt-4">
                             <span className="text-lg font-bold">Total Amount</span>
                             <span className="text-2xl font-black text-[#CA0A7F] tracking-tight">{totalAmount.toLocaleString()} PKR</span>
@@ -236,7 +259,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount }) {
                             Guaranteed <span className="text-gray-900 block">Secure Checkout</span>
                         </p>
                     </div>
-                    
+
                     <div className="h-10 md:hidden" />
                 </div>
             </div>
@@ -248,8 +271,8 @@ function FloatingInput({ label, ...props }) {
     return (
         <div className="relative border-b border-gray-200 focus-within:border-[#CA0A7F] transition-all duration-300 pb-2">
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">{label}</label>
-            <input 
-                required 
+            <input
+                required
                 className="w-full bg-transparent outline-none text-gray-900 font-medium placeholder:text-gray-200"
                 placeholder="---"
                 {...props}
@@ -260,15 +283,14 @@ function FloatingInput({ label, ...props }) {
 
 function PaymentTab({ active, onClick, icon, label, disabled }) {
     return (
-        <div 
+        <div
             onClick={disabled ? null : onClick}
-            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 ${
-                disabled 
-                    ? 'border-gray-50 bg-gray-50/50 cursor-not-allowed opacity-60' 
-                    : active 
-                        ? 'border-[#CA0A7F] bg-[#CA0A7F]/5 text-[#CA0A7F] cursor-pointer' 
-                        : 'border-gray-50 bg-white hover:border-gray-200 text-gray-500 cursor-pointer'
-            }`}
+            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 ${disabled
+                ? 'border-gray-50 bg-gray-50/50 cursor-not-allowed opacity-60'
+                : active
+                    ? 'border-[#CA0A7F] bg-[#CA0A7F]/5 text-[#CA0A7F] cursor-pointer'
+                    : 'border-gray-50 bg-white hover:border-gray-200 text-gray-500 cursor-pointer'
+                }`}
         >
             <div className={`${active ? 'text-[#CA0A7F]' : 'text-gray-400'}`}>{icon}</div>
             <div className="flex flex-col">
