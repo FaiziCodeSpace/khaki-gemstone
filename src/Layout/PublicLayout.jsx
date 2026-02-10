@@ -5,7 +5,7 @@ import ScrollToTop from "../utils/ScrollToTop"
 const PublicLayout = () => {
   const location = useLocation();
 
-  if (location.pathname === "/login" || location.pathname === "/register") {
+  if (location.pathname === "/login" || location.pathname === "/register" || location.pathname.startsWith("/scan/")) {
     return <Outlet />;
   }
 

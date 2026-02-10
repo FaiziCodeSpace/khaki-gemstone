@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { X, MapPin, CheckCircle2, Loader2, Plus, Image as ImageIcon, ChevronDown, Calculator, TrendingUp, UserCheck, Wallet } from "lucide-react";
+import { 
+    X, MapPin, CheckCircle2, Loader2, Plus, 
+    Image as ImageIcon, ChevronDown, Calculator, 
+    TrendingUp, UserCheck, Wallet, Download, QrCode 
+} from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react"; 
 import { createProduct, updateProduct, fetchProduct } from "../../../services/productsService";
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
@@ -8,8 +13,14 @@ const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
 export default function FormBox() {
     const { productId } = useParams();
     const navigate = useNavigate();
+    const qrRef = useRef(); // Ref to capture the QR for downloading
+
+    // --- STATES ---
     const [isEditMode, setIsEditMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [generatedId, setGeneratedId] = useState("");
+
     const [formData, setFormData] = useState({
         name: "",
         price: "",
@@ -26,13 +37,11 @@ export default function FormBox() {
 
     const [tags, setTags] = useState([]);
     const [tagInput, setTagInput] = useState("");
-
     const [previews, setPreviews] = useState({
         imgs_src: [],
         lab_test_img_src: null,
         certificate_img_src: null,
     });
-
     const [fileObjects, setFileObjects] = useState({
         gallery: [],
         lab_test: null,
@@ -43,18 +52,10 @@ export default function FormBox() {
     const calculateFinancials = () => {
         const baseCost = parseFloat(formData.price) || 0;
         const marginPercent = parseFloat(formData.profitMargin) || 0;
-        const sharingPercent = parseFloat(formData.profitSharingModel) || 0; // % of profit for Investor
-
-        // 1. Calculate the Net Profit (Markup)
+        const sharingPercent = parseFloat(formData.profitSharingModel) || 0;
         const netProfit = (baseCost * marginPercent) / 100;
-        
-        // 2. The Final Selling Price
         const totalRevenue = baseCost + netProfit;
-        
-        // 3. Investor's share (Calculated strictly from the Profit)
         const investorProfitShare = (netProfit * sharingPercent) / 100;
-        
-        // 4. Admin's share (Base Cost recovery + remaining Profit)
         const adminTotalRecovery = baseCost + (netProfit - investorProfitShare);
 
         return {
@@ -66,6 +67,18 @@ export default function FormBox() {
     };
 
     const financials = calculateFinancials();
+
+    const downloadQRCode = () => {
+        const canvas = qrRef.current.querySelector("canvas");
+        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        // Uses the unique product number for the file name
+        downloadLink.download = `${formData.productNumber || 'Asset-QR'}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    };
 
     useEffect(() => {
         if (productId) {
@@ -97,7 +110,6 @@ export default function FormBox() {
                         },
                         isLimitedProduct: data.isLimitedProduct || false,
                     });
-
                     setTags(data.tags || []);
                     setPreviews({
                         imgs_src: data.imgs_src?.map(path => `${API_URL}${path}`) || [],
@@ -114,42 +126,26 @@ export default function FormBox() {
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         let finalValue = type === "checkbox" ? checked : value;
-
         if (name === "profitMargin" || name === "profitSharingModel") {
-            if (value === "") {
-                finalValue = "";
-            } else {
-                const numericValue = Number(value);
-                finalValue = Math.min(500, numericValue); // Increased limit for margin
-            }
+            finalValue = value === "" ? "" : Math.min(500, Number(value));
         }
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: finalValue ?? "" 
-        }));
+        setFormData(prev => ({ ...prev, [name]: finalValue ?? "" }));
     };
 
     const handleNestedChange = (e, section) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
-            [section]: {
-                ...prev[section],
-                [name]: value ?? "" 
-            }
+            [section]: { ...prev[section], [name]: value ?? "" }
         }));
     };
 
     const handleMultipleFiles = (e) => {
         const files = Array.from(e.target.files);
         setFileObjects(prev => ({ ...prev, gallery: [...prev.gallery, ...files] }));
-
         files.forEach((file) => {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviews(prev => ({ ...prev, imgs_src: [...prev.imgs_src, reader.result] }));
-            };
+            reader.onloadend = () => setPreviews(prev => ({ ...prev, imgs_src: [...prev.imgs_src, reader.result] }));
             reader.readAsDataURL(file);
         });
     };
@@ -167,7 +163,6 @@ export default function FormBox() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-
         try {
             const data = new FormData();
             data.append("name", formData.name);
@@ -179,7 +174,6 @@ export default function FormBox() {
             data.append("isLimitedProduct", formData.isLimitedProduct);
             if (formData.profitMargin) data.append("profitMargin", formData.profitMargin);
             if (formData.profitSharingModel) data.append("profitSharingModel", formData.profitSharingModel);
-
             data.append("details", JSON.stringify(formData.details));
             data.append("more_information", JSON.stringify(formData.more_information));
             data.append("tags", JSON.stringify(tags));
@@ -188,14 +182,15 @@ export default function FormBox() {
             if (fileObjects.lab_test) data.append("lab_test", fileObjects.lab_test);
             if (fileObjects.certificate) data.append("certificate", fileObjects.certificate);
 
+            let res;
             if (isEditMode) {
-                await updateProduct(productId, data);
+                res = await updateProduct(productId, data);
+                setGeneratedId(productId);
             } else {
-                await createProduct(data);
+                res = await createProduct(data);
+                setGeneratedId(res?._id || "new-asset");
             }
-
-            alert("Vault Synchronized Successfully!");
-            navigate("/admin/products");
+            setShowModal(true);
         } catch (error) {
             alert("Error: " + (error.response?.data?.message || error.message));
         } finally {
@@ -208,6 +203,38 @@ export default function FormBox() {
 
     return (
         <section className="min-h-screen bg-gray-50 py-6 md:py-12 px-4 lg:px-8">
+
+            {/* --- SUCCESS MODAL --- */}
+            {showModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-[2.5rem] p-8 md:p-10 max-w-sm w-full text-center shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-300">
+                        <div className="w-16 h-16 bg-pink-50 text-[#CA0A7F] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <QrCode size={32} />
+                        </div>
+                        <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">Vault Synchronized</h3>
+                        <p className="text-gray-500 text-[10px] font-bold mt-2 mb-8 uppercase tracking-widest">Asset QR ID Generated</p>
+                        
+                        <div ref={qrRef} className="bg-white p-4 rounded-3xl border border-gray-100 inline-block mb-8 shadow-inner">
+                            <QRCodeCanvas 
+                                value={`${window.location.origin}/scan/${generatedId}`} 
+                                size={180} 
+                                level={"H"} 
+                                includeMargin={true}
+                            />
+                        </div>
+
+                        <div className="space-y-3">
+                            <button onClick={downloadQRCode} className="w-full py-4 bg-[#CA0A7F] text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2 hover:brightness-110 transition-all">
+                                <Download size={18} /> Download QR
+                            </button>
+                            <button onClick={() => navigate("/admin/products")} className="w-full py-4 bg-gray-100 text-gray-400 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-200 transition-all">
+                                Close Vault
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-5xl mx-auto bg-white rounded-2xl md:rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100">
 
                 <div className="bg-[#CA0A7F] p-8 md:p-12 text-white relative overflow-hidden">
@@ -256,7 +283,6 @@ export default function FormBox() {
                             )}
                         </div>
 
-                        {/* INDUSTRY-STYLE FINANCIAL BREAKDOWN */}
                         {formData.portal === "investor" && formData.price && (
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-in slide-in-from-top-4 duration-500">
                                 <div className="bg-white border border-gray-200 p-5 rounded-2xl">
@@ -266,7 +292,6 @@ export default function FormBox() {
                                     </div>
                                     <p className="text-lg font-black text-gray-900">Rs. {financials.netProfit}</p>
                                 </div>
-
                                 <div className="bg-gray-900 p-5 rounded-2xl">
                                     <div className="flex items-center gap-3 mb-2">
                                         <UserCheck size={16} className="text-pink-400" />
@@ -275,7 +300,6 @@ export default function FormBox() {
                                     <p className="text-lg font-black text-white">Rs. {financials.investorShare}</p>
                                     <p className="text-[8px] text-pink-500 font-bold mt-1 uppercase">{formData.profitSharingModel || 0}% of net profit</p>
                                 </div>
-
                                 <div className="bg-[#CA0A7F] p-5 rounded-2xl">
                                     <div className="flex items-center gap-3 mb-2">
                                         <Calculator size={16} className="text-white" />
@@ -284,7 +308,6 @@ export default function FormBox() {
                                     <p className="text-lg font-black text-white">Rs. {financials.adminShare}</p>
                                     <p className="text-[8px] text-pink-200 font-bold mt-1 uppercase tracking-tighter">Cost + Remaining Profit</p>
                                 </div>
-
                                 <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl">
                                     <div className="flex items-center gap-3 mb-2">
                                         <Wallet size={16} className="text-emerald-600" />
@@ -301,52 +324,23 @@ export default function FormBox() {
                         <div className="space-y-6">
                             <div>
                                 <label className={labelStyle}>Product Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name || ""}
-                                    onChange={handleChange}
-                                    className={inputStyle}
-                                    placeholder="Emerald Cut Diamond"
-                                    required
-                                />
+                                <input type="text" name="name" value={formData.name || ""} onChange={handleChange} className={inputStyle} placeholder="Emerald Cut Diamond" required />
                             </div>
-
                             <div>
                                 <label className={labelStyle}>Storage Location</label>
                                 <div className="relative">
-                                    <input
-                                        type="text"
-                                        name="location"
-                                        value={formData.location || ""}
-                                        onChange={handleChange}
-                                        className={inputStyle}
-                                        placeholder="e.g. Peshawar Office"
-                                    />
+                                    <input type="text" name="location" value={formData.location || ""} onChange={handleChange} className={inputStyle} placeholder="e.g. Peshawar Office" />
                                     <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
                                 </div>
                             </div>
-
                             <div>
                                 <label className={labelStyle}>Product ID</label>
-                                <input
-                                    type="text"
-                                    value={isEditMode ? (formData.productNumber || "SYNCING...") : "GEM-XXXXXX"}
-                                    disabled
-                                    className={`${inputStyle} bg-gray-100 italic opacity-60 cursor-not-allowed`}
-                                />
+                                <input type="text" value={isEditMode ? (formData.productNumber || "SYNCING...") : "GEM-XXXXXX"} disabled className={`${inputStyle} bg-gray-100 italic opacity-60 cursor-not-allowed`} />
                             </div>
                         </div>
-
                         <div className="flex flex-col">
                             <label className={labelStyle}>Description</label>
-                            <textarea
-                                name="description"
-                                value={formData.description || ""}
-                                onChange={handleChange}
-                                className={`${inputStyle} flex-1 min-h-[120px]`}
-                                placeholder="Describe the rarity and heritage..."
-                            ></textarea>
+                            <textarea name="description" value={formData.description || ""} onChange={handleChange} className={`${inputStyle} flex-1 min-h-[120px]`} placeholder="Describe the rarity and heritage..."></textarea>
                         </div>
                     </div>
 
@@ -357,13 +351,7 @@ export default function FormBox() {
                             {['gemstone', 'cut_type', 'color', 'clarity'].map((field) => (
                                 <div key={field}>
                                     <label className={labelStyle}>{field.replace('_', ' ')}</label>
-                                    <input 
-                                        type="text" 
-                                        name={field} 
-                                        value={formData.details[field] || ""} 
-                                        onChange={(e) => handleNestedChange(e, 'details')} 
-                                        className={inputStyle} 
-                                    />
+                                    <input type="text" name={field} value={formData.details[field] || ""} onChange={(e) => handleNestedChange(e, 'details')} className={inputStyle} />
                                 </div>
                             ))}
                         </div>
@@ -377,27 +365,13 @@ export default function FormBox() {
                         </div>
                         {['weight', 'origin', 'treatment', 'refractive_index'].map((info) => (
                             <div key={info}>
-                                <label className={`${labelStyle} capitalize`}>
-                                    {info.replace('_', ' ')}
-                                </label>
-                                <input
-                                    type={(info === "weight" || info === "refractive_index") ? "number" : "text"}
-                                    name={info}
-                                    value={formData.more_information[info] || ""}
-                                    onChange={(e) => handleNestedChange(e, 'more_information')}
-                                    className={inputStyle}
-                                />
+                                <label className={`${labelStyle} capitalize`}>{info.replace('_', ' ')}</label>
+                                <input type={(info === "weight" || info === "refractive_index") ? "number" : "text"} name={info} value={formData.more_information[info] || ""} onChange={(e) => handleNestedChange(e, 'more_information')} className={inputStyle} />
                             </div>
                         ))}
                         <div>
                             <label className={labelStyle}>Size (mm)</label>
-                            <input 
-                                type="number" 
-                                name="gem_size" 
-                                value={formData.gem_size || ""} 
-                                onChange={handleChange} 
-                                className={inputStyle} 
-                            />
+                            <input type="number" name="gem_size" value={formData.gem_size || ""} onChange={handleChange} className={inputStyle} />
                         </div>
                     </div>
 
@@ -420,7 +394,6 @@ export default function FormBox() {
                                 }} className="flex-1 outline-none text-sm bg-transparent min-w-[100px]" placeholder="Type & Enter..." />
                             </div>
                         </div>
-
                         <div className="bg-pink-50 p-6 rounded-2xl flex items-center justify-between border border-pink-100">
                             <div>
                                 <p className="font-black text-[#CA0A7F] text-xs uppercase tracking-tight">Limited Edition</p>
@@ -442,7 +415,6 @@ export default function FormBox() {
                                 <span className="text-[8px] font-black mt-2 uppercase">Upload Image</span>
                                 <input type="file" multiple accept="image/*" className="hidden" onChange={handleMultipleFiles} />
                             </label>
-
                             {previews.imgs_src.map((src, index) => (
                                 <div key={index} className="aspect-square relative group rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                                     <img src={src} alt="" className="w-full h-full object-cover" />
@@ -453,7 +425,6 @@ export default function FormBox() {
                                 </div>
                             ))}
                         </div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <MediaInput label="Laboratory Report" preview={previews.lab_test_img_src} onChange={(e) => handleSingleFile(e, 'lab_test', 'lab_test_img_src')} />
                             <MediaInput label="Authenticity Certificate" preview={previews.certificate_img_src} onChange={(e) => handleSingleFile(e, 'certificate', 'certificate_img_src')} />
