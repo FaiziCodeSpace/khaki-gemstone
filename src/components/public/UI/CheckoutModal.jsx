@@ -21,7 +21,6 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
         paymentMethod: 'COD'
     });
 
-    // Handle Mobile Back Button to close modal
     useEffect(() => {
         if (isOpen) {
             window.history.pushState({ modalOpen: true }, "");

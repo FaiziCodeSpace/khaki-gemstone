@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Undo2, ChevronLeft, ChevronRight, MapPin, Package, TrendingUp, Circle, Loader2, Inbox } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
@@ -16,6 +17,7 @@ const getStatusStyle = (status) => {
     return styles[status?.toLowerCase()] || 'bg-slate-50 text-slate-700 border-slate-100';
 };
 
+
 export default function InvestorProducts({ investments = [], onRefund, processingId }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -25,6 +27,8 @@ export default function InvestorProducts({ investments = [], onRefund, processin
     const currentItems = investments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const goToPage = (page) => page >= 1 && page <= totalPages && setCurrentPage(page);
+
+
 
     return (
         <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -73,11 +77,11 @@ export default function InvestorProducts({ investments = [], onRefund, processin
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {currentItems.map((inv) => (
-                                    <TableRow 
-                                        key={inv._id} 
-                                        inv={inv} 
-                                        onRefund={onRefund} 
-                                        isProcessing={processingId === inv._id} 
+                                    <TableRow
+                                        key={inv._id}
+                                        inv={inv}
+                                        onRefund={onRefund}
+                                        isProcessing={processingId === inv._id}
                                     />
                                 ))}
                             </tbody>
@@ -87,18 +91,18 @@ export default function InvestorProducts({ investments = [], onRefund, processin
                     {/* Mobile View */}
                     <div className="lg:hidden divide-y divide-slate-100">
                         {currentItems.map((inv) => (
-                            <MobileCard 
-                                key={inv._id} 
-                                inv={inv} 
-                                onRefund={onRefund} 
-                                isProcessing={processingId === inv._id} 
+                            <MobileCard
+                                key={inv._id}
+                                inv={inv}
+                                onRefund={onRefund}
+                                isProcessing={processingId === inv._id}
                             />
                         ))}
                     </div>
 
-                    <Pagination 
-                        currentPage={currentPage} 
-                        totalPages={totalPages} 
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
                         totalItems={totalItems}
                         itemsPerPage={itemsPerPage}
                         goToPage={goToPage}
@@ -111,8 +115,12 @@ export default function InvestorProducts({ investments = [], onRefund, processin
 
 function TableRow({ inv, onRefund, isProcessing }) {
     const { product, investmentNumber, investmentAmount, profitMargin, estimatedProfit, totalExpectedReturn } = inv;
+    const navigate = useNavigate();
+    const handleRowClick = (id) => {
+        navigate(`/investor/product/${id}`);
+    };
     return (
-        <tr className="group hover:bg-slate-50/80 transition-all">
+        <tr onClick={() => handleRowClick(product._id)} className="group hover:bg-slate-50/80 transition-all button">
             <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                     <img src={`${API_URL}${product?.imgs_src?.[0] || '/placeholder.png'}`} className="w-10 h-10 rounded-xl object-cover ring-1 ring-slate-100" alt="" />
@@ -141,8 +149,12 @@ function TableRow({ inv, onRefund, isProcessing }) {
 
 function MobileCard({ inv, onRefund, isProcessing }) {
     const { product, investmentAmount, profitMargin, estimatedProfit, totalExpectedReturn } = inv;
+    const navigate = useNavigate();
+    const handleRowClick = (id) => {
+        navigate(`/investor/product/${id}`);
+    };
     return (
-        <div className="p-5 space-y-4">
+        <div onClick={() => handleRowClick(product._id)} className="p-5 space-y-4">
             <div className="flex items-start justify-between">
                 <div className="flex gap-3">
                     <img src={`${API_URL}${product?.imgs_src?.[0] || '/placeholder.png'}`} className="w-12 h-12 rounded-xl object-cover ring-1 ring-slate-100" alt="" />
@@ -183,15 +195,18 @@ const StatusBadge = ({ status, className = "" }) => (
 
 const ActionButtons = ({ onRefund, isProcessing }) => (
     <div className="flex justify-center gap-2">
-        <button 
-            onClick={onRefund}
+        <button
+            onClick={(e)=> {
+                e.stopPropagation();
+                onRefund();
+            }}
             disabled={isProcessing}
             title="Request Refund"
             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
             {isProcessing ? <Loader2 size={18} className="animate-spin text-red-600" /> : <Undo2 size={18} />}
         </button>
-        
+
     </div>
 );
 
