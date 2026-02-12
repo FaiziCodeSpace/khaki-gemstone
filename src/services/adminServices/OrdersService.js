@@ -23,6 +23,16 @@ export const updateOrderStatus = async (orderId, payload) => {
   }
 };
 
+export const sellInShop = async (salePayload) => {
+  try {
+    const response = await adminApi.post("/sell-in-shop", salePayload);
+    return response.data;
+  } catch (error) {
+    console.error("Error in sellInShop service:", error);
+    throw error.response?.data || error.message;
+  }
+};
+
 // Publish the service functions
 
 import api from "../api"; // Your standard axios instance
