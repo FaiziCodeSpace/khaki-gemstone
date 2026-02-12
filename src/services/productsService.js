@@ -12,7 +12,8 @@ export const fetchAllProducts = async (arg1 = false, arg2 = 0) => {
                 limited: arg1.limited,
                 limit: arg1.limit || 0,
                 page: arg1.page || 1,
-                portal: arg1.portal || undefined
+                portal: arg1.portal || undefined,
+                isAdmin: arg1.isAdmin || false
             };
         } else {
 

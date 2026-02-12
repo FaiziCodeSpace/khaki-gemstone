@@ -2,29 +2,22 @@ import React from 'react';
 
 export function Categories() {
     const categories = [
-        { name: "Beads", img: "./Images/Beads.png" },
         { name: "Rings", img: "./Images/Rings.png" },
-        { name: "Rough Stones", img: "./Images/RoughStones.png" },
-        { name: "Specimen Stones", img: "./Images/SpecimenStones.png" },
+        { name: "Natural Stones", img: "./Images/Natural-Stones.png" },
+        { name: "Necklaces", img: "./Images/Necklaces.png" },
+        { name: "Pendents", img: "./Images/Pendents.png" },
     ];
 
     return (
-        /* Added 'relative' so the absolute image positions against this div.
-           Added 'overflow-x-clip' to allow the 2075px image to bleed out without scrollbars.
-        */
+       
         <section className="relative flex flex-col justify-center text-center items-center mt-40 lg:mt-50 w-full overflow-x-clip z-0">
-            
-            {/* BACKGROUND IMAGE 
-                1. 'max-w-none' prevents Tailwind from capping it at 100%.
-                2. 'left-1/2 -translate-x-1/2' centers the giant image perfectly.
-            */}
-            <img 
+                <img 
                 className='w-[3075px] hidden max-w-none absolute top-90 left-1/2 -translate-x-1/2 half-circle -z-10' 
                 src="./Icons/half-circle.svg" 
                 alt="Half-Circle" 
             />
 
-            {/* Header Section - Set relative z-10 to stay above the background */}
+            {/* Header Section */}
             <div className="relative z-10 mb-10 px-4">
                 <h1 className="text-[12vw] md:text-[120px] lg:text-[222px] font-bold bg-gradient-to-b from-white to-[#F5F5F5] bg-clip-text text-transparent leading-none">
                     CATEGORY
@@ -34,7 +27,7 @@ export function Categories() {
                 </p>
             </div>
 
-            {/* CARDS CONTAINER - Ensure z-20 for stacking */}
+            {/* CARDS CONTAINER */}
             <div className="relative w-full flex flex-nowrap overflow-x-auto snap-x snap-mandatory px-[10%] gap-[4vw] pb-10
                             md:flex-wrap md:justify-center md:overflow-visible md:px-6 md:gap-8 md:max-w-[1300px]
                             scrollbar-hide z-20 img-category-container">
