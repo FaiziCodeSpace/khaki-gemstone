@@ -1,7 +1,13 @@
 import { Scale, ShieldCheck, AlertTriangle, Gavel, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const TermsAndPolicies = () => {
+const InvestorTerms = ({ setHasAcceptedTerms }) => {
+  const navigate = useNavigate();
+
+  const handleAcceptTerms = () => {
+    setHasAcceptedTerms(true);
+    navigate('/investor-register'); 
+  };
   const sections = [
     {
       title: "1. Investment Categories & Refund Timeline",
@@ -48,8 +54,7 @@ const TermsAndPolicies = () => {
   ];
 
   return (
-    <section className='overflow-hidden rounded-2xl'>
-        <div className="min-h-screen bg-white text-black font-sans selection:bg-[#CA0A7F] selection:text-white ">
+    <div className="min-h-screen bg-white text-black font-sans selection:bg-[#CA0A7F] selection:text-white">
       {/* Header */}
       <header className="border-b-4 border-[#CA0A7F] py-12 px-6 bg-black text-white text-center">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
@@ -106,12 +111,14 @@ const TermsAndPolicies = () => {
                 All disputes fall under Pakistani jurisdiction.
               </p>
             </div>
+            <button onClick={() => handleAcceptTerms()} className="bg-[#CA0A7F] hover:bg-black text-white font-bold py-3 px-8 transition-colors duration-300 uppercase text-sm tracking-widest">
+              Acknowledge & Proceed
+            </button>
           </div>
         </footer>
       </main>
     </div>
-    </section>
   );
 };
 
-export default TermsAndPolicies;
+export default InvestorTerms;

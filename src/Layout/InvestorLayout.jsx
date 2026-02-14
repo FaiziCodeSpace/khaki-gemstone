@@ -5,7 +5,7 @@ import TopNavbar from "../components/investment/Topnav";
 const InvestorLayout = () => {
   const location = useLocation();
 
-  if (location.pathname === "/investor-login" || location.pathname === "/investor-register" || location.pathname === "/investor-application-submitted") {
+  if (location.pathname === "/investor-login" || location.pathname === "/investor-register" || location.pathname === "/investor-application-submitted" || location.pathname === "/investor-terms") {
     return <Outlet />;
   }
 

@@ -1,15 +1,42 @@
 import { Plus, Wallet, ArrowUpRight, Banknote, BanknoteArrowUp } from "lucide-react";
 import { Link } from 'react-router-dom';
-const walletDetail = [
-  { label: 'Total Balance', value: 70000, color: 'text-indigo-600' },
-  { label: 'Earning', value: 150000, color: 'text-slate-900' },
-  { label: 'Investment', value: 10000, color: 'text-emerald-600' }
-];
+import { investorService } from "../../services/investorServices/investmentService";
+import { useEffect, useState } from "react";
 
 export default function InvestorWallet() {
+  // 1. Matched initial state keys to the ones used in your UI mapping
+  const [walletMetrics, setWalletMetrics] = useState({
+    totalBalance: 0,
+    profitFromSold: 0,
+    totalInvestment: 0
+  });
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const metrics = await investorService.getInvestorMetrics();
+        setWalletMetrics({
+          totalBalance: metrics.data?.totalBalance ?? 0,
+          profitFromSold: metrics.data?.profitFromSold ?? 0,
+          totalInvestment: metrics.data?.totalInvestment ?? 0
+        });
+      } catch (error) {
+        console.error("Error fetching investor metrics:", error);
+      }
+    };
+    fetchMetrics();
+  }, []);
+
+  // 3. Keep your exact UI mapping logic
+  const walletDetail = [
+    { label: 'Total Balance', value: walletMetrics.totalBalance.toLocaleString(), color: 'text-indigo-600' },
+    { label: 'Earning', value: walletMetrics.profitFromSold.toLocaleString(), color: 'text-slate-900' },
+    { label: 'Investment', value: walletMetrics.totalInvestment.toLocaleString(), color: 'text-emerald-600' }
+  ];
+
   return (
     <section className="w-full">
-      {/* Header Area: Stacks on mobile, side-by-side on desktop */}
+      {/* Header Area */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Your Wallet</h2>
@@ -29,7 +56,7 @@ export default function InvestorWallet() {
         </div>
       </div>
 
-      {/* Stats Grid: 1 column on mobile, 3 columns on tablet/desktop */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {walletDetail.map((wallet, index) => (
           <div
@@ -50,7 +77,7 @@ export default function InvestorWallet() {
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-bold text-slate-400">Rs</span>
               <h2 className={`text-3xl lg:text-4xl font-black tracking-tight ${wallet.color}`}>
-                {wallet.value.toLocaleString()}
+                {wallet.value}
               </h2>
             </div>
           </div>

@@ -10,7 +10,7 @@ export default function TopNavbar() {
           alt="Logo" 
           className="hidden md:block w-20 object-contain" 
         />
-        <h1 className="hidden md:block text-xl font-medium text-[#CA0A7C] md:text-3xl">
+        <h1 className="hidden md:block text-xl font-bold text-[#CA0A7C] md:text-2xl">
           INVESTOR PORTAL
         </h1>
       </div>
