@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { applyInvestor } from '../../services/authService';
 import { useNavigate } from 'react-router-dom';
 
-const RegisterInvestor = () => {
+const RegisterInvestor = ({ termsAccepted }) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -20,6 +20,12 @@ const RegisterInvestor = () => {
     rememberMe: false,
     agreeTerms: false
   });
+
+  useEffect(() => {
+    if (termsAccepted) {
+      setFormData((prev) => ({ ...prev, agreeTerms: true }));
+    }
+  }, [termsAccepted]);
 
   const [errors, setErrors] = useState({});
   const [isAutoFilled, setIsAutoFilled] = useState(false);
@@ -350,7 +356,14 @@ const RegisterInvestor = () => {
                     onChange={handleChange}
                   />
                   <label htmlFor="agreeTerms" className="ml-2 block text-sm text-gray-700">
-                    I agree to the <span className="text-[#CA0A75] font-semibold">Terms</span> & <span className="text-[#CA0A75] font-semibold">Privacy Policy</span>.
+                    I agree to the
+                    <button
+                      type="button"
+                      onClick={() => navigate('/investor-terms')}
+                      className="text-[#CA0A75] font-semibold hover:underline ml-1"
+                    >
+                      Terms & Conditions
+                    </button>
                   </label>
                 </div>
                 {errors.agreeTerms && <p className="mt-1 text-xs text-red-500">{errors.agreeTerms}</p>}

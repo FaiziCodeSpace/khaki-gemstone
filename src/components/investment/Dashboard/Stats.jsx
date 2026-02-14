@@ -1,10 +1,7 @@
-import React from 'react';
 import { Plus, ArrowUp } from 'lucide-react';
 
 export function InvestorStats({ externalData }) {
   const BRAND_COLOR = "#CA0A7F";
-
-  // If dashboard hasn't provided data yet, use null-safety
   const data = externalData;
 
   const stats = [

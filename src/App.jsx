@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState } from "react";
 
 /* =======================
    🌍 PUBLIC (NO LAZY)
@@ -40,6 +40,7 @@ import AboutUsPage from "./pages/public/AboutUs";
 import TermsAndConditions from "./pages/public/TermsAndConditions";
 import { InvestorProductDetailPage } from "./pages/investment/ProductDetail";
 import { ScanProductDetailPage } from "./pages/public/Scan";
+import InvestorTerms from "./pages/investment/InvestorTerms";
 /* =======================
    💼 INVESTOR (LAZY)
 ======================= */
@@ -67,6 +68,7 @@ const Loader = () => (
 );
 
 function App() {
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
   return (
     <Router>
       <main>
@@ -120,6 +122,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/investor-terms" element={<InvestorTerms setHasAcceptedTerms={setHasAcceptedTerms}/>} />
             <Route
               path="/investor/products"
               element={
@@ -174,7 +177,7 @@ function App() {
               path="/investor-register"
               element={
                 <PublicRoute>
-                  <RegisterInvestor />
+                  <RegisterInvestor termsAccepted={hasAcceptedTerms} />
                 </PublicRoute>
               }
             />
