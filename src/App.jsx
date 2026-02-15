@@ -42,7 +42,7 @@ import { InvestorProductDetailPage } from "./pages/investment/ProductDetail";
 import { ScanProductDetailPage } from "./pages/public/Scan";
 import InvestorTerms from "./pages/investment/InvestorTerms";
 import CheckoutForm from "./pages/investment/CheckoutForm";
-import { PayoutRequests } from "./pages/admin/PayoutRequests";
+import PayoutRequests from "./pages/admin/PayoutRequests";
 /* =======================
    💼 INVESTOR (LAZY)
 ======================= */
