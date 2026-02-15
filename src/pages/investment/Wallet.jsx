@@ -43,10 +43,12 @@ export default function InvestorWallet() {
           <p className="text-sm text-slate-500 font-medium">Manage your funds and investment capital</p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-green-600 px-5 py-3 text-sm text-white font-bold transition-all shadow-lg shadow-slate-200 active:scale-95 w-full lg:w-auto">
-            <BanknoteArrowUp size={18} strokeWidth={3} />
-            <span>Checkout</span>
-          </button>
+          <Link to="/investor/wallet/checkout" className="w-full lg:w-auto">
+            <button className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-green-600 px-5 py-3 text-sm text-white font-bold transition-all shadow-lg shadow-slate-200 active:scale-95 w-full lg:w-auto">
+              <BanknoteArrowUp size={18} strokeWidth={3} />
+              <span>Checkout</span>
+            </button>
+          </Link>
           <Link to="/investor/wallet/addbalance" className="w-full lg:w-auto">
             <button className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-indigo-600 px-5 py-3 text-sm text-white font-bold transition-all shadow-lg shadow-slate-200 active:scale-95 w-full">
               <Plus size={18} strokeWidth={3} />

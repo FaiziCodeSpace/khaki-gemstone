@@ -35,5 +35,13 @@ export const investorService = {
     } catch (error) {
       throw error;
     }
+  },
+  submitPayout: async (payoutData) => {
+    try {
+      const response = await api.post("/investor/payout", payoutData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || "Payout submission failed";
+    }
   }
 };

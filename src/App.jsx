@@ -41,6 +41,8 @@ import TermsAndConditions from "./pages/public/TermsAndConditions";
 import { InvestorProductDetailPage } from "./pages/investment/ProductDetail";
 import { ScanProductDetailPage } from "./pages/public/Scan";
 import InvestorTerms from "./pages/investment/InvestorTerms";
+import CheckoutForm from "./pages/investment/CheckoutForm";
+import { PayoutRequests } from "./pages/admin/PayoutRequests";
 /* =======================
    💼 INVESTOR (LAZY)
 ======================= */
@@ -147,7 +149,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
-           
+
+           <Route
+              path="/investor/wallet/checkout"
+              element={
+                <ProtectedRoute>
+                  <CheckoutForm />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/investor/policy"
               element={
@@ -215,6 +226,7 @@ function App() {
               <Route path="/admin/investors" element={<InvestorManagement />} />
               <Route path="/admin/transactions" element={<TransactionHistory />} />
               <Route path="/admin/AdminManagement" element={<AdminManagement />} />
+              <Route path="/admin/Payout" element={<PayoutRequests />} />
             </Route>
           </Route>
 
