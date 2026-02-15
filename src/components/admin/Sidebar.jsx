@@ -4,7 +4,7 @@ import {
   LayoutDashboard, UserStar, Package, ListTree,
   ShoppingCart, TrendingUp, History,
   Menu, X, ShieldCheck, LogOut, NotebookText,
-  Loader2
+  Loader2, Banknote
 } from "lucide-react";
 import { fetchDashboardMetrics } from "../../services/adminServices/dashboardMatricsService";
 import { AuthContext } from "../../context/AuthContext";
@@ -54,7 +54,8 @@ export default function AdminSideBar() {
     { to: "orders", icon: ShoppingCart, label: "Orders", roles: ["ADMIN", "SUPER_ADMIN"], count: data?.newOrders },
     { to: "investors", icon: TrendingUp, label: "Investors", roles: ["SUPER_ADMIN"] },
     { to: "transactions", icon: History, label: "Transactions", roles: ["SUPER_ADMIN"], count: data?.newTransactions },
-    { to: "AdminManagement", icon: UserStar, label: "Admin Management", roles: ["SUPER_ADMIN"] }
+    { to: "AdminManagement", icon: UserStar, label: "Admin Management", roles: ["SUPER_ADMIN"] },
+    { to: "Payout", icon: Banknote, label: "Payout Requests", roles: ["SUPER_ADMIN"] }
   ];
 
 

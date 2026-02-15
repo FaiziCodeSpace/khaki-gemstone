@@ -12,8 +12,6 @@ export const createAdmin = async (adminData) => {
 
 export const editAdmin = async (id, adminData) => {
   try {
-    // Passes the id in the URL to match: router.post("/editAdmin/:id", editAdmin);
-    // or whatever your specific route string is
     const response = await adminApi.post(`/admin/editAdmin/${id}`, adminData);
     return response.data;
   } catch (error) {

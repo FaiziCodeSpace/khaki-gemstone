@@ -22,9 +22,6 @@ export function InvestorStats({ externalData }) {
         </div>
         
         <div className="flex items-center gap-3">
-          <button className="h-10 flex-1 rounded-xl border border-slate-200 bg-slate-50 text-[13px] text-slate-600 sm:w-35 md:w-42.25 font-bold hover:bg-slate-100 transition-all">
-            Statements
-          </button>
           <button 
             className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-[13px] text-white sm:w-35 md:w-42.25 font-bold shadow-lg shadow-pink-200 hover:brightness-110 active:scale-95 transition-all"
             style={{ backgroundColor: BRAND_COLOR }}
