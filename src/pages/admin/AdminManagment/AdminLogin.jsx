@@ -17,13 +17,10 @@ export function AdminLogin() {
     setIsSubmitting(true);
 
     try {
-      // Backend expects { phone, password }
       await login({ phone, password });
       
-      // If login succeeds, the AuthContext state updates and we redirect
       navigate("/admin/dashboard");
     } catch (err) {
-      // Capture the error message from the backend
       setError(err.response?.data?.message || "Invalid credentials or server error");
     } finally {
       setIsSubmitting(false);
