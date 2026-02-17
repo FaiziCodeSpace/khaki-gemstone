@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldCheck, FileText, Gavel, Truck, RotateCcw, Gem, Info } from 'lucide-react';
+import bgTexture from "../../assets/textures/bgTexture.png"; 
 
 export default function TermsAndConditions() {
     const accentColor = "#CA0A7F";
@@ -31,7 +32,7 @@ export default function TermsAndConditions() {
                 
                 <img
                     className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-                    src="src/assets/textures/bgTexture.png"
+                    src={bgTexture}
                     alt="bg-texture"
                 />
             </section>
