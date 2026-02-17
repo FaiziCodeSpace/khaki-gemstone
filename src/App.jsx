@@ -78,7 +78,6 @@ function App() {
   return (
     <HelmetProvider>
       <Router>
-        {/* ScrollToTop MUST be inside Router but outside Routes */}
         <ScrollToTop />
         
         <main>
