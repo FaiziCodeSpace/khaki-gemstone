@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { MapPin, Code, User, Facebook, Gem, Globe, ShieldCheck } from 'lucide-react';
+import bgTexture from "../../assets/textures/bgTexture.png"; 
 
 export default function AboutUsPage() {
     const accentColor = "#CA0A7F";
@@ -36,7 +37,7 @@ export default function AboutUsPage() {
                     {/* Background Texture */}
                     <img
                         className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-                        src="src/assets/textures/bgTexture.png"
+                        src={bgTexture}
                         alt="bg-texture"
                     />
                 </section>
