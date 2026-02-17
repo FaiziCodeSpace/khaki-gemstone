@@ -3,9 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { 
     X, MapPin, CheckCircle2, Loader2, Plus, 
     Image as ImageIcon, ChevronDown, Calculator, 
-    TrendingUp, UserCheck, Wallet, Download, QrCode 
+    TrendingUp, UserCheck, Wallet, Download, QrCode,
+    Zap, ShieldCheck
 } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react"; 
+import imageCompression from "browser-image-compression"; 
 import { createProduct, updateProduct, fetchProduct } from "../../../services/productsService";
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
@@ -13,11 +15,14 @@ const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
 export default function FormBox() {
     const { productId } = useParams();
     const navigate = useNavigate();
-    const qrRef = useRef(); // Ref to capture the QR for downloading
+    const qrRef = useRef(); 
 
     // --- STATES ---
     const [isEditMode, setIsEditMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isCompressing, setIsCompressing] = useState(false); 
+    const [useHighQuality, setUseHighQuality] = useState(false); // New Toggle State
+    const [compressionStats, setCompressionStats] = useState(null); 
     const [showModal, setShowModal] = useState(false);
     const [generatedId, setGeneratedId] = useState("");
 
@@ -48,7 +53,23 @@ export default function FormBox() {
         certificate: null,
     });
 
-    // --- INDUSTRY STANDARD PROFIT SPLIT LOGIC ---
+    // --- UTILS ---
+    const compressionOptions = {
+        maxSizeMB: 1,           
+        maxWidthOrHeight: 1920, 
+        useWebWorker: true,
+        initialQuality: 0.8     
+    };
+
+    const formatBytes = (bytes) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    // --- FINANCIAL LOGIC ---
     const calculateFinancials = () => {
         const baseCost = parseFloat(formData.price) || 0;
         const marginPercent = parseFloat(formData.profitMargin) || 0;
@@ -73,7 +94,6 @@ export default function FormBox() {
         const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
         const downloadLink = document.createElement("a");
         downloadLink.href = pngUrl;
-        // Uses the unique product number for the file name
         downloadLink.download = `${formData.productNumber || 'Asset-QR'}.png`;
         document.body.appendChild(downloadLink);
         downloadLink.click();
@@ -140,23 +160,69 @@ export default function FormBox() {
         }));
     };
 
-    const handleMultipleFiles = (e) => {
+    // --- COMPRESSION HANDLERS ---
+    const handleMultipleFiles = async (e) => {
         const files = Array.from(e.target.files);
-        setFileObjects(prev => ({ ...prev, gallery: [...prev.gallery, ...files] }));
-        files.forEach((file) => {
-            const reader = new FileReader();
-            reader.onloadend = () => setPreviews(prev => ({ ...prev, imgs_src: [...prev.imgs_src, reader.result] }));
-            reader.readAsDataURL(file);
-        });
+        if (files.length === 0) return;
+
+        setIsCompressing(true);
+        try {
+            const processedFiles = await Promise.all(
+                files.map(async (file) => {
+                    if (useHighQuality) return file; // Skip compression
+
+                    const originalSize = file.size;
+                    const compressed = await imageCompression(file, compressionOptions);
+                    
+                    setCompressionStats({
+                        old: formatBytes(originalSize),
+                        new: formatBytes(compressed.size)
+                    });
+
+                    return compressed;
+                })
+            );
+
+            setFileObjects(prev => ({ ...prev, gallery: [...prev.gallery, ...processedFiles] }));
+            
+            processedFiles.forEach((file) => {
+                const reader = new FileReader();
+                reader.onloadend = () => setPreviews(prev => ({ ...prev, imgs_src: [...prev.imgs_src, reader.result] }));
+                reader.readAsDataURL(file);
+            });
+        } catch (error) {
+            console.error("Processing Error:", error);
+        } finally {
+            setIsCompressing(false);
+            if (!useHighQuality) setTimeout(() => setCompressionStats(null), 4000);
+        }
     };
 
-    const handleSingleFile = (e, fieldName, previewKey) => {
+    const handleSingleFile = async (e, fieldName, previewKey) => {
         const file = e.target.files[0];
         if (file) {
-            setFileObjects(prev => ({ ...prev, [fieldName]: file }));
-            const reader = new FileReader();
-            reader.onloadend = () => setPreviews(prev => ({ ...prev, [previewKey]: reader.result }));
-            reader.readAsDataURL(file);
+            setIsCompressing(true);
+            try {
+                let finalFile = file;
+                if (!useHighQuality) {
+                    const originalSize = file.size;
+                    finalFile = await imageCompression(file, compressionOptions);
+                    setCompressionStats({
+                        old: formatBytes(originalSize),
+                        new: formatBytes(finalFile.size)
+                    });
+                }
+
+                setFileObjects(prev => ({ ...prev, [fieldName]: finalFile }));
+                const reader = new FileReader();
+                reader.onloadend = () => setPreviews(prev => ({ ...prev, [previewKey]: reader.result }));
+                reader.readAsDataURL(finalFile);
+            } catch (error) {
+                console.error("Processing Error:", error);
+            } finally {
+                setIsCompressing(false);
+                if (!useHighQuality) setTimeout(() => setCompressionStats(null), 4000);
+            }
         }
     };
 
@@ -206,8 +272,8 @@ export default function FormBox() {
 
             {/* --- SUCCESS MODAL --- */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[2.5rem] p-8 md:p-10 max-w-sm w-full text-center shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="bg-white rounded-[2.5rem] p-8 md:p-10 max-w-sm w-full text-center shadow-2xl border border-gray-100">
                         <div className="w-16 h-16 bg-pink-50 text-[#CA0A7F] rounded-2xl flex items-center justify-center mx-auto mb-6">
                             <QrCode size={32} />
                         </div>
@@ -244,12 +310,11 @@ export default function FormBox() {
                         </h2>
                         <p className="text-pink-100 text-xs md:text-sm mt-2 font-bold uppercase tracking-widest opacity-80">Inventory Management System</p>
                     </div>
-                    <div className="absolute top-[-40%] right-[-10%] w-64 h-64 md:w-96 md:h-96 bg-white/10 rounded-full blur-3xl"></div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 md:p-10 lg:p-14 space-y-10 md:space-y-16">
 
-                    {/* PROFIT DISTRIBUTION & PORTAL SELECTION */}
+                    {/* PORTAL & PROFIT SECTION */}
                     <div className="space-y-6">
                         <div className="bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-200 flex flex-col md:flex-row items-stretch md:items-end gap-6">
                             <div className="flex-1">
@@ -265,14 +330,14 @@ export default function FormBox() {
 
                             {formData.portal === "investor" && (
                                 <>
-                                    <div className="w-full md:w-44 animate-in zoom-in-95 duration-300">
+                                    <div className="w-full md:w-44">
                                         <label className={labelStyle}>Profit Margin (%)</label>
                                         <div className="relative">
                                             <input type="number" name="profitMargin" value={formData.profitMargin || ""} onChange={handleChange} placeholder="0" className={`${inputStyle} font-black p-4! border-none bg-gray-900 text-[#CA0A7F]`} required />
                                             <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-gray-500">%</span>
                                         </div>
                                     </div>
-                                    <div className="w-full md:w-44 animate-in zoom-in-95 duration-300">
+                                    <div className="w-full md:w-44">
                                         <label className={labelStyle}>Investor Share (%)</label>
                                         <div className="relative">
                                             <input type="number" name="profitSharingModel" value={formData.profitSharingModel || ""} onChange={handleChange} placeholder="50" className={`${inputStyle} font-black p-4! border-none bg-gray-900 text-[#CA0A7F]`} required />
@@ -284,43 +349,29 @@ export default function FormBox() {
                         </div>
 
                         {formData.portal === "investor" && formData.price && (
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-in slide-in-from-top-4 duration-500">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div className="bg-white border border-gray-200 p-5 rounded-2xl">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <TrendingUp size={16} className="text-emerald-500" />
-                                        <p className="text-[10px] font-black uppercase text-gray-400">Net Profit</p>
-                                    </div>
+                                    <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Net Profit</p>
                                     <p className="text-lg font-black text-gray-900">Rs. {financials.netProfit}</p>
                                 </div>
                                 <div className="bg-gray-900 p-5 rounded-2xl">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <UserCheck size={16} className="text-pink-400" />
-                                        <p className="text-[10px] font-black uppercase text-pink-300">Investor (Profit Split)</p>
-                                    </div>
+                                    <p className="text-[10px] font-black uppercase text-pink-300 mb-1">Investor Share</p>
                                     <p className="text-lg font-black text-white">Rs. {financials.investorShare}</p>
-                                    <p className="text-[8px] text-pink-500 font-bold mt-1 uppercase">{formData.profitSharingModel || 0}% of net profit</p>
                                 </div>
                                 <div className="bg-[#CA0A7F] p-5 rounded-2xl">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <Calculator size={16} className="text-white" />
-                                        <p className="text-[10px] font-black uppercase text-pink-100">Admin Recovery</p>
-                                    </div>
+                                    <p className="text-[10px] font-black uppercase text-pink-100 mb-1">Admin Recovery</p>
                                     <p className="text-lg font-black text-white">Rs. {financials.adminShare}</p>
-                                    <p className="text-[8px] text-pink-200 font-bold mt-1 uppercase tracking-tighter">Cost + Remaining Profit</p>
                                 </div>
                                 <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <Wallet size={16} className="text-emerald-600" />
-                                        <p className="text-[10px] font-black uppercase text-emerald-600">Total List Price</p>
-                                    </div>
+                                    <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Total List Price</p>
                                     <p className="text-lg font-black text-emerald-900">Rs. {financials.totalRevenue}</p>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* MAIN INFO */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                    {/* BASIC INFO */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         <div className="space-y-6">
                             <div>
                                 <label className={labelStyle}>Product Name</label>
@@ -333,21 +384,17 @@ export default function FormBox() {
                                     <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
                                 </div>
                             </div>
-                            <div>
-                                <label className={labelStyle}>Product ID</label>
-                                <input type="text" value={isEditMode ? (formData.productNumber || "SYNCING...") : "GEM-XXXXXX"} disabled className={`${inputStyle} bg-gray-100 italic opacity-60 cursor-not-allowed`} />
-                            </div>
                         </div>
                         <div className="flex flex-col">
                             <label className={labelStyle}>Description</label>
-                            <textarea name="description" value={formData.description || ""} onChange={handleChange} className={`${inputStyle} flex-1 min-h-[120px]`} placeholder="Describe the rarity and heritage..."></textarea>
+                            <textarea name="description" value={formData.description || ""} onChange={handleChange} className={`${inputStyle} flex-1 min-h-[120px]`} placeholder="Describe the rarity..."></textarea>
                         </div>
                     </div>
 
-                    {/* NESTED DETAILS */}
-                    <div className="bg-gray-50/50 p-6 md:p-8 rounded-[2rem] border border-gray-100">
-                        <h3 className="text-[#CA0A7F] font-black uppercase text-[10px] tracking-[0.2em] mb-8 text-center md:text-left underline underline-offset-8 decoration-pink-200">Gemological Specifications</h3>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                    {/* SPECIFICATIONS */}
+                    <div className="bg-gray-50/50 p-8 rounded-[2rem] border border-gray-100">
+                        <h3 className="text-[#CA0A7F] font-black uppercase text-[10px] tracking-[0.2em] mb-8">Gemological Specifications</h3>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                             {['gemstone', 'cut_type', 'color', 'clarity'].map((field) => (
                                 <div key={field}>
                                     <label className={labelStyle}>{field.replace('_', ' ')}</label>
@@ -357,16 +404,16 @@ export default function FormBox() {
                         </div>
                     </div>
 
-                    {/* PRICING & TECH */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    {/* PRICING & WEIGHT */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <div>
-                            <label className={labelStyle}>Base Cost / Price (Rs)</label>
+                            <label className={labelStyle}>Base Cost (Rs)</label>
                             <input type="number" name="price" value={formData.price || ""} onChange={handleChange} className={`${inputStyle} font-bold text-[#CA0A7F]`} />
                         </div>
                         {['weight', 'origin', 'treatment', 'refractive_index'].map((info) => (
                             <div key={info}>
                                 <label className={`${labelStyle} capitalize`}>{info.replace('_', ' ')}</label>
-                                <input type={(info === "weight" || info === "refractive_index") ? "number" : "text"} name={info} value={formData.more_information[info] || ""} onChange={(e) => handleNestedChange(e, 'more_information')} className={inputStyle} />
+                                <input type="text" name={info} value={formData.more_information[info] || ""} onChange={(e) => handleNestedChange(e, 'more_information')} className={inputStyle} />
                             </div>
                         ))}
                         <div>
@@ -375,14 +422,14 @@ export default function FormBox() {
                         </div>
                     </div>
 
-                    {/* TAGS */}
+                    {/* TAGS & LIMITED TOGGLE */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                         <div className="lg:col-span-2">
                             <label className={labelStyle}>Search Keywords</label>
                             <div className={`${inputStyle} flex flex-wrap gap-2 items-center min-h-[60px]`}>
                                 {tags.map((tag, idx) => (
                                     <span key={idx} className="bg-gray-900 text-white text-[9px] font-black px-3 py-1.5 rounded-lg flex items-center gap-2 uppercase">
-                                        {tag} <X size={12} className="cursor-pointer hover:text-pink-400" onClick={() => setTags(tags.filter((_, i) => i !== idx))} />
+                                        {tag} <X size={12} className="cursor-pointer" onClick={() => setTags(tags.filter((_, i) => i !== idx))} />
                                     </span>
                                 ))}
                                 <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => {
@@ -391,32 +438,62 @@ export default function FormBox() {
                                         if (!tags.includes(tagInput.trim())) setTags([...tags, tagInput.trim()]);
                                         setTagInput("");
                                     }
-                                }} className="flex-1 outline-none text-sm bg-transparent min-w-[100px]" placeholder="Type & Enter..." />
+                                }} className="flex-1 outline-none text-sm bg-transparent" placeholder="Type & Enter..." />
                             </div>
                         </div>
                         <div className="bg-pink-50 p-6 rounded-2xl flex items-center justify-between border border-pink-100">
                             <div>
-                                <p className="font-black text-[#CA0A7F] text-xs uppercase tracking-tight">Limited Edition</p>
-                                <p className="text-[10px] text-pink-400 font-bold uppercase">Badge Visibility</p>
+                                <p className="font-black text-[#CA0A7F] text-xs uppercase">Limited Product</p>
+                                <p className="text-[10px] text-pink-400 font-bold uppercase tracking-tight">Show Badge</p>
                             </div>
-                            <label className="relative inline-flex items-center cursor-pointer scale-110">
+                            <label className="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="isLimitedProduct" checked={formData.isLimitedProduct || false} onChange={handleChange} className="sr-only peer" />
                                 <div className="w-12 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#CA0A7F] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6"></div>
                             </label>
                         </div>
                     </div>
 
-                    {/* MEDIA ASSETS */}
+                    {/* MEDIA & COMPRESSION SECTION */}
                     <div className="space-y-6">
-                        <h3 className="text-[#CA0A7F] font-black uppercase text-xs tracking-widest">Gallery & Documentation</h3>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h3 className="text-[#CA0A7F] font-black uppercase text-xs tracking-widest">Gallery & Assets</h3>
+                                <p className="text-gray-400 text-[9px] font-bold uppercase mt-1">Optimization active by default</p>
+                            </div>
+                            
+                            <div className="flex items-center gap-4">
+                                {/* Compression Savings Indicator */}
+                                {compressionStats && !useHighQuality && (
+                                    <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-2 animate-in slide-in-from-right-4">
+                                        <Zap size={14} className="text-emerald-500" />
+                                        <span className="text-[10px] font-black text-emerald-700 uppercase">
+                                            Reduced: {compressionStats.old} → {compressionStats.new}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {/* High Quality Toggle */}
+                                <button 
+                                    type="button"
+                                    onClick={() => setUseHighQuality(!useHighQuality)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${useHighQuality ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-gray-200 text-gray-500'}`}
+                                >
+                                    <ShieldCheck size={16} className={useHighQuality ? "text-pink-400" : "text-gray-300"} />
+                                    <span className="text-[10px] font-black uppercase tracking-tighter">
+                                        {useHighQuality ? "Full Resolution Mode" : "Optimized Mode"}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                            <label className="aspect-square border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-[#CA0A7F] hover:bg-pink-50/30 transition-all cursor-pointer group">
-                                <Plus size={20} className="group-hover:scale-125" />
-                                <span className="text-[8px] font-black mt-2 uppercase">Upload Image</span>
-                                <input type="file" multiple accept="image/*" className="hidden" onChange={handleMultipleFiles} />
+                            <label className="aspect-square border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-[#CA0A7F] hover:bg-pink-50/30 transition-all cursor-pointer group relative">
+                                {isCompressing ? <Loader2 className="animate-spin text-[#CA0A7F]" /> : <Plus size={20} />}
+                                <span className="text-[8px] font-black mt-2 uppercase">{isCompressing ? "Processing" : "Add Image"}</span>
+                                <input type="file" multiple accept="image/*" className="hidden" onChange={handleMultipleFiles} disabled={isCompressing} />
                             </label>
                             {previews.imgs_src.map((src, index) => (
-                                <div key={index} className="aspect-square relative group rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                                <div key={index} className="aspect-square relative group rounded-2xl overflow-hidden border border-gray-100">
                                     <img src={src} alt="" className="w-full h-full object-cover" />
                                     <button type="button" onClick={() => {
                                         setPreviews(prev => ({ ...prev, imgs_src: prev.imgs_src.filter((_, i) => i !== index) }));
@@ -425,14 +502,15 @@ export default function FormBox() {
                                 </div>
                             ))}
                         </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <MediaInput label="Laboratory Report" preview={previews.lab_test_img_src} onChange={(e) => handleSingleFile(e, 'lab_test', 'lab_test_img_src')} />
                             <MediaInput label="Authenticity Certificate" preview={previews.certificate_img_src} onChange={(e) => handleSingleFile(e, 'certificate', 'certificate_img_src')} />
                         </div>
                     </div>
 
-                    <button type="submit" disabled={isLoading} className={`w-full py-5 lg:py-7 rounded-2xl font-black tracking-[0.3em] text-white transition-all shadow-xl flex items-center justify-center gap-4 uppercase text-xs lg:text-sm ${isLoading ? 'bg-gray-300' : 'bg-[#CA0A7F] hover:brightness-110 active:scale-[0.99]'}`}>
-                        {isLoading ? <Loader2 className="animate-spin" /> : <><CheckCircle2 size={20} />{isEditMode ? "Save Changes" : "Commit to Inventory"}</>}
+                    <button type="submit" disabled={isLoading || isCompressing} className={`w-full py-6 rounded-2xl font-black tracking-[0.3em] text-white transition-all shadow-xl flex items-center justify-center gap-4 uppercase text-xs lg:text-sm ${isLoading || isCompressing ? 'bg-gray-300' : 'bg-[#CA0A7F] hover:brightness-110'}`}>
+                        {isLoading ? <Loader2 className="animate-spin" /> : <><CheckCircle2 size={20} />{isEditMode ? "Update Asset" : "Commit to Vault"}</>}
                     </button>
                 </form>
             </div>
@@ -448,9 +526,9 @@ function MediaInput({ label, preview, onChange }) {
                 {preview ? (
                     <img src={preview} alt="" className="w-full h-full object-cover" />
                 ) : (
-                    <div className="text-center opacity-30 group-hover:opacity-100 group-hover:text-[#CA0A7F] transition-all">
+                    <div className="text-center opacity-30 group-hover:opacity-100 transition-all">
                         <ImageIcon size={32} className="mx-auto" strokeWidth={1.5} />
-                        <p className="text-[8px] font-black mt-2 uppercase">Select File</p>
+                        <p className="text-[8px] font-black mt-2 uppercase">Select Document</p>
                     </div>
                 )}
                 <input type="file" onChange={onChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />

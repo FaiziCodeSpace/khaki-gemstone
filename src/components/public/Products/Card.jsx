@@ -40,9 +40,13 @@ export function Card({ products }) {
                     </button>
 
                     <div className="relative w-[120px] h-[120px] shrink-0 mid:w-full mid:h-[268px] rounded-[18px] mid:rounded-[24px] overflow-hidden bg-gray-100">
-                        <img loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                        <img
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                             src={`${API_URL}${item.imgs_src[0]}`}
-                            alt={item.name} />
+                            alt={`${item.name} - Authentic Natural Gemstone | Khaki Gemstone`}
+                            title={`View details for ${item.name}`}
+                        />
                     </div>
 
                     <div className="flex flex-col justify-between flex-1 ml-4 mid:ml-0 mid:mt-4 mid:px-1">

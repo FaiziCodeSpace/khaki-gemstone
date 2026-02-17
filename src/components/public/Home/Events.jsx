@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { fetchEvent } from '../../../services/eventService';
-
+import { Link } from 'react-router-dom';
 export function Events() {
     const [event, setEvent] = useState(null);
+
+
 
     useEffect(() => {
         async function getEvent() {
             try {
                 const data = await fetchEvent();
                 setEvent(data);
-            }catch(err){
+            } catch (err) {
                 console.error("Fetch Event Error:", err);
             }
         }
@@ -88,9 +90,10 @@ export function Events() {
                 </p>
 
                 {/* Call to Action */}
-                <button
-                    aria-label="Shop the Summer Sale"
-                    className="
+                <Link to="/shop">
+                    <button
+                        aria-label="Shop the Summer Sale"
+                        className="
                         flex justify-center items-center
                         bg-white md:bg-[#222222]
                         rounded-full
@@ -104,20 +107,21 @@ export function Events() {
                         mt-[clamp(8px,3vw-3.27px,40px)]
                         gap-1.5 md:gap-2.5
                     "
-                >
-                    <span className="inline-block md:invert">
-                        SHOP NOW
-                    </span>
+                    >
+                        <span className="inline-block md:invert">
+                            SHOP NOW
+                        </span>
 
-                    <img
-                        src="./Icons/cart.svg"
-                        alt="Shopping Cart Icon"
-                        aria-hidden="true"
-                        className="block w-3 h-3 md:w-5 md:h-5 md:invert"
-                    />
-                </button>
+                        <img
+                            src="./Icons/cart.svg"
+                            alt="Shopping Cart Icon"
+                            aria-hidden="true"
+                            className="block w-3 h-3 md:w-5 md:h-5 md:invert"
+                        />
+                    </button>
+                </Link>
+
             </div>
-
             {/* ===================== Visual Section ===================== */}
             <div className="flex-1 h-1/2 md:h-auto">
                 <img

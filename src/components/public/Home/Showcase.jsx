@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function Showcase() {
   const [products, setProducts] = useState([]);
-  const [cartIds, setCartIds] = useState([]); 
+  const [cartIds, setCartIds] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,17 +17,17 @@ export function Showcase() {
       try {
         const data = await fetchAllProducts({
           limited: false,
-          limit: 12, 
+          limit: 12,
         });
-        
+
         if (data && data.products) {
-          const filtered = data.products.filter(p => 
+          const filtered = data.products.filter(p =>
             p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
-          ).slice(0, 6); 
-          
+          ).slice(0, 6);
+
           setProducts(filtered);
         } else if (Array.isArray(data)) {
-          const filtered = data.filter(p => 
+          const filtered = data.filter(p =>
             p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
           ).slice(0, 6);
           setProducts(filtered);
@@ -80,11 +80,11 @@ export function Showcase() {
   return (
     <section className="flex flex-col justify-center items-center mt-25 md:mt-60 w-full overflow-hidden">
       {/* Header Section */}
-      <div className="flex flex-col px-6 lg:px-10 items-start lg:flex-row lg:items-end w-full max-w-[1440px] justify-between">
+      <div className="flex flex-col px-6 lg:px-10 items-start lg:flex-row lg:items-end w-full max-w-[1440px] justify-between z-50">
         <h1 className="text-[clamp(32px,6vw,72px)] tracking-tight leading-none font-regular max-w-[800px] uppercase">
           Our Premium Collection of Natural Gemstones
         </h1>
-        <button 
+        <button
           onClick={() => navigate('/shop')}
           className="mt-7 text-[12px] font-bold text-[#282930] text-nowrap border-[1px] px-5.5 py-2 flex justify-center items-center gap-2 rounded-[40px]
                 lg:w-[250px] lg:h-[54px] lg:gap-2.5 lg:text-[18px] font-['Satoshi'] hover:bg-[#282930] hover:text-white transition-all group"
@@ -100,11 +100,10 @@ export function Showcase() {
         {products.map((product) => {
           const isInCart = cartIds.includes(product._id);
 
-          // Calculate display price: Use virtual publicPrice or calculate manually for INVESTED products
           const displayPrice = product.publicPrice || (
-            product.portal === "PUBLIC BY INVESTED" 
-            ? (product.price + (product.price * (product.profitMargin / 100))).toFixed(0)
-            : product.price
+            product.portal === "PUBLIC BY INVESTED"
+              ? (product.price + (product.price * (product.profitMargin / 100))).toFixed(0)
+              : product.price
           );
 
           return (
@@ -139,8 +138,8 @@ export function Showcase() {
                   <button
                     onClick={(e) => handleAddToCart(e, product)}
                     className={`p-2 rounded-xl transition-all duration-300 ${isInCart
-                        ? "bg-[#CA0A7F] text-white"
-                        : "bg-transparent hover:scale-110"
+                      ? "bg-[#CA0A7F] text-white"
+                      : "bg-transparent hover:scale-110"
                       }`}
                     aria-label={isInCart ? "Already in cart" : "Add to cart"}
                   >

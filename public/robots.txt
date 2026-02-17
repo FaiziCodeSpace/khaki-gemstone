@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /shop
+Allow: /product/
+Allow: /aboutUs
+
+# Hide the private stuff
+Disallow: /admin/
+Disallow: /admin-login
+Disallow: /investor/
+Disallow: /investor-login
+
+Sitemap: https://khakigemstone.com/sitemap.xml

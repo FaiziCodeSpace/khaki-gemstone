@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Suspense, lazy, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { Suspense, lazy, useState, useEffect } from "react";
 
 /* =======================
    🌍 PUBLIC (NO LAZY)
@@ -43,6 +43,9 @@ import { ScanProductDetailPage } from "./pages/public/Scan";
 import InvestorTerms from "./pages/investment/InvestorTerms";
 import CheckoutForm from "./pages/investment/CheckoutForm";
 import PayoutRequests from "./pages/admin/PayoutRequests";
+import { HelmetProvider } from "react-helmet-async";
+import ScrollToTop from "./utils/ScrollToTop";
+
 /* =======================
    💼 INVESTOR (LAZY)
 ======================= */
@@ -61,7 +64,7 @@ const RegisterInvestor = lazy(() => import("./pages/investment/RegisterInvestor"
 const AdminLayout = lazy(() => import("./Layout/AdminLayout"));
 
 /* =======================
-   ⏳ LOADER
+   ⏳ UTILS
 ======================= */
 const Loader = () => (
   <div style={{ padding: "3rem", textAlign: "center" }}>
@@ -71,173 +74,176 @@ const Loader = () => (
 
 function App() {
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+
   return (
-    <Router>
-      <main>
-        <Routes>
+    <HelmetProvider>
+      <Router>
+        <ScrollToTop />
+        
+        <main>
+          <Routes>
 
-          {/* =======================
-              🌍 PUBLIC WEBSITE
-          ======================= */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/shop" element={<ProductsPage />} />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/aboutUs" element={<AboutUsPage />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/scan/:id" element={<ScanProductDetailPage />} />
+            {/* =======================
+                🌍 PUBLIC WEBSITE
+            ======================= */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/shop" element={<ProductsPage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/aboutUs" element={<AboutUsPage />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/scan/:id" element={<ScanProductDetailPage />} />
 
-            <Route
-              path="/register"
-              element={
-                <PublicRoute>
-                  <RegisterUser />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <PublicRoute>
-                  <LoginUser />
-                </PublicRoute>
-              }
-            />
-          </Route>
+              <Route
+                path="/register"
+                element={
+                  <PublicRoute>
+                    <RegisterUser />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LoginUser />
+                  </PublicRoute>
+                }
+              />
+            </Route>
 
-          {/* =======================
-              💼 INVESTOR PORTAL (LAZY)
-          ======================= */}
-          <Route
-            element={
-              <Suspense fallback={<Loader />}>
-                <InvestorLayout />
-              </Suspense>
-            }
-          >
-            <Route
-              path="/investor/dashboard"
-              element={
-                <ProtectedRoute>
-                  <InvestorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/investor-terms" element={<InvestorTerms setHasAcceptedTerms={setHasAcceptedTerms}/>} />
-            <Route
-              path="/investor/products"
-              element={
-                <ProtectedRoute>
-                  <AddProducts />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/investor/wallet"
-              element={
-                <ProtectedRoute>
-                  <InvestorWallet />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/investor/wallet/addbalance"
-              element={
-                <ProtectedRoute>
-                  <PricingTable />
-                </ProtectedRoute>
-              }
-            />
-
-           <Route
-              path="/investor/wallet/checkout"
-              element={
-                <ProtectedRoute>
-                  <CheckoutForm />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/investor/policy"
-              element={
-                <ProtectedRoute>
-                  <TermsAndPolicies />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/investor/product/:id"
-              element={
-                <ProtectedRoute>
-                  <InvestorProductDetailPage />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/investor-login"
-              element={
-                <PublicRoute>
-                  <LoginInvestor />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/investor-register"
-              element={
-                <PublicRoute>
-                  <RegisterInvestor termsAccepted={hasAcceptedTerms} />
-                </PublicRoute>
-              }
-            />
-
-            <Route
-              path="/investor-application-submitted"
-              element={<SuccessNotification />}
-            />
-          </Route>
-
-          {/* =======================
-              🛠️ ADMIN (LAYOUT ONLY)
-          ======================= */}
-          <Route element={<AuthProvider />}>
-            {/* Everything inside here has access to Admin Context */}
-            <Route path="/admin-login" element={<AdminLogin />} />
-
-
+            {/* =======================
+                💼 INVESTOR PORTAL (LAZY)
+            ======================= */}
             <Route
               element={
-                <AdminProtectedRoute>
-                  <Suspense fallback={<Loader />}>
-                    <AdminLayout />
-                  </Suspense>
-                </AdminProtectedRoute>
+                <Suspense fallback={<Loader />}>
+                  <InvestorLayout />
+                </Suspense>
               }
             >
-              <Route path="/admin/dashboard" element={<Dashboard />} />
-              <Route path="/admin/products" element={<ProductsManagment />} />
-              <Route path="/admin/products/formbox" element={<FormBox />} />
-              <Route path="/admin/products/formbox/:productId" element={<FormBox />} />
-              <Route path="/admin/TaxonomyControl" element={<CategoriesManagment />} />
-              <Route path="/admin/applications" element={<Applications />} />
-              <Route path="/admin/orders" element={<OrderManagement />} />
-              <Route path="/admin/investors" element={<InvestorManagement />} />
-              <Route path="/admin/transactions" element={<TransactionHistory />} />
-              <Route path="/admin/AdminManagement" element={<AdminManagement />} />
-              <Route path="/admin/Payout" element={<PayoutRequests />} />
+              <Route
+                path="/investor/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <InvestorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/investor-terms" element={<InvestorTerms setHasAcceptedTerms={setHasAcceptedTerms} />} />
+              <Route
+                path="/investor/products"
+                element={
+                  <ProtectedRoute>
+                    <AddProducts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/investor/wallet"
+                element={
+                  <ProtectedRoute>
+                    <InvestorWallet />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/investor/wallet/addbalance"
+                element={
+                  <ProtectedRoute>
+                    <PricingTable />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/investor/wallet/checkout"
+                element={
+                  <ProtectedRoute>
+                    <CheckoutForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/investor/policy"
+                element={
+                  <ProtectedRoute>
+                    <TermsAndPolicies />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/investor/product/:id"
+                element={
+                  <ProtectedRoute>
+                    <InvestorProductDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/investor-login"
+                element={
+                  <PublicRoute>
+                    <LoginInvestor />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/investor-register"
+                element={
+                  <PublicRoute>
+                    <RegisterInvestor termsAccepted={hasAcceptedTerms} />
+                  </PublicRoute>
+                }
+              />
+
+              <Route
+                path="/investor-application-submitted"
+                element={<SuccessNotification />}
+              />
             </Route>
-          </Route>
 
-          {/* =======================
-              🚫 404
-          ======================= */}
-          <Route path="*" element={<NotFound />} />
+            {/* =======================
+                🛠️ ADMIN (LAYOUT ONLY)
+            ======================= */}
+            <Route element={<AuthProvider />}>
+              <Route path="/admin-login" element={<AdminLogin />} />
 
-        </Routes>
-      </main>
-    </Router>
+              <Route
+                element={
+                  <AdminProtectedRoute>
+                    <Suspense fallback={<Loader />}>
+                      <AdminLayout />
+                    </Suspense>
+                  </AdminProtectedRoute>
+                }
+              >
+                <Route path="/admin/dashboard" element={<Dashboard />} />
+                <Route path="/admin/products" element={<ProductsManagment />} />
+                <Route path="/admin/products/formbox" element={<FormBox />} />
+                <Route path="/admin/products/formbox/:productId" element={<FormBox />} />
+                <Route path="/admin/TaxonomyControl" element={<CategoriesManagment />} />
+                <Route path="/admin/applications" element={<Applications />} />
+                <Route path="/admin/orders" element={<OrderManagement />} />
+                <Route path="/admin/investors" element={<InvestorManagement />} />
+                <Route path="/admin/transactions" element={<TransactionHistory />} />
+                <Route path="/admin/AdminManagement" element={<AdminManagement />} />
+                <Route path="/admin/Payout" element={<PayoutRequests />} />
+              </Route>
+            </Route>
+
+            {/* =======================
+                🚫 404
+            ======================= */}
+            <Route path="*" element={<NotFound />} />
+
+          </Routes>
+        </main>
+      </Router>
+    </HelmetProvider>
   );
 }
 

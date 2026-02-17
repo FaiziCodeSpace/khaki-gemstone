@@ -1,15 +1,27 @@
-import { Navbar } from "../../common/Navbar";
+import bgTexture from "../../../assets/textures/bgTexture.png"; 
+import heroPic from "../../../assets/images/hero.png";
+import { useNavigate } from "react-router-dom";
 
 export function HeroPortion() {
+    const navigate = useNavigate();
+
     return (
         <>
             <section className="bg-[#CA0A7F] pt-[100px] pb-10 overflow-hidden relative">
+                
+                {/* --- MAIN CONTENT CONTAINER --- */}
                 <div className="px-6 flex flex-col items-center text-white relative z-10 mt-[clamp(32px,10vw,100px)]">
+                    
+                    {/* Header: Since [1997] */}
                     <div className="flex w-full justify-between px-4 text-[9px] sm:text-[14px]">
                         <p>SINCE</p>
                         <p>[1997]</p>
                     </div>
+
+                    {/* Typography & Hero Image Stack */}
                     <div className="text-center flex flex-col gap-5 mt-5 lg:mt-10 lg:gap-0">
+                        
+                        {/* Title: AUTHENTIC */}
                         <h1 className="m-0 font-bold text-[#fbfff6d6] tracking-[-4.76px] leading-none 
                                        text-[clamp(68px,17vw,180px)] 
                                        lg:tracking-[-12px] 
@@ -18,27 +30,24 @@ export function HeroPortion() {
                         </h1>
 
                         {/* Hero Image */}
-                       <img
-    className="h-[clamp(401px,70vw,620px)] object-cover rounded-[14.62px] border-white border-[6.58px] 
-               lg:absolute lg:w-[340px] lg:h-[404px] lg:left-[50%] lg:top-[55%] 
-               lg:translate-x-[-50%] lg:translate-y-[-50%] z-0 
-               lg:rotate-[-7deg] 
-               
-               /* Enhanced Animation Classes */
-               transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]
-               hover:rotate-0 hover:scale-105 hover:z-20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]
-               xl:w-[425px] xl:h-[505px]"
-    src="./Images/hero.png"
-    alt="hero-pic"
-/>
+                        <img
+                            className="h-[clamp(401px,70vw,620px)] object-cover rounded-[14.62px] border-white border-[6.58px] 
+                                       lg:absolute lg:w-[340px] lg:h-[404px] lg:left-[50%] lg:top-[55%] 
+                                       lg:translate-x-[-50%] lg:translate-y-[-50%] z-0 
+                                       lg:rotate-[-7deg] 
+                                       transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]
+                                       hover:rotate-0 hover:scale-105 hover:z-20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]
+                                       xl:w-[425px] xl:h-[505px]"
+                            src={heroPic}
+                            alt="hero-pic"
+                        />
 
-                        {/* NATURAL + Subtext */}
+                        {/* Title: NATURAL + Subtext */}
                         <div className="lg:flex lg:items-center lg:justify-between lg:gap-4">
                             <p className="hidden lg:flex lg:text-[14px] lg:w-[170px] lg:text-left lg:mt-16">
                                 We source, curate, and deliver 100% natural gemstones
                             </p>
 
-                            {/* Added clamp to text size: Scales from 68px to 180px based on viewport width */}
                             <h1 className="font-bold tracking-[-4.76px] leading-[0.8] 
                                            text-[clamp(68px,17vw,180px)] 
                                            lg:tracking-[-12px] 
@@ -50,15 +59,16 @@ export function HeroPortion() {
                     </div>
                 </div>
 
-                {/* Scroll / Rating / Button Section */}
+                {/* --- FOOTER: SCROLL / RATING / BUTTON --- */}
                 <div className="relative mt-10 lg:mt-20 z-10 px-7 md:px-16 sm:flex sm:items-center sm:justify-between gap-6">
-                    {/* Scroll Now */}
+                    
+                    {/* Scroll Indicator */}
                     <div className="hidden sm:flex items-center gap-4 text-white">
                         <img src="./Icons/scroll.svg" alt="scroll-icon" />
                         <p className="text-[18px]">Scroll Now</p>
                     </div>
 
-                    {/* Rating */}
+                    {/* Rating Section */}
                     <div className="hidden sm:flex items-center gap-4 text-white">
                         <h1 className="text-[40px] font-semibold">4.9/5</h1>
                         <div className="flex items-center gap-1">
@@ -67,37 +77,39 @@ export function HeroPortion() {
                         </div>
                     </div>
 
-                    {/* Text + Button */}
+                    {/* CTA Section */}
                     <div className="flex w-full mt-6 text-white text-[12px] items-end justify-between gap-4 sm:mt-0 sm:flex-col sm:w-fit sm:items-start">
                         <p className="font-medium sm:w-[160px] md:w-[196px]">
                             trusted by collectors, jewelers, and gemstone lovers worldwide.
                         </p>
 
                         <button
-                            onClick={() => console.log("SHOP NOW CLICKED!")}
+                            onClick={() => navigate("/shop")}
                             className="flex items-center justify-center gap-2
-                bg-white px-6 py-[10px] rounded-[62px] whitespace-nowrap
-                text-[9.96px] font-semibold text-black
-                sm:w-[160px] sm:h-[45px] sm:text-[14px]
-                md:w-[196px] md:h-[56px] md:text-[16px]"
+                                       bg-white px-6 py-[10px] rounded-[62px] whitespace-nowrap
+                                       text-[9.96px] font-semibold text-black
+                                       sm:w-[160px] sm:h-[45px] sm:text-[14px]
+                                       md:w-[196px] md:h-[56px] md:text-[16px]"
                         >
                             SHOP NOW
                             <img
                                 src="./Icons/cart.svg"
                                 alt="cart-icon"
-                                className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6"
+                                className="w-5 h-5 sm:w-5 sm:h-5"
                             />
                         </button>
                     </div>
                 </div>
 
-                {/* Background Blur Circle */}
+                {/* --- BACKGROUND DECORATION --- */}
+                
+                {/* Blur Circle */}
                 <div className="absolute bg-[#4C7A13] w-[1019px] h-[1019px] top-[500px] right-0 blur-[1000px] rounded-full opacity-90"></div>
 
-                {/* Background Texture */}
+                {/* Texture Overlay */}
                 <img
                     className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-                    src="src/assets/textures/bgTexture.png"
+                    src={bgTexture}
                     alt="bg-texture"
                 />
             </section>
