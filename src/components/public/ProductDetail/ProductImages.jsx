@@ -40,7 +40,7 @@ export function ProductImages({ product }) {
             style={{
               backgroundImage: `url(${mainImage})`,
               backgroundPosition: zoomPos,
-              backgroundSize: '250%'
+              backgroundSize: '180%'
             }}
           />
         )}
