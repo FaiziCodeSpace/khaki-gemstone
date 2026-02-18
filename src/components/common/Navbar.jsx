@@ -11,7 +11,7 @@ export function Navbar() {
   const navigate = useNavigate();
   const path = location.pathname;
   const cartCount = useCartCount();
-  
+
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -59,22 +59,21 @@ export function Navbar() {
   const borderColor = isDarkGray ? "border-[#4B4B4B]/20" : "border-white/20";
   const accentColor = "#CA0A7F";
 
-  const getInvestorLink = () => {
-    if (!isLoggedIn) {
-      return { text: "Join as Investor", path: "/investor-register" };
-    }
-    if (user?.isInvestor) {
-      if (user.status === "approved") {
-        return { text: "Investor Portal", path: "/investor/dashboard", disabled: false };
-      }
-      if (user.status === "pending") {
-        return { text: "Application Submitted", path: "/investor-application-submitted", disabled: true };
-      }
-      return { text: "Join as Investor", path: "/investor-register", disabled: false };
-    }
-    return { text: "Join as Investor", path: "/investor-register", disabled: false };
-  };
+ // Inside Navbar.js
+const getInvestorLink = () => {
+  if (!isLoggedIn || !user) {
+    return { text: "Join as Investor", path: "/investor-register" };
+  }
 
+  const status = user.status || user.investor?.status;
+  if (status === "approved") {
+    return { text: "Investor Portal", path: "/investor/dashboard", disabled: false };
+  }
+  if (status === "pending") {
+    return { text: "Application Submitted", path: "/investor-application-submitted", disabled: false };
+  }
+  return { text: "Join as Investor", path: "/investor-register", disabled: false };
+};
   const investorLink = getInvestorLink();
 
   return (
@@ -106,7 +105,7 @@ export function Navbar() {
           </button>
 
           <ul className={`flex flex-col text-nowrap top-14 right-0 md:right-auto md:left-1/2 md:-translate-x-1/2 text-center absolute px-2 py-4 bg-[#000000ce] backdrop-blur-2xl rounded-[20px] text-white font-normal border border-white/10 transition-all duration-300 ease-in-out origin-top z-40 ${menu ? "opacity-100 scale-100 visible" : "opacity-0 scale-95 invisible"} min-w-60 shadow-2xl`}>
-            
+
             {/* MOBILE ONLY CART LINK */}
             <li className="md:hidden text-[16px] transition-colors duration-200">
               <Link to="/cart" onClick={closeMenu} className="flex items-center justify-center gap-3 w-full py-3 px-6 text-[#CA0A7F] font-bold">
