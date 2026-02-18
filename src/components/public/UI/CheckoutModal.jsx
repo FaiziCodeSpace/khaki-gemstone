@@ -58,57 +58,64 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
                     city: formData.city,
                     postalCode: formData.postalCode
                 },
-                items: items.map(item => ({
-                    product: item._id,
-                })),
+                items: items.map(item => ({ product: item._id })),
                 paymentMethod: formData.paymentMethod
             };
 
             const result = await bookOrder(orderPayload);
 
-            // DEBUG: console.log("Order Result:", result); 
-
             if (result.type === 'SUCCESS' || result._id) {
-                // 1. Show success immediately
                 setLoading(false);
                 setIsSuccess(true);
 
-                // 2. Perform cleanup in the background
-                try {
-                    const token = localStorage.getItem("token");
-                    if (source === "cart") {
-                        token ? await clearCart() : clearGuestCart();
-                    } else {
-                        for (const item of items) {
-                            token ? await deleteFromCart(item._id) : clearGuestItem(item._id);
-                        }
+                const token = localStorage.getItem("token");
+                if (source === "cart") {
+                    token ? await clearCart() : clearGuestCart();
+                } else {
+                    for (const item of items) {
+                        token ? await deleteFromCart(item._id) : clearGuestItem(item._id);
                     }
-                    // Always dispatch to sync the Navbar count
-                    window.dispatchEvent(new Event("cartUpdated"));
-                } catch (cleanupError) {
-                    console.error("Cart cleanup failed, but order was placed:", cleanupError);
                 }
+                window.dispatchEvent(new Event("cartUpdated"));
 
-                // 3. Close modal after delay
                 setTimeout(() => {
-                    onClose();
-                    setIsSuccess(false);
+                    if (formData.paymentMethod === 'COD') {
+                        window.location.reload();
+                    } else {
+                        onClose();
+                        setIsSuccess(false);
+                    }
                 }, 4000);
+
             } else {
                 throw new Error("Order processed but confirmation failed.");
             }
         } catch (err) {
             setLoading(false);
-            // If the order actually booked (checked via logs), you might want to show success anyway
-            // For now, let's catch the error properly:
             setError(err.response?.data?.message || err.message || "Server Error (500)");
             console.error("Checkout Error:", err);
         }
     };
+    useEffect(() => {
+        if (isOpen) {
+            // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
+
+            window.history.pushState({ modalOpen: true }, "");
+            const handlePopState = () => onClose();
+            window.addEventListener('popstate', handlePopState);
+
+            return () => {
+                // Re-enable scrolling when closed
+                document.body.style.overflow = 'unset';
+                window.removeEventListener('popstate', handlePopState);
+            };
+        }
+    }, [isOpen, onClose]);
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white md:bg-black/40 md:backdrop-blur-sm animate-in fade-in duration-300">
-            {/* Main Container */}
+        // Update this line at the top of the return
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-white md:bg-black/40 md:backdrop-blur-sm animate-in fade-in duration-300">            {/* Main Container */}
             <div className="bg-white w-full h-full md:h-[90vh] md:max-w-6xl md:rounded-[24px] shadow-2xl flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
 
                 {/* --- HEADER (Mobile Only) --- */}
@@ -225,7 +232,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
                             <div key={item._id} className="flex gap-4 group">
                                 <div className="w-20 h-20 bg-white rounded-xl border border-gray-200 overflow-hidden flex-shrink-0 shadow-sm">
                                     <img
-                                        src={item.imgs_src ? `${API_URL}${item.imgs_src}` : '/placeholder.jpg'}
+                                        src={item.imgs_src?.[0] ? `${API_URL}${item.imgs_src[0]}` : '/placeholder.jpg'}
                                         alt={item.name}
                                         className="w-full h-full object-cover"
                                     />

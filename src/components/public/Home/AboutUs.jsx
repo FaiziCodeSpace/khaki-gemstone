@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export function AboutUs() {
     return (
         <>
@@ -33,7 +35,7 @@ export function AboutUs() {
                         <p className="text-[12px] text-[#7E8492] text-justify text-normal tracking-[0.8px] lg:text-[clamp(12px,1.2vw,16px)] lg:w-[40vw]">
                             Khaki Gem Stone is built on one simple belief — real stones carry real value.We specialize in sourcing and delivering 100% natural gemstones, carefully selected for their authenticity, quality, and natural beauty.Each gemstone in our collection is ethically sourced from trusted origins and handpicked by experts to ensure clarity, color, and character. From raw and rough stones to finely cut gems and collector specimens, every piece tells a story shaped by nature itself.
                         </p>
-                        <a href="https://yourlink.com" className="group inline-block">
+                        <Link to="/aboutUs" className="group inline-block">
                             <button className="mt-7 text-[12px] font-bold text-[#282930] text-nowrap flex justify-left items-center gap-2
                                 lg:gap-2.5 lg:text-[18px] font-['Satoshi'] transition-all cursor-pointer hover:underline">
 
@@ -46,7 +48,7 @@ export function AboutUs() {
                                 />
 
                             </button>
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Layer 1.5: The Image (Between ABOUT U and S) */}
