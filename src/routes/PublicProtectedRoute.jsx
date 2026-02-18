@@ -1,9 +1,10 @@
 // src/routes/PublicRoute.js
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
-const PublicRoute = ({ children, restrictedTo = "user" }) => {
+const PublicRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   const storedUser = localStorage.getItem("user");
+  const location = useLocation();
   
   let user = null;
   try {
@@ -12,17 +13,23 @@ const PublicRoute = ({ children, restrictedTo = "user" }) => {
     user = null;
   }
 
-  // If NOT logged in, let them see the login/register page
-  if (!token || !user) {
+  if (!token || !user) return children;
+
+  const status = user.status || user.investor?.status;
+
+  if (status === "pending") {
     return children;
   }
 
-  // If logged in as INVESTOR, redirect to investor dashboard
-  if (user.isInvestor) {
+  const investorPaths = ["/investor-register", "/investor-login"];
+  if (investorPaths.includes(location.pathname) && !user.isInvestor) {
+    return children;
+  }
+
+  if (user.isInvestor && status === "approved") {
     return <Navigate to="/investor/dashboard" replace />;
   }
 
-  // If logged in as COMMON USER, redirect to home or shop
   return <Navigate to="/" replace />;
 };
 

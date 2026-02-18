@@ -147,7 +147,18 @@ const RegisterInvestor = ({ termsAccepted }) => {
       }
 
       await applyInvestor(cleanPayload);
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const userObj = JSON.parse(storedUser);
 
+        const updatedUser = {
+          ...userObj,
+          status: 'pending',
+          isInvestor: true
+        };
+
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
       navigate('/investor-application-submitted');
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Something went wrong';
