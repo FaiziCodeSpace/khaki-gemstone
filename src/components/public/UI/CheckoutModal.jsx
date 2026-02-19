@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ShieldCheck, CreditCard, Wallet, MapPin, ShoppingBag, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { bookOrder } from '../../../services/adminServices/OrdersService';
 import { clearGuestCart, clearGuestItem } from '../../../utils/guestCart';
@@ -21,20 +22,32 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
         paymentMethod: 'COD'
     });
 
+    // --- EFFECT: Handle Back Button & Body Scroll ---
     useEffect(() => {
-        if (isOpen) {
-            window.history.pushState({ modalOpen: true }, "");
+        if (!isOpen) return;
 
-            const handlePopState = (e) => {
-                onClose();
-            };
+        // 1. Prevent Background Scroll
+        document.body.style.overflow = 'hidden';
 
-            window.addEventListener('popstate', handlePopState);
-            return () => window.removeEventListener('popstate', handlePopState);
-        }
+        // 2. Push a fake state to history
+        window.history.pushState({ modalOpen: true }, "");
+
+        const handlePopState = () => {
+            onClose();
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            document.body.style.overflow = 'unset';
+            window.removeEventListener('popstate', handlePopState);
+            
+            // Clean up history entry if closed via UI button
+            if (window.history.state?.modalOpen) {
+                window.history.back();
+            }
+        };
     }, [isOpen, onClose]);
-
-    if (!isOpen) return null;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -93,29 +106,14 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
         } catch (err) {
             setLoading(false);
             setError(err.response?.data?.message || err.message || "Server Error (500)");
-            console.error("Checkout Error:", err);
         }
     };
-    useEffect(() => {
-        if (isOpen) {
-            // Prevent background scrolling
-            document.body.style.overflow = 'hidden';
 
-            window.history.pushState({ modalOpen: true }, "");
-            const handlePopState = () => onClose();
-            window.addEventListener('popstate', handlePopState);
+    if (!isOpen) return null;
 
-            return () => {
-                // Re-enable scrolling when closed
-                document.body.style.overflow = 'unset';
-                window.removeEventListener('popstate', handlePopState);
-            };
-        }
-    }, [isOpen, onClose]);
-
-    return (
-        // Update this line at the top of the return
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-white md:bg-black/40 md:backdrop-blur-sm animate-in fade-in duration-300">            {/* Main Container */}
+    return createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white md:bg-black/40 md:backdrop-blur-sm animate-in fade-in duration-300">
+            {/* Main Container */}
             <div className="bg-white w-full h-full md:h-[90vh] md:max-w-6xl md:rounded-[24px] shadow-2xl flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
 
                 {/* --- HEADER (Mobile Only) --- */}
@@ -126,7 +124,6 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
 
                 {/* --- LEFT: FORM SECTION --- */}
                 <div className="flex-1 bg-white p-6 md:p-12 lg:p-16 md:overflow-y-auto relative">
-                    {/* Close Button (Desktop Only) */}
                     <button onClick={onClose} className="hidden md:block absolute right-8 top-8 text-gray-400 hover:text-gray-900">
                         <X size={24} />
                     </button>
@@ -163,19 +160,19 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
                                         <MapPin size={14} /> 01. Shipping Details
                                     </h3>
                                     <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-                                        <FloatingInput label="First Name" name="firstName" value={formData.firstName} onChange={handleInputChange} />
-                                        <FloatingInput label="Last Name" name="lastName" value={formData.lastName} onChange={handleInputChange} />
+                                        <FloatingInput isRequired label="First Name" name="firstName" value={formData.firstName} onChange={handleInputChange} />
+                                        <FloatingInput isRequired label="Last Name" name="lastName" value={formData.lastName} onChange={handleInputChange} />
                                         <div className="col-span-2">
-                                            <FloatingInput label="Email Address" name="email" type="email" value={formData.email} onChange={handleInputChange} />
+                                            <FloatingInput isRequired label="Email Address" name="email" type="email" value={formData.email} onChange={handleInputChange} />
                                         </div>
                                         <div className="col-span-2">
-                                            <FloatingInput label="Phone Number" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} />
+                                            <FloatingInput isRequired label="Phone Number" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} />
                                         </div>
                                         <div className="col-span-2">
-                                            <FloatingInput label="Full Address" name="address" value={formData.address} onChange={handleInputChange} />
+                                            <FloatingInput isRequired label="Full Address" name="address" value={formData.address} onChange={handleInputChange} />
                                         </div>
-                                        <FloatingInput label="City" name="city" value={formData.city} onChange={handleInputChange} />
-                                        <FloatingInput label="Postal Code" name="postalCode" value={formData.postalCode} onChange={handleInputChange} />
+                                        <FloatingInput isRequired label="City" name="city" value={formData.city} onChange={handleInputChange} />
+                                        <FloatingInput isRequired={false} label="Postal Code (Optional)" name="postalCode" value={formData.postalCode} onChange={handleInputChange} placeholder="Optional" />
                                     </div>
                                 </div>
 
@@ -269,16 +266,17 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
                     <div className="h-10 md:hidden" />
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 
-function FloatingInput({ label, ...props }) {
+function FloatingInput({ label, isRequired, ...props }) {
     return (
         <div className="relative border-b border-gray-200 focus-within:border-[#CA0A7F] transition-all duration-300 pb-2">
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">{label}</label>
             <input
-                required
+                required={isRequired}
                 className="w-full bg-transparent outline-none text-gray-900 font-medium placeholder:text-gray-200"
                 placeholder="---"
                 {...props}
