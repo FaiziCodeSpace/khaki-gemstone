@@ -133,7 +133,7 @@ export default function ProductTable() {
     };
 
     return (
-        <div className="space-y-4 font-jakarta relative">
+        <div className="space-y-4 font-jakarta relative p-2 md:p-0">
             {/* --- MODAL: SELL IN SHOP --- */}
             {sellModal.show && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -214,8 +214,8 @@ export default function ProductTable() {
                     <p className="text-sm text-gray-500">Manage assets, margins, and investor profit splits.</p>
                 </div>
 
-                <Link to="/admin/products/formbox">
-                    <button className="flex items-center justify-center gap-2 bg-[#CA0A7F] hover:bg-[#b0086e] text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md shadow-[#CA0A7F]/20 text-sm">
+                <Link to="/admin/products/formbox" className="w-full md:w-auto">
+                    <button className="w-full flex items-center justify-center gap-2 bg-[#CA0A7F] hover:bg-[#b0086e] text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md shadow-[#CA0A7F]/20 text-sm">
                         <Plus size={18} />
                         <span>Add New Gemstone</span>
                     </button>
@@ -236,9 +236,10 @@ export default function ProductTable() {
                 </div>
             </div>
 
-            {/* --- TABLE --- */}
+            {/* --- DATA VIEW --- */}
             <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[1200px]">
                         <thead>
                             <tr className="bg-gray-50/50 text-gray-400 text-[11px] uppercase tracking-wider">
@@ -335,7 +336,6 @@ export default function ProductTable() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-1.5">
-                                                {/* --- SELL BUTTON (IN-SHOP) --- */}
                                                 {isAvailable && (
                                                     <button 
                                                         onClick={() => setSellModal({ show: true, product })}
@@ -362,13 +362,90 @@ export default function ProductTable() {
                     </table>
                 </div>
 
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-gray-100">
+                    {isLoading ? (
+                        <div className="py-20 text-center text-gray-400">
+                            <Loader2 className="animate-spin mx-auto mb-2 text-[#CA0A7F]" />
+                            Syncing with Vault...
+                        </div>
+                    ) : products.length === 0 ? (
+                        <div className="py-10 text-center text-gray-400">No products found.</div>
+                    ) : products.map((product) => {
+                        const stats = calculateFinancials(product);
+                        const isAvailable = product.status === "Available" || product.status === "For Sale";
+                        return (
+                            <div key={product._id} className="p-4 space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-14 h-14 rounded-lg bg-gray-100 overflow-hidden border border-gray-200 flex-shrink-0">
+                                        {product.imgs_src?.[0] ? (
+                                            <img src={`${API_URL}${product.imgs_src[0]}`} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-300"><Eye size={16}/></div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-gray-900 truncate">{product.name}</p>
+                                        <div className="flex gap-2 mt-1">
+                                            <span className="text-[9px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-500 font-mono uppercase truncate">{product.productNumber}</span>
+                                            <span className="text-[10px] text-[#CA0A7F] font-semibold">{product.gem_size} mm</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1">
+                                            <MapPin size={10} /> {product?.location || "N/A"}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2">
+                                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase ${getPortalStyle(product.portal)}`}>
+                                            {product.portal}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
+                                    <div>
+                                        <p className="text-[9px] text-gray-400 uppercase font-bold">List Price</p>
+                                        <p className="text-xs font-bold text-gray-900">Rs. {stats.totalListPrice.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] text-[#CA0A7F] uppercase font-bold">Investor Share</p>
+                                        <p className="text-xs font-bold text-[#CA0A7F]">Rs. {stats.investorShare.toLocaleString()}</p>
+                                    </div>
+                                    <div className="col-span-2 pt-2 border-t border-gray-100">
+                                        <p className="text-[9px] text-blue-600 uppercase font-bold">Admin Recovery</p>
+                                        <p className="text-xs font-bold text-blue-800">Rs. {stats.adminRecovery.toLocaleString()}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-2">
+                                    <div className="text-[10px] text-gray-500 font-medium">
+                                        Status: <span className="text-gray-900 font-bold">{product?.status || "Available"}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {isAvailable && (
+                                            <button onClick={() => setSellModal({ show: true, product })} className="p-2.5 bg-pink-50 text-[#CA0A7F] rounded-xl border border-pink-100">
+                                                <ShoppingBag size={18}/>
+                                            </button>
+                                        )}
+                                        <Link to={`/admin/products/formbox/${product._id}`} className="p-2.5 bg-blue-50 text-blue-600 rounded-xl border border-blue-100">
+                                            <Edit2 size={18}/>
+                                        </Link>
+                                        <button onClick={() => setDeleteModal({ show: true, product })} className="p-2.5 bg-red-50 text-red-600 rounded-xl border border-red-100">
+                                            <Trash2 size={18}/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
                 {/* --- PAGINATION FOOTER --- */}
-                <div className="bg-white border-t border-gray-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p className="text-xs text-gray-500 font-medium order-2 sm:order-1">
+                <div className="bg-white border-t border-gray-50 px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="text-[10px] md:text-xs text-gray-500 font-medium order-2 sm:order-1 text-center sm:text-left">
                         Showing <span className="text-gray-900">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="text-gray-900">{Math.min(currentPage * itemsPerPage, paginationInfo.totalProducts)}</span> of <span className="text-gray-900">{paginationInfo.totalProducts}</span> assets
                     </p>
 
-                    <div className="flex items-center gap-1 order-1 sm:order-2">
+                    <div className="flex items-center gap-1 order-1 sm:order-2 scale-90 md:scale-100">
                         <button
                             disabled={currentPage === 1 || isLoading}
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -377,34 +454,36 @@ export default function ProductTable() {
                             <ChevronLeft size={18} />
                         </button>
 
-                        {Array.from({ length: paginationInfo.totalPages }, (_, i) => i + 1)
-                            .filter(page => {
-                                return page === 1 || 
-                                       page === paginationInfo.totalPages || 
-                                       (page >= currentPage - 1 && page <= currentPage + 1);
-                            })
-                            .map((page, index, array) => {
-                                const elements = [];
-                                if (index > 0 && page - array[index - 1] > 1) {
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: paginationInfo.totalPages }, (_, i) => i + 1)
+                                .filter(page => {
+                                    return page === 1 || 
+                                           page === paginationInfo.totalPages || 
+                                           (page >= currentPage - 1 && page <= currentPage + 1);
+                                })
+                                .map((page, index, array) => {
+                                    const elements = [];
+                                    if (index > 0 && page - array[index - 1] > 1) {
+                                        elements.push(
+                                             <span key={`sep-${page}`} className="px-1 text-gray-400 text-xs">...</span>
+                                        );
+                                    }
                                     elements.push(
-                                        <span key={`sep-${page}`} className="px-2 text-gray-400 text-xs">...</span>
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`min-w-[32px] md:min-w-[36px] h-8 md:h-9 rounded-lg text-xs font-bold transition-all ${
+                                                currentPage === page
+                                                    ? "bg-[#CA0A7F] text-white shadow-sm shadow-[#CA0A7F]/30"
+                                                    : "text-gray-600 hover:bg-gray-100 border border-transparent hover:border-gray-200"
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
                                     );
-                                }
-                                elements.push(
-                                    <button
-                                        key={page}
-                                        onClick={() => setCurrentPage(page)}
-                                        className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all ${
-                                            currentPage === page
-                                                ? "bg-[#CA0A7F] text-white shadow-sm shadow-[#CA0A7F]/30"
-                                                : "text-gray-600 hover:bg-gray-100 border border-transparent hover:border-gray-200"
-                                        }`}
-                                    >
-                                        {page}
-                                    </button>
-                                );
-                                return elements;
-                            })}
+                                    return elements;
+                                })}
+                        </div>
 
                         <button
                             disabled={currentPage >= paginationInfo.totalPages || isLoading}
