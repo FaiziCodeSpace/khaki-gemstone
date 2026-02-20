@@ -1,13 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-    X, MapPin, CheckCircle2, Loader2, Plus, 
-    Image as ImageIcon, ChevronDown, Calculator, 
+import {
+    X, MapPin, CheckCircle2, Loader2, Plus,
+    Image as ImageIcon, ChevronDown, Calculator,
     TrendingUp, UserCheck, Wallet, Download, QrCode,
     Zap, ShieldCheck
 } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react"; 
-import imageCompression from "browser-image-compression"; 
+import { QRCodeCanvas } from "qrcode.react";
+import imageCompression from "browser-image-compression";
 import { createProduct, updateProduct, fetchProduct } from "../../../services/productsService";
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
@@ -15,18 +15,19 @@ const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
 export default function FormBox() {
     const { productId } = useParams();
     const navigate = useNavigate();
-    const qrRef = useRef(); 
+    const qrRef = useRef();
 
     // --- STATES ---
     const [isEditMode, setIsEditMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isCompressing, setIsCompressing] = useState(false); 
+    const [isCompressing, setIsCompressing] = useState(false);
     const [useHighQuality, setUseHighQuality] = useState(false); // New Toggle State
-    const [compressionStats, setCompressionStats] = useState(null); 
+    const [compressionStats, setCompressionStats] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [generatedId, setGeneratedId] = useState("");
 
     const [formData, setFormData] = useState({
+        productNumber: "",
         name: "",
         price: "",
         description: "",
@@ -55,10 +56,10 @@ export default function FormBox() {
 
     // --- UTILS ---
     const compressionOptions = {
-        maxSizeMB: 1,           
-        maxWidthOrHeight: 1920, 
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
         useWebWorker: true,
-        initialQuality: 0.8     
+        initialQuality: 0.8
     };
 
     const formatBytes = (bytes) => {
@@ -173,7 +174,7 @@ export default function FormBox() {
 
                     const originalSize = file.size;
                     const compressed = await imageCompression(file, compressionOptions);
-                    
+
                     setCompressionStats({
                         old: formatBytes(originalSize),
                         new: formatBytes(compressed.size)
@@ -184,7 +185,7 @@ export default function FormBox() {
             );
 
             setFileObjects(prev => ({ ...prev, gallery: [...prev.gallery, ...processedFiles] }));
-            
+
             processedFiles.forEach((file) => {
                 const reader = new FileReader();
                 reader.onloadend = () => setPreviews(prev => ({ ...prev, imgs_src: [...prev.imgs_src, reader.result] }));
@@ -232,6 +233,7 @@ export default function FormBox() {
         try {
             const data = new FormData();
             data.append("name", formData.name);
+            data.append("productNumber", formData.productNumber);
             data.append("price", formData.price);
             data.append("description", formData.description);
             data.append("gem_size", formData.gem_size);
@@ -279,12 +281,12 @@ export default function FormBox() {
                         </div>
                         <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter leading-none">Vault Synchronized</h3>
                         <p className="text-gray-500 text-[10px] font-bold mt-2 mb-8 uppercase tracking-widest">Asset QR ID Generated</p>
-                        
+
                         <div ref={qrRef} className="bg-white p-4 rounded-3xl border border-gray-100 inline-block mb-8 shadow-inner">
-                            <QRCodeCanvas 
-                                value={`${window.location.origin}/scan/${generatedId}`} 
-                                size={180} 
-                                level={"H"} 
+                            <QRCodeCanvas
+                                value={`${window.location.origin}/scan/${generatedId}`}
+                                size={180}
+                                level={"H"}
                                 includeMargin={true}
                             />
                         </div>
@@ -378,6 +380,20 @@ export default function FormBox() {
                                 <input type="text" name="name" value={formData.name || ""} onChange={handleChange} className={inputStyle} placeholder="Emerald Cut Diamond" required />
                             </div>
                             <div>
+                                <div>
+                                    <label className={labelStyle}>Asset ID / Product Number</label>
+                                    <input
+                                        type="text"
+                                        name="productNumber"
+                                        value={formData.productNumber || ""}
+                                        onChange={handleChange}
+                                        className={inputStyle}
+                                        placeholder="e.g. GEM-101"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div>
                                 <label className={labelStyle}>Storage Location</label>
                                 <div className="relative">
                                     <input type="text" name="location" value={formData.location || ""} onChange={handleChange} className={inputStyle} placeholder="e.g. Peshawar Office" />
@@ -460,7 +476,7 @@ export default function FormBox() {
                                 <h3 className="text-[#CA0A7F] font-black uppercase text-xs tracking-widest">Gallery & Assets</h3>
                                 <p className="text-gray-400 text-[9px] font-bold uppercase mt-1">Optimization active by default</p>
                             </div>
-                            
+
                             <div className="flex items-center gap-4">
                                 {/* Compression Savings Indicator */}
                                 {compressionStats && !useHighQuality && (
@@ -473,7 +489,7 @@ export default function FormBox() {
                                 )}
 
                                 {/* High Quality Toggle */}
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setUseHighQuality(!useHighQuality)}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${useHighQuality ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-gray-200 text-gray-500'}`}
@@ -504,8 +520,8 @@ export default function FormBox() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <MediaInput label="Laboratory Report" preview={previews.lab_test_img_src} onChange={(e) => handleSingleFile(e, 'lab_test', 'lab_test_img_src')} />
-                            <MediaInput label="Authenticity Certificate" preview={previews.certificate_img_src} onChange={(e) => handleSingleFile(e, 'certificate', 'certificate_img_src')} />
+                            <MediaInput label="Authenticity Certificate (FRONT)" preview={previews.lab_test_img_src} onChange={(e) => handleSingleFile(e, 'lab_test', 'lab_test_img_src')} />
+                            <MediaInput label="Authenticity Certificate (BACK)" preview={previews.certificate_img_src} onChange={(e) => handleSingleFile(e, 'certificate', 'certificate_img_src')} />
                         </div>
                     </div>
 

@@ -54,8 +54,8 @@ export function ProductDetails({ product }) {
         <p className="text-gray-600 text-sm md:text-[18px] mt-4">{product.description}</p>
       </div>
 
-      <div className="flex bg-white px-8 py-4 justify-between rounded-full border border-gray-100 mb-6 overflow-x-auto gap-4">
-        {['description', 'laboratory test', 'certificate'].map((tab) => (
+      <div className="flex bg-white px-8 py-4 justify-around rounded-full border border-gray-100 mb-6 overflow-x-auto gap-4">
+        {['description', 'certificate'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -81,17 +81,25 @@ export function ProductDetails({ product }) {
                 ))}
               </ul>
             </div>
-            {/* ... More Info and Color Swatches ... */}
           </div>
         )}
 
-        {(activeTab === 'laboratory test' || activeTab === 'certificate') && (
-          <div className="animate-fadeIn">
-            <img
-              src={activeTab === 'laboratory test' ? `${API_URL}${product.lab_test_img_src}` : `${API_URL}${product.certificate_img_src}`}
-              alt={activeTab}
-              className="rounded-lg w-full h-auto md:h-[320px] object-cover border border-gray-200"
-            />
+        {activeTab === 'certificate' && (
+          <div className="animate-fadeIn flex flex-col gap-4">
+            {product.lab_test_img_src && (
+              <img
+                src={`${API_URL}${product.lab_test_img_src}`}
+                alt="Laboratory Test"
+                className="rounded-lg w-full h-auto md:h-[320px] object-cover border border-gray-200"
+              />
+            )}
+            {product.certificate_img_src && (
+              <img
+                src={`${API_URL}${product.certificate_img_src}`}
+                alt="Certificate"
+                className="rounded-lg w-full h-auto md:h-[320px] object-cover border border-gray-200"
+              />
+            )}
           </div>
         )}
       </div>

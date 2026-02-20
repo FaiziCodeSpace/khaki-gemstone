@@ -47,6 +47,16 @@ export function ScanProductDetail() {
 
     if (!product) return <div className="text-center py-20 font-bold text-gray-400 uppercase px-6">Asset not found in registry.</div>;
 
+    // Filter tabs based on image availability - combining Lab Test and Certificate
+    const availableTabs = [
+        { id: 'description', label: 'Description', show: true },
+        { 
+            id: 'certificate', 
+            label: 'Certificate', 
+            show: !!product.lab_test_img_src || !!product.certificate_img_src 
+        }
+    ].filter(tab => tab.show);
+
     return (
         <section className="flex flex-col w-full lg:max-w-[650px] px-4 sm:px-6 mx-auto mb-12 animate-in fade-in duration-700 overflow-x-hidden">
             
@@ -79,19 +89,19 @@ export function ScanProductDetail() {
                 </p>
             </div>
 
-            {/* Navigation Tabs - Scrollable for small screens */}
+            {/* Navigation Tabs - Filtered list */}
             <div className="flex bg-gray-50 p-1 rounded-xl md:rounded-2xl mb-6 md:mb-8 overflow-x-auto no-scrollbar scroll-smooth">
-                {['description', 'laboratory test', 'certificate'].map((tab) => (
+                {availableTabs.map((tab) => (
                     <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
                         className={`flex-1 min-w-[100px] whitespace-nowrap py-2 md:py-3 px-3 md:px-4 rounded-lg md:rounded-xl transition-all text-[8px] md:text-[10px] uppercase font-black tracking-widest ${
-                            activeTab === tab 
+                            activeTab === tab.id 
                             ? 'bg-white text-[#CA0A7F] ring-1 ring-black/5' 
                             : 'text-gray-400 hover:text-gray-600'
                         }`}
                     >
-                        {tab}
+                        {tab.label}
                     </button>
                 ))}
             </div>
@@ -141,17 +151,23 @@ export function ScanProductDetail() {
                     </div>
                 )}
 
-                {(activeTab === 'laboratory test' || activeTab === 'certificate') && (
-                    <div className="animate-in zoom-in-95 duration-500">
-                        <div className="relative group overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border-2 md:border-4 border-white shadow-xl md:shadow-2xl">
-                            <img
-                                src={activeTab === 'laboratory test' ? `${API_URL}${product.lab_test_img_src}` : `${API_URL}${product.certificate_img_src}`}
-                                alt={activeTab}
-                                className="w-full h-auto object-cover max-h-[400px] md:max-h-[500px]"
-                            />
-                        </div>
+                {activeTab === 'certificate' && (
+                    <div className="animate-in zoom-in-95 duration-500 space-y-6">
+                        {/* Map through both possible document images */}
+                        {[product.lab_test_img_src, product.certificate_img_src].map((src, idx) => (
+                            src && (
+                                <div key={idx} className="relative group overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border-2 md:border-4 border-white shadow-xl md:shadow-2xl">
+                                    <img
+                                        src={`${API_URL}${src}`}
+                                        alt={`Certificate part ${idx + 1}`}
+                                        className="w-full h-auto object-cover max-h-[400px] md:max-h-[500px]"
+                                        onError={(e) => e.target.style.display = 'none'}
+                                    />
+                                </div>
+                            )
+                        ))}
                         <p className="text-center mt-3 md:mt-4 text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                            Official {activeTab} Document
+                            Official Registry Documents
                         </p>
                     </div>
                 )}

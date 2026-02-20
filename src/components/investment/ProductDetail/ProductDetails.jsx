@@ -54,11 +54,14 @@ export function ProductDetails() {
 
     if (!product) return <div className="text-center py-20 font-medium text-gray-500">Asset data unavailable.</div>;
 
-    // Logic to determine which tabs to show based on image availability
+    // Combined Logic: Show "Certificate" tab if either lab test or certificate image exists
     const availableTabs = [
         { id: 'description', label: 'Description', show: true },
-        { id: 'laboratory test', label: 'Laboratory Test', show: !!product.lab_test_img_src },
-        { id: 'certificate', label: 'Certificate', show: !!product.certificate_img_src }
+        { 
+            id: 'certificate', 
+            label: 'Certificate', 
+            show: !!product.lab_test_img_src || !!product.certificate_img_src 
+        }
     ].filter(tab => tab.show);
 
     return (
@@ -111,7 +114,10 @@ export function ProductDetails() {
                         {/* 1. Financial Performance Grid */}
                         <section>
                             <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.2em] text-gray-400 mb-5">
-                                <TrendingUp size={16} /> Financial Overview
+                                <div className="p-1.5 bg-gray-100 rounded-lg">
+                                    <TrendingUp size={16} className="text-gray-600" />
+                                </div> 
+                                Financial Overview
                             </h2>
                             <div className="grid grid-cols-2 gap-4">
                                 {(product.publicPrice || product.price) && (
@@ -191,17 +197,21 @@ export function ProductDetails() {
                     </div>
                 )}
 
-                {(activeTab === 'laboratory test' || activeTab === 'certificate') && (
-                    <div className="animate-fadeIn">
-                        <div className="relative group overflow-hidden rounded-2xl border-4 border-white shadow-xl bg-gray-50">
-                            <img
-                                src={activeTab === 'laboratory test' ? `${API_URL}${product.lab_test_img_src}` : `${API_URL}${product.certificate_img_src}`}
-                                alt={activeTab}
-                                className="w-full h-auto md:h-[400px] object-contain"
-                                onError={(e) => { e.target.style.display = 'none'; }}
-                            />
-                            <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors" />
-                        </div>
+                {activeTab === 'certificate' && (
+                    <div className="animate-fadeIn space-y-6">
+                        {[product.lab_test_img_src, product.certificate_img_src].map((src, index) => (
+                            src && (
+                                <div key={index} className="relative group overflow-hidden rounded-2xl border-4 border-white shadow-xl bg-gray-50">
+                                    <img
+                                        src={`${API_URL}${src}`}
+                                        alt="Documentation"
+                                        className="w-full h-auto md:max-h-[600px] object-contain"
+                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
+                                    <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors" />
+                                </div>
+                            )
+                        ))}
                         <p className="text-center text-[10px] text-gray-400 mt-4 uppercase tracking-[0.3em]">Official Documentation - Internal Use Only</p>
                     </div>
                 )}
