@@ -1,22 +1,31 @@
 import { useEffect, useState } from 'react';
-import { fetchEvent } from '../../../services/eventService';
 import { Link } from 'react-router-dom';
+import taxonomyService from '../../../services/taxanonmyService'; 
+
 export function Events() {
     const [event, setEvent] = useState(null);
-
-
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function getEvent() {
+        const fetchActiveEvent = async () => {
             try {
-                const data = await fetchEvent();
+                const data = await taxonomyService.getEvent();
                 setEvent(data);
-            } catch (err) {
-                console.error("Fetch Event Error:", err);
+            } catch (error) {
+                console.error("Could not load public event:", error);
+            } finally {
+                setLoading(false);
             }
-        }
-        getEvent();
+        };
+
+        fetchActiveEvent();
     }, []);
+
+    // If no event exists or it's hidden/cleared (e.g., subject is "None")
+    // you can choose to return null so the section doesn't occupy space
+    if (loading || !event || event.subject === "None") {
+        return null; 
+    }
 
     return (
         <section
@@ -60,7 +69,7 @@ export function Events() {
                     />
                 </div>
 
-                {/* Heading */}
+                {/* Heading - Dynamic */}
                 <h2
                     className="
                         text-[clamp(18px,5vw,72px)]
@@ -71,10 +80,10 @@ export function Events() {
                         leading-tight
                     "
                 >
-                    {event?.subject}
+                    {event.subject}
                 </h2>
 
-                {/* Description */}
+                {/* Description - Dynamic */}
                 <p
                     className="
                         text-[clamp(12px,2vw,18px)]
@@ -86,27 +95,27 @@ export function Events() {
                         opacity-90
                     "
                 >
-                    {event?.description}
+                    {event.description}
                 </p>
 
                 {/* Call to Action */}
                 <Link to="/shop">
                     <button
-                        aria-label="Shop the Summer Sale"
+                        aria-label="Shop the Collection"
                         className="
-                        flex justify-center items-center
-                        bg-white md:bg-[#222222]
-                        rounded-full
-                        transition-transform hover:scale-105
-                        leading-none
-                        font-semibold
-                        text-[#0A0909]
-                        text-[clamp(10px,0.75vw+7px,18px)]
-                        px-[clamp(26px,1.88vw+18.96px,48px)]
-                        py-[clamp(14px,1.88vw+6.96px,24px)]
-                        mt-[clamp(8px,3vw-3.27px,40px)]
-                        gap-1.5 md:gap-2.5
-                    "
+                            flex justify-center items-center
+                            bg-white md:bg-[#222222]
+                            rounded-full
+                            transition-transform hover:scale-105
+                            leading-none
+                            font-semibold
+                            text-[#0A0909]
+                            text-[clamp(10px,0.75vw+7px,18px)]
+                            px-[clamp(26px,1.88vw+18.96px,48px)]
+                            py-[clamp(14px,1.88vw+6.96px,24px)]
+                            mt-[clamp(8px,3vw-3.27px,40px)]
+                            gap-1.5 md:gap-2.5
+                        "
                     >
                         <span className="inline-block md:invert">
                             SHOP NOW

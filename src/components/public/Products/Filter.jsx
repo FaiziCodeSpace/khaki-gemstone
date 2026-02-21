@@ -1,18 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-
-const GEMSTONE_FILTERS = [
-  { id: 1, name: "All Gemstones", slug: "all" },
-  { id: 2, name: "Ruby", slug: "ruby" },
-  { id: 3, name: "Sapphire", slug: "sapphire" },
-  { id: 4, name: "Emerald", slug: "emerald" },
-  { id: 5, name: "Diamond", slug: "diamond" },
-  { id: 6, name: "Amethyst", slug: "amethyst" },
-  { id: 7, name: "Topaz", slug: "topaz" },
-  { id: 8, name: "Aquamarine", slug: "aquamarine" },
-];
+import taxonomyService from '../../../services/taxanonmyService'; 
 
 export function Filter({ filters, setFilters }) {
+  const [dbFilters, setDbFilters] = useState([]);
+
+  // Fetch filters from database
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const data = await taxonomyService.getMetadata();
+        // Find the document where taxonomy is "Filter"
+        const filterDoc = data.find(item => item.taxonomy === "Filter");
+        
+        if (filterDoc && filterDoc.Filters) {
+          // Map strings to the object format the UI expects
+          const formattedFilters = filterDoc.Filters.map((name, index) => ({
+            id: index + 2, // Start after the "All" ID
+            name: name,
+            slug: name.toLowerCase().replace(/\s+/g, '-')
+          }));
+          
+          setDbFilters(formattedFilters);
+        }
+      } catch (error) {
+        console.error("Error fetching gemstone filters:", error);
+      }
+    };
+    fetchFilters();
+  }, []);
+
+  // Combine static "All" with dynamic filters from DB
+  const GEMSTONE_FILTERS = [
+    { id: 1, name: "All Gemstones", slug: "all" },
+    ...dbFilters
+  ];
+
   const handleSearch = (e) => {
     setFilters(prev => ({ ...prev, search: e.target.value, page: 1 }));
   };
@@ -48,7 +71,6 @@ export function Filter({ filters, setFilters }) {
 
       <nav className='overflow-x-auto px-6 md:px-10 mt-12 h-11.5 flex gap-9 scrollbar-hide' aria-label="Gemstone categories">
         {GEMSTONE_FILTERS.map((filter) => {
-          // Logic: Active if it's the specific stone OR if "All" is selected and filter is empty
           const isActive = (filter.slug === 'all' && filters.filter.length === 0) || filters.filter.includes(filter.name);
           return (
             <button
