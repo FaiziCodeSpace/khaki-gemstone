@@ -11,7 +11,7 @@ export function Footer() {
                         <Link to="/">
                             <img 
                                 className="w-24 h-auto mb-6 object-contain cursor-pointer" 
-                                src="./Logos/logo.png" 
+                                src="/Logos/logo.png" 
                                 alt="Khaki Gemstone Logo" 
                             />
                         </Link>
@@ -40,9 +40,9 @@ export function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
                     {/* Brand/Contact */}
                     <div className="md:col-span-2 font-medium">
-                        <h3 className="md:text-xl lg:text-2xl mb-4">Peshawar, KP, Pakistan</h3>
+                        <h3 className="md:text-xl lg:text-2xl mb-4">Dera ismail khan & Peshawar <br /> KP, Pakistan</h3>
                         <p className="md:text-xl lg:text-2xl text-[#1D212C] tracking-tight hover:text-[#C8107E] transition-colors">
-                            <a href="tel:+9234567890">(+92) 345-678-900</a>
+                            <a href="tel:+9234567890">(+92) 334 1927178</a>
                         </p>
                     </div>
 
@@ -74,6 +74,7 @@ export function Footer() {
                         <ul className="text-[#747986] space-y-3 text-sm font-medium">
                             {/* <li><Link to="/terms" className="hover:text-[#C8107E] transition-colors">Privacy Policy</Link></li> */}
                             <li><Link to="/terms" className="hover:text-[#C8107E] transition-colors">Terms & Conditions</Link></li>
+                            <li><Link to="/aboutUs" className="hover:text-[#C8107E] transition-colors">About Us</Link></li>
                         </ul>
                     </div>
                 </div>
@@ -84,9 +85,8 @@ export function Footer() {
                         &copy; {new Date().getFullYear()} All Rights Reserved - Khaki Gemstone
                     </p>
                     <div className="flex gap-4">
-                        <SocialIcon Icon={Instagram} link="https://instagram.com/khakigemstone" />
-                        <SocialIcon Icon={Facebook} link="https://facebook.com/khakigemstone" />
-                        <SocialIcon Icon={Youtube} link="https://youtube.com/khakigemstone" />
+                        <SocialIcon Icon={Instagram} link="https://www.instagram.com/khaki_gemstone_com?igsh=MWZuYmlyMWVnMHMx" />
+                        <SocialIcon Icon={Facebook} link="https://www.facebook.com/share/18JyNvqmF8/" />
                     </div>
                 </div>
             </div>

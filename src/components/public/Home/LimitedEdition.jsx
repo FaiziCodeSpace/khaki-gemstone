@@ -15,7 +15,6 @@ export function LimitedEdition() {
     useEffect(() => {
         const initLimitedEdition = async () => {
             try {
-                  
                 const data = await fetchAllProducts({
                     limited: true,
                     limit: 10, 
@@ -28,14 +27,12 @@ export function LimitedEdition() {
                     
                     setLimitedProduct(filtered);
                 } else if (Array.isArray(data)) {
-                    // Fallback if the service returns the array directly
                     const filtered = data.filter(p => 
                         p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
                     ).slice(0, 6);
                     setLimitedProduct(filtered);
                 }
 
-                // 2. Fetch Cart IDs to show current state
                 const token = localStorage.getItem("token");
                 if (!token) {
                     const guestItems = getGuestCart();
@@ -59,7 +56,6 @@ export function LimitedEdition() {
     const handleAddToCart = async (e, product) => {
         e.stopPropagation();
 
-        // If already in cart, redirect to cart page
         if (cartIds.includes(product._id)) {
             navigate("/cart");
             return;
@@ -103,10 +99,6 @@ export function LimitedEdition() {
             >
                 {limitedProduct.map((product) => {
                     const isInCart = cartIds.includes(product._id);
-                    
-                    // Logic to display the correct price based on portal
-                    // If your backend virtual 'publicPrice' is ready, use product.publicPrice
-                    // Otherwise, calculate it here as a fallback
                     const displayPrice = product.publicPrice || (
                         product.portal === "PUBLIC BY INVESTED" 
                         ? (product.price + (product.price * (product.profitMargin / 100))).toFixed(2)
@@ -127,9 +119,11 @@ export function LimitedEdition() {
                                 loading="lazy"
                             />
 
+                            {/* INFORMATION BOX */}
                             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] z-10 p-4 flex justify-between items-center bg-white rounded-2xl shadow-lg">
-                                <div className="flex flex-col">
-                                    <h3 className="font-satoshi text-[16px] md:text-[18px] lg:text-[16px] font-normal text-[#282930] leading-tight">
+                                {/* Text Container: flex-1 and min-w-0 allows it to shrink and truncate */}
+                                <div className="flex flex-col min-w-0 flex-1">
+                                    <h3 className="font-satoshi text-[16px] md:text-[18px] lg:text-[16px] font-normal text-[#282930] leading-tight truncate">
                                         {product.name}
                                     </h3>
                                     <p className="font-satoshi font-medium text-[12px] text-[#282930]/60 uppercase mt-0.5">
@@ -137,20 +131,21 @@ export function LimitedEdition() {
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-4">
+                                {/* Action Container: flex-shrink-0 ensures this area never gets smaller */}
+                                <div className="flex items-center gap-3 md:gap-4 flex-shrink-0 ml-3">
                                     <div className="h-6 w-[1px] bg-black/10" aria-hidden="true" />
                                     <button
                                         onClick={(e) => handleAddToCart(e, product)}
-                                        className={`cursor-pointer p-2 rounded-xl transition-all duration-300 ${isInCart
+                                        className={`cursor-pointer p-2 rounded-xl transition-all duration-300 flex-shrink-0 flex items-center justify-center ${isInCart
                                                 ? "bg-[#CA0A7F] text-white"
                                                 : "bg-transparent hover:scale-110"
                                             }`}
                                         aria-label={isInCart ? `${product.name} is in cart` : `Add ${product.name} to cart`}
                                     >
                                         {isInCart ? (
-                                            <Check className="w-5 h-5" />
+                                            <Check className="w-5 h-5 flex-shrink-0" />
                                         ) : (
-                                            <img className="w-6 h-6" src="./Icons/cart-2.svg" alt="Cart-icon" aria-hidden="true" />
+                                            <img className="w-6 h-6 flex-shrink-0" src="./Icons/cart-2.svg" alt="Cart-icon" aria-hidden="true" />
                                         )}
                                     </button>
                                 </div>

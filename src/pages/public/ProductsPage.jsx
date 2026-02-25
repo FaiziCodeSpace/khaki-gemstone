@@ -64,12 +64,18 @@ export function ProductsPage() {
                 <link rel="canonical" href="https://khakigemstone.com/shop" />
             </Helmet>
             
-            <main className='font-[Satoshi]'>
+            <main className='font-[Satoshi] overflow-x-hidden'> {/* Safety gate for horizontal scroll */}
                 <ProductsHeroPortion />
                 <Filter filters={filters} setFilters={setFilters} />
-                <div className='flex'>
+                
+                {/* FIX: Added w-full and overflow-hidden here. 
+                   min-w-0 on the flex-1 container is CRITICAL to let the 
+                   Card component's own truncation logic work.
+                */}
+                <div className='flex w-full overflow-hidden'>
                     <Categories filters={filters} setFilters={setFilters} />
-                    <div className="flex-1">
+                    
+                    <div className="flex-1 min-w-0 w-full"> 
                         <Card products={products} />
 
                         {pagination.totalPages > 1 && (
@@ -81,7 +87,7 @@ export function ProductsPage() {
                                 >
                                     Previous
                                 </button>
-                                <span className="flex items-center">
+                                <span className="flex items-center text-sm md:text-base">
                                     Page {filters.page} of {pagination.totalPages}
                                 </span>
                                 <button

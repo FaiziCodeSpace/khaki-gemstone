@@ -1,6 +1,7 @@
 import bgTexture from "../../../assets/textures/bgTexture.png"; 
 import heroPic from "../../../assets/images/hero.png";
 import { useNavigate } from "react-router-dom";
+import { InfiniteCardSlider } from "./InfiniteSlider";
 
 export function HeroPortion() {
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ export function HeroPortion() {
                     {/* Header: Since [1997] */}
                     <div className="flex w-full justify-between px-4 text-[9px] sm:text-[14px]">
                         <p>SINCE</p>
-                        <p>[1997]</p>
+                        <p>[2015]</p>
                     </div>
 
                     {/* Typography & Hero Image Stack */}
@@ -112,6 +113,9 @@ export function HeroPortion() {
                     src={bgTexture}
                     alt="bg-texture"
                 />
+                <div className="w-full relative z-20">
+    <InfiniteCardSlider />
+</div>
             </section>
         </>
     );
