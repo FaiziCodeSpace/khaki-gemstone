@@ -35,11 +35,11 @@ export function Showcase() {
 
         const token = localStorage.getItem("token");
         if (!token) {
-          const guestItems = getGuestCart();
+          const guestItems = getGuestCart() ?? [];
           setCartIds(guestItems.map((item) => item._id));
         } else {
           const dbItems = await fetchCart();
-          const items = Array.isArray(dbItems) ? dbItems : dbItems.items || [];
+          const items = Array.isArray(dbItems) ? dbItems : dbItems?.items || [];
           setCartIds(items.map((item) => item._id));
         }
       } catch (err) {
@@ -116,37 +116,39 @@ export function Showcase() {
             >
               <img
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                src={`${API_URL}${product.imgs_src[0]}`}
+                src={`${API_URL}${product.imgs_src?.[0]}`}
                 alt={product.name}
               />
 
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] z-10 
                               p-4 flex justify-between items-center bg-white rounded-2xl shadow-lg">
 
-                <div className="flex flex-col">
-                  <p className="text-[16px] font-normal text-[#282930] font-satoshi">
+                {/* Text Container Fix: flex-1 min-w-0 allows truncation to work */}
+                <div className="flex flex-col flex-1 min-w-0">
+                  <p className="text-[16px] font-normal text-[#282930] font-satoshi truncate">
                     {product.name}
                   </p>
                   <p className="text-[12px] text-[#282930]/60 uppercase font-satoshi font-medium">
-                    Rs {displayPrice}
+                    Rs {Number(displayPrice).toLocaleString()}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-4">
+                {/* Button Container Fix: flex-shrink-0 keeps the icon from getting smaller */}
+                <div className="flex items-center gap-4 flex-shrink-0 ml-3">
                   <div className="h-6 w-[1px] bg-black/10" />
 
                   <button
                     onClick={(e) => handleAddToCart(e, product)}
-                    className={`p-2 rounded-xl transition-all duration-300 ${isInCart
+                    className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0 flex items-center justify-center ${isInCart
                       ? "bg-[#CA0A7F] text-white"
                       : "bg-transparent hover:scale-110"
                       }`}
                     aria-label={isInCart ? "Already in cart" : "Add to cart"}
                   >
                     {isInCart ? (
-                      <Check className="w-5 h-5" />
+                      <Check className="w-5 h-5 flex-shrink-0" />
                     ) : (
-                      <img className="w-6 h-6" src="./Icons/cart-2.svg" alt="Cart" />
+                      <img className="w-6 h-6 flex-shrink-0" src="./Icons/cart-2.svg" alt="Cart" />
                     )}
                   </button>
                 </div>

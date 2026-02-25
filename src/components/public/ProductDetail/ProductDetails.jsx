@@ -4,6 +4,7 @@ import { ArrowRight, Share2, ShoppingCart, Check } from 'lucide-react';
 import { addToCart, fetchCart } from '../../../services/cartService';
 import { getGuestCart, addToGuestCart } from '../../../utils/guestCart';
 import { CheckoutModal } from '../UI/CheckoutModal';
+import certificateBg from "../../../assets/images/certificate-bg.jpeg";
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
@@ -14,15 +15,17 @@ export function ProductDetails({ product }) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   useEffect(() => {
+    if (!product?._id) return;
+
     const checkCartStatus = async () => {
       const token = localStorage.getItem("token");
       let currentCartIds = [];
       try {
         if (!token) {
-          currentCartIds = getGuestCart().map(item => item._id);
+          currentCartIds = (getGuestCart() ?? []).map(item => item._id);
         } else {
           const dbItems = await fetchCart();
-          const items = Array.isArray(dbItems) ? dbItems : dbItems.items || [];
+          const items = Array.isArray(dbItems) ? dbItems : dbItems?.items || [];
           currentCartIds = items.map(item => item._id);
         }
         setIsInCart(currentCartIds.includes(product._id));
@@ -31,9 +34,10 @@ export function ProductDetails({ product }) {
       }
     };
     checkCartStatus();
-  }, [product._id]);
+  }, [product?._id]);
 
   const handleAddToCartAction = async () => {
+    if (!product) return;
     if (isInCart) return navigate('/cart');
     const token = localStorage.getItem("token");
     try {
@@ -46,12 +50,21 @@ export function ProductDetails({ product }) {
     }
   };
 
+  // Guard clause to prevent rendering errors if product is null
+  if (!product) return null;
+
   return (
     <section className="flex flex-col w-full lg:max-w-[580px] px-4 md:px-0 mx-auto mb-8 lg:mb-15">
       <div className="mb-8 md:mb-12">
-        <p className="text-xs md:text-[18px] font-mono text-gray-500 tracking-widest uppercase">{product.productNumber}</p>
-        <h1 className="text-[42px] lg:text-[clamp(42px,5vw,72px)] leading-tight font-bold text-gray-900 mt-3">{product.name}</h1>
-        <p className="text-gray-600 text-sm md:text-[18px] mt-4">{product.description}</p>
+        <p className="text-xs md:text-[18px] font-mono text-gray-500 tracking-widest uppercase">
+          {product?.productNumber ?? "N/A"}
+        </p>
+        <h1 className="text-[42px] lg:text-[clamp(42px,5vw,72px)] leading-tight font-bold text-gray-900 mt-3">
+          {product?.name ?? "Product Details"}
+        </h1>
+        <p className="text-gray-600 text-sm md:text-[18px] mt-4">
+          {product?.description}
+        </p>
       </div>
 
       <div className="flex bg-white px-8 py-4 justify-around rounded-full border border-gray-100 mb-6 overflow-x-auto gap-4">
@@ -69,37 +82,63 @@ export function ProductDetails({ product }) {
       <div className="min-h-[200px] mb-8">
         {activeTab === 'description' && (
           <div className="animate-fadeIn flex flex-col gap-6 mt-4 md:mt-8">
-            <div>
-              <h2 className="list-heading text-lg font-bold">Gem Size</h2>
-              <ul className='list-styling'><li>{product.gem_size} mm</li></ul>
-            </div>
-            <div>
-              <h2 className="list-heading text-lg font-bold">Details</h2>
-              <ul className='list-styling'>
-                {product.details && Object.entries(product.details).map(([key, val]) => (
-                  <li key={key}><span className="font-medium capitalize">{key.replace('_', ' ')}:</span> {val}</li>
-                ))}
-              </ul>
-            </div>
+            {product?.gem_size && (
+              <div>
+                <h2 className="list-heading text-lg font-bold">Gem Size</h2>
+                <ul className='list-styling'><li>{product.gem_size} mm</li></ul>
+              </div>
+            )}
+
+            {product?.details && Object.keys(product.details).length > 0 && (
+              <div>
+                <h2 className="list-heading text-lg font-bold">Details</h2>
+                <ul className='list-styling'>
+                  {Object.entries(product.details).map(([key, val]) => (
+                    <li key={key}><span className="font-medium capitalize">{key.replace('_', ' ')}:</span> {val}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Secure More Information Section */}
+            {product?.more_information && Object.keys(product.more_information).length > 0 && (
+              <div>
+                <h2 className="list-heading text-lg font-bold">More Information</h2>
+                <div className="flex flex-wrap items-center gap-x-3 md:gap-x-4 gap-y-2 text-gray-600">
+                  {Object.entries(product.more_information).map(([key, val], index, array) => (
+                    <div key={key} className="flex items-center gap-3 md:gap-4">
+                      <p className="text-xs md:text-[18px]">
+                        <span className="font-medium text-gray-900 capitalize">
+                          {key.replace('_', ' ')}:
+                        </span> {val} {key === 'weight' ? 'ct' : ''}
+                      </p>
+                      {index !== array.length - 1 && <span className="text-gray-300 hidden sm:block">|</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'certificate' && (
           <div className="animate-fadeIn flex flex-col gap-4">
-            {product.lab_test_img_src && (
+            {product?.lab_test_img_src && (
               <img
                 src={`${API_URL}${product.lab_test_img_src}`}
                 alt="Laboratory Test"
                 className="rounded-lg w-full h-auto md:h-[320px] object-cover border border-gray-200"
               />
             )}
-            {product.certificate_img_src && (
+            {product?.certificate_img_src ? (
               <img
                 src={`${API_URL}${product.certificate_img_src}`}
                 alt="Certificate"
                 className="rounded-lg w-full h-auto md:h-[320px] object-cover border border-gray-200"
               />
-            )}
+            ) :
+              <img src={certificateBg} alt="certificate-background" />
+            }
           </div>
         )}
       </div>
@@ -108,18 +147,20 @@ export function ProductDetails({ product }) {
         <div className='flex flex-col md:flex-row gap-4 items-start md:items-end'>
           <div className='w-full md:w-auto'>
             <p className='text-[#111111B2] text-sm'>Price</p>
-            <p className='font-normal text-3xl md:text-[40px]'>{product.publicPrice?.toLocaleString()} PKR</p>
+            <p className='font-normal text-3xl md:text-[40px]'>
+              {product?.publicPrice?.toLocaleString() ?? 0} PKR
+            </p>
           </div>
-          <button onClick={() => setIsCheckoutOpen(true)} className='flex w-full md:flex-1 h-12 md:h-[64px] justify-center items-center bg-black text-white rounded-full hover:bg-gray-800'>
+          <button onClick={() => setIsCheckoutOpen(true)} className='flex w-full md:flex-1 h-12 md:h-[64px] justify-center items-center bg-black text-white rounded-full hover:bg-gray-800 transition-all active:scale-95'>
             Shop Now <ArrowRight className="w-5 h-5 ml-2.5" />
           </button>
-          <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} items={[product]} totalAmount={product.publicPrice} source="product" />
+          <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} items={[product]} totalAmount={product?.publicPrice ?? 0} source="product" />
         </div>
         <div className='flex gap-2'>
-          <button onClick={handleAddToCartAction} className={`flex items-center justify-center w-full py-3 border-2 rounded-full transition-all gap-1.5 ${isInCart ? 'bg-[#CA0A7F] text-white border-[#CA0A7F]' : 'bg-[#FAFAFA] border-[#1111111A]'}`}>
+          <button onClick={handleAddToCartAction} className={`flex items-center justify-center w-full py-3 border-2 rounded-full transition-all gap-1.5 ${isInCart ? 'bg-[#CA0A7F] text-white border-[#CA0A7F]' : 'bg-[#FAFAFA] border-[#1111111A] hover:bg-gray-100'}`}>
             {isInCart ? <><Check className='w-4 h-4' /> In Cart</> : <><ShoppingCart className='w-4 h-4' /> Add To Cart</>}
           </button>
-          <button onClick={() => navigator.share?.({ title: product.name, url: window.location.href })} className='flex items-center justify-center w-full py-3 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] gap-1.5'>
+          <button onClick={() => navigator.share?.({ title: product?.name, url: window.location.href })} className='flex items-center justify-center w-full py-3 border-2 border-[#1111111A] rounded-full bg-[#FAFAFA] gap-1.5 hover:bg-gray-100'>
             <Share2 className='w-4 h-4' /> Share
           </button>
         </div>

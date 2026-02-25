@@ -1,14 +1,5 @@
-import { useState } from 'react';
-
-const CategoriesData = [
-    { id: 1, CategoryName: 'Rough Stones' },
-    { id: 2, CategoryName: 'Cut Stones' },
-    { id: 3, CategoryName: 'Jewelry' },
-    { id: 4, CategoryName: 'Pearls' },
-    { id: 5, CategoryName: 'Rings' },
-    { id: 6, CategoryName: 'Necklaces' },
-    { id: 7, CategoryName: 'Braclets' }
-];
+import { useState, useEffect } from 'react';
+import taxonomyService from '../../../services/taxanonmyService';
 
 const DiscountData = [
     { id: 1, DiscountName: '50%' },
@@ -17,9 +8,26 @@ const DiscountData = [
     { id: 4, DiscountName: '20%' },
 ];
 
-// We pass in filters and setFilters from the Parent
 export function Categories({ filters, setFilters }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [dbCategories, setDbCategories] = useState([]); // State for dynamic categories
+
+    // Fetch categories from the database
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await taxonomyService.getMetadata();
+                // Find the document where taxonomy is "Categories"
+                const categoryDoc = data.find(item => item.taxonomy === "Categories");
+                if (categoryDoc && categoryDoc.Categories) {
+                    setDbCategories(categoryDoc.Categories);
+                }
+            } catch (error) {
+                console.error("Error fetching categories for sidebar:", error);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     const handleToggle = (name) => {
         setFilters(prev => {
@@ -61,21 +69,20 @@ export function Categories({ filters, setFilters }) {
                     <section className='mb-12'>
                         <h2 className='text-xl font-bold mb-6 text-gray-900'>Categories</h2>
                         <div className='flex flex-col gap-4'>
-                            {CategoriesData.map((category) => (
-                                <div className='flex gap-3 items-center' key={category.id}>
+                            {dbCategories.map((categoryName, index) => (
+                                <div className='flex gap-3 items-center' key={index}>
                                     <input
                                         type="checkbox"
-                                        id={`cat-${category.id}`} 
-                                        // Check if category name is in the parent filter array
-                                        checked={filters.category.includes(category.CategoryName)}
-                                        onChange={() => handleToggle(category.CategoryName)}
+                                        id={`cat-${index}`} 
+                                        checked={filters.category.includes(categoryName)}
+                                        onChange={() => handleToggle(categoryName)}
                                         className='accent-black cursor-pointer w-5 h-5 md:w-4 md:h-4'
                                     />
                                     <label 
-                                        className={`${filters.category.includes(category.CategoryName) ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} 
-                                        htmlFor={`cat-${category.id}`}
+                                        className={`${filters.category.includes(categoryName) ? 'font-bold' : 'font-normal'} text-lg cursor-pointer`} 
+                                        htmlFor={`cat-${index}`}
                                     >
-                                        {category.CategoryName}
+                                        {categoryName}
                                     </label>
                                 </div>
                             ))}
@@ -90,7 +97,6 @@ export function Categories({ filters, setFilters }) {
                                     <input
                                         type="checkbox"
                                         id={`disc-${discount.id}`} 
-                                        // Using the same array logic for simplicity
                                         checked={filters.category.includes(discount.DiscountName)}
                                         onChange={() => handleToggle(discount.DiscountName)} 
                                         className='accent-black cursor-pointer w-5 h-5 md:w-4 md:h-4'

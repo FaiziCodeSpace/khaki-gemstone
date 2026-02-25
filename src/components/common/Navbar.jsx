@@ -84,7 +84,7 @@ const getInvestorLink = () => {
         <Link to="/" className="inline-block" onClick={closeMenu}>
           <img
             className="w-27.5 md:w-32.5 transition-all duration-300"
-            src="./Logos/Logo-svg.svg"
+            src="/Logos/Logo-svg.svg"
             alt="logo"
             style={{
               filter: isDarkGray
@@ -109,7 +109,7 @@ const getInvestorLink = () => {
             {/* MOBILE ONLY CART LINK */}
             <li className="md:hidden text-[16px] transition-colors duration-200">
               <Link to="/cart" onClick={closeMenu} className="flex items-center justify-center gap-3 w-full py-3 px-6 text-[#CA0A7F] font-bold">
-                <img src="./Icons/bag.svg" alt="bag" className="w-5 h-5 invert" />
+                <img src="/Icons/bag.svg" alt="bag" className="w-5 h-5 invert" />
                 MY CART ({cartCount})
               </Link>
             </li>
@@ -155,7 +155,7 @@ const getInvestorLink = () => {
         <div className="hidden md:flex gap-4 items-center">
           <Link to="/cart" className="flex items-center gap-4 group">
             <button style={{ backgroundColor: iconBg }} className="rounded-full p-3 transition-transform duration-300 group-hover:scale-110">
-              <img src="./Icons/bag.svg" alt="bag" style={{ filter: isDarkGray ? "invert(70%)" : "none" }} />
+              <img src="/Icons/bag.svg" alt="bag" style={{ filter: isDarkGray ? "invert(70%)" : "none" }} />
             </button>
             <p style={{ color: themeColor }} className="font-semibold transition-colors group-hover:opacity-70">
               CART ({cartCount})
