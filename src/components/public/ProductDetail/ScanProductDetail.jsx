@@ -135,8 +135,8 @@ export function ScanProductDetail() {
                                 ))}
                                 {product.more_information?.weight && (
                                     <div className="flex justify-between items-center py-0.5">
-                                        <span className="text-[10px] md:text-xs text-gray-400 uppercase font-bold">Carat Weight</span>
-                                        <span className="text-xs md:text-sm font-bold text-gray-800">{product.more_information.weight} ct</span>
+                                        <span className="text-[10px] md:text-xs text-gray-400 uppercase font-bold">Weight</span>
+                                        <span className="text-xs md:text-sm font-bold text-gray-800">{product.more_information.weight}</span>
                                     </div>
                                 )}
                             </div>

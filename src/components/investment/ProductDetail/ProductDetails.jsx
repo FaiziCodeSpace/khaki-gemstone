@@ -186,7 +186,7 @@ export function ProductDetails() {
                                             <div key={key} className="bg-gray-100 flex-1 min-w-[120px] px-3 py-1.5 rounded-md">
                                                 <span className="text-[10px] font-bold text-gray-400 uppercase block leading-none mb-1">{key.replace(/_/g, ' ')}</span>
                                                 <span className="text-sm font-bold text-gray-700">
-                                                    {val}{key.toLowerCase().includes('weight') ? ' ct' : ''}
+                                                    {val}
                                                 </span>
                                             </div>
                                         )

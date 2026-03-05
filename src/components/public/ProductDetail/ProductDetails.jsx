@@ -110,7 +110,7 @@ export function ProductDetails({ product }) {
                       <p className="text-xs md:text-[18px]">
                         <span className="font-medium text-gray-900 capitalize">
                           {key.replace('_', ' ')}:
-                        </span> {val} {key === 'weight' ? 'ct' : ''}
+                        </span> {val} 
                       </p>
                       {index !== array.length - 1 && <span className="text-gray-300 hidden sm:block">|</span>}
                     </div>
