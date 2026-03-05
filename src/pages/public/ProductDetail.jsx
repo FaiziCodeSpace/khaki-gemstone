@@ -50,13 +50,32 @@ export function ProductDetailPage() {
 
   // Define main image for SEO
   const seoImage = product.imgs_src?.[0] ? `${API_URL}${product.imgs_src[0]}` : "";
+  const shareUrl = `https://khakigemstone.com/product/${id}`;
+  const displayPrice = product.publicPrice?.toLocaleString() ?? "Contact for price";
 
   return (
     <>
       <Helmet>
         <title>{`${product.name} | Khaki Gemstone`}</title>
         <meta name="description" content={product.description || `Buy ${product.name} at Khaki Gemstone.`} />
-        <link rel="canonical" href={`https://khakigemstone.com/product/${id}`} />
+        <link rel="canonical" href={shareUrl} />
+
+        {/* --- Open Graph / Facebook / WhatsApp --- */}
+        <meta property="og:type" content="product" />
+        <meta property="og:url" content={shareUrl} />
+        <meta property="og:title" content={`${product.name} | Natural Gemstone`} />
+        <meta property="og:description" content={`Price: ${displayPrice} PKR. ${product.description?.substring(0, 150)}...`} />
+        <meta property="og:image" content={seoImage} />
+        <meta property="og:image:secure_url" content={seoImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="Khaki Gemstone" />
+
+        {/* --- Twitter --- */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={product.name} />
+        <meta name="twitter:description" content={product.description} />
+        <meta name="twitter:image" content={seoImage} />
 
         <script type="application/ld+json">
           {JSON.stringify({
@@ -70,7 +89,8 @@ export function ProductDetailPage() {
               "@type": "Offer",
               "priceCurrency": "PKR",
               "price": product.publicPrice,
-              "availability": "https://schema.org/InStock"
+              "availability": "https://schema.org/InStock",
+              "url": shareUrl
             }
           })}
         </script>

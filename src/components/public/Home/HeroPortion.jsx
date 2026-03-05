@@ -13,7 +13,7 @@ export function HeroPortion() {
                 {/* --- MAIN CONTENT CONTAINER --- */}
                 <div className="px-6 flex flex-col items-center text-white relative z-10 mt-[clamp(32px,10vw,100px)]">
                     
-                    {/* Header: Since [1997] */}
+                    {/* Header */}
                     <div className="flex w-full justify-between px-4 text-[9px] sm:text-[14px]">
                         <p>SINCE</p>
                         <p>[2015]</p>

@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
     X, MapPin, CheckCircle2, Loader2, Plus,
-    Image as ImageIcon, ChevronDown, Calculator,
-    TrendingUp, UserCheck, Wallet, Download, QrCode,
+    Image as ImageIcon, ChevronDown, 
+    Download, QrCode,
     Zap, ShieldCheck
 } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
@@ -21,7 +21,7 @@ export default function FormBox() {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isCompressing, setIsCompressing] = useState(false);
-    const [useHighQuality, setUseHighQuality] = useState(false); // New Toggle State
+    const [useHighQuality, setUseHighQuality] = useState(false); 
     const [compressionStats, setCompressionStats] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [generatedId, setGeneratedId] = useState("");
@@ -434,7 +434,7 @@ export default function FormBox() {
                         ))}
                         <div>
                             <label className={labelStyle}>Size (mm)</label>
-                            <input type="number" name="gem_size" value={formData.gem_size || ""} onChange={handleChange} className={inputStyle} />
+                            <input type="text" name="gem_size" value={formData.gem_size || ""} onChange={handleChange} className={inputStyle} />
                         </div>
                     </div>
 

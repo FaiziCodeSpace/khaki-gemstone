@@ -1,33 +1,32 @@
 import adminApi from "./adminServices/api.authService";
 import api from "./api";
 
-export const fetchAllProducts = async (arg1 = false, arg2 = 0) => {
+
+export const fetchAllProducts = async (arg1 = {}) => {
     try {
         let params = {};
+        
+        // If filters are passed as an object (as done in ProductsPage)
         if (typeof arg1 === 'object' && arg1 !== null) {
             params = {
                 search: arg1.search || undefined,
-                category: arg1.category?.join(',') || undefined,
-                filter: arg1.filter?.join(',') || undefined,
+                // Convert arrays to comma-separated strings for the backend regex logic
+                category: arg1.category?.length ? arg1.category.join(',') : undefined,
+                filter: arg1.filter?.length ? arg1.filter.join(',') : undefined,
                 limited: arg1.limited,
-                limit: arg1.limit || 0,
+                limit: arg1.limit || 12,
                 page: arg1.page || 1,
-                portal: arg1.portal || undefined,
+                portal: arg1.portal === 'ALL_PUBLIC' ? undefined : arg1.portal,
                 isAdmin: arg1.isAdmin || false
-            };
-        } else {
-
-            params = { 
-                limited: arg1, 
-                limit: arg2 || 0, 
-                page: arguments[2] || 1 
             };
         }
 
         const response = await api.get(`/products`, { params });
 
+        // Your backend returns { products: [...], totalProducts: x, totalPages: y }
         if (response.data && response.data.products) {
             const products = response.data.products;
+            // Attach pagination metadata so the component can read it
             products.pagination = {
                 totalProducts: response.data.totalProducts,
                 totalPages: response.data.totalPages,

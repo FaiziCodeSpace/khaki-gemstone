@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function Categories() {
+    const navigate = useNavigate();
+
     const categories = [
         { name: "Rings", img: "./Images/Rings.png" },
         { name: "Natural Stones", img: "./Images/Natural-Stones.png" },
@@ -8,10 +11,15 @@ export function Categories() {
         { name: "Pendents", img: "./Images/Pendents.png" },
     ];
 
+    // This function takes the category name and sends it to the URL of the Shop Page
+    const handleCategoryClick = (categoryName) => {
+        // Navigation to /shop with the query parameter
+        navigate(`/shop?category=${encodeURIComponent(categoryName)}`);
+    };
+
     return (
-       
         <section className="relative flex flex-col justify-center text-center items-center mt-40 lg:mt-50 w-full overflow-x-clip z-0">
-                <img 
+            <img 
                 className='w-[3075px] hidden max-w-none absolute top-90 left-1/2 -translate-x-1/2 half-circle -z-10' 
                 src="./Icons/half-circle.svg" 
                 alt="Half-Circle" 
@@ -35,11 +43,12 @@ export function Categories() {
                 {categories.map((item, index) => (
                     <div
                         key={index}
+                        onClick={() => handleCategoryClick(item.name)} // Click triggers the filter
                         className="
                             w-[75vw] max-w-[285px] shrink-0 snap-center
                             md:w-[285px] md:shrink-1
                             bg-white flex flex-col justify-center text-center items-center p-2.5 rounded-2xl transition-all duration-300
-                            category-card shadow-sm
+                            category-card shadow-sm cursor-pointer hover:shadow-md
                         "
                     >
                         <div className="w-full overflow-hidden rounded-[13px] bg-gray-100">
