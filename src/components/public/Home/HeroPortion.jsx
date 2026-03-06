@@ -22,7 +22,7 @@ export function HeroPortion() {
                     {/* Typography & Hero Image Stack */}
                     <div className="text-center flex flex-col gap-5 mt-5 lg:mt-10 lg:gap-0">
                         
-                        {/* Title: AUTHENTIC */}
+                        {/* Main SEO Heading */}
                         <h1 className="m-0 font-bold text-[#fbfff6d6] tracking-[-4.76px] leading-none 
                                        text-[clamp(68px,17vw,180px)] 
                                        lg:tracking-[-12px] 
@@ -40,7 +40,7 @@ export function HeroPortion() {
                                        hover:rotate-0 hover:scale-105 hover:z-20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]
                                        xl:w-[425px] xl:h-[505px]"
                             src={heroPic}
-                            alt="hero-pic"
+                            alt="Authentic natural gemstone collection"
                         />
 
                         {/* Title: NATURAL + Subtext */}
@@ -49,13 +49,13 @@ export function HeroPortion() {
                                 We source, curate, and deliver 100% natural gemstones
                             </p>
 
-                            <h1 className="font-bold tracking-[-4.76px] leading-[0.8] 
+                            <h2 className="font-bold tracking-[-4.76px] leading-[0.8] 
                                            text-[clamp(68px,17vw,180px)] 
                                            lg:tracking-[-12px] 
                                            xl:text-[235px]
                                            z-10">
                                 NATURAL
-                            </h1>
+                            </h2>
                         </div>
                     </div>
                 </div>
@@ -65,15 +65,15 @@ export function HeroPortion() {
                     
                     {/* Scroll Indicator */}
                     <div className="hidden sm:flex items-center gap-4 text-white">
-                        <img src="./Icons/scroll.svg" alt="scroll-icon" />
+                        <img src="./Icons/scroll.svg" alt="scroll icon" />
                         <p className="text-[18px]">Scroll Now</p>
                     </div>
 
                     {/* Rating Section */}
                     <div className="hidden sm:flex items-center gap-4 text-white">
-                        <h1 className="text-[40px] font-semibold">4.9/5</h1>
+                        <p className="text-[40px] font-semibold">4.9/5</p>
                         <div className="flex items-center gap-1">
-                            <img src="./Icons/star.svg" alt="star-icon" className="w-5 h-5" />
+                            <img src="./Icons/star.svg" alt="star rating icon" className="w-5 h-5" />
                             <p className="text-[18px]">18,921</p>
                         </div>
                     </div>
@@ -95,7 +95,7 @@ export function HeroPortion() {
                             SHOP NOW
                             <img
                                 src="./Icons/cart.svg"
-                                alt="cart-icon"
+                                alt="shopping cart icon"
                                 className="w-5 h-5 sm:w-5 sm:h-5"
                             />
                         </button>
@@ -111,11 +111,13 @@ export function HeroPortion() {
                 <img
                     className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
                     src={bgTexture}
-                    alt="bg-texture"
+                    alt="background texture"
                 />
+
                 <div className="w-full relative z-20">
-    <InfiniteCardSlider />
-</div>
+                    <InfiniteCardSlider />
+                </div>
+
             </section>
         </>
     );

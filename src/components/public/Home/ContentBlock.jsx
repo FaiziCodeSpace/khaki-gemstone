@@ -1,11 +1,12 @@
 export function ContentBlock() {
     return (
         <section className="flex flex-col md:flex-row mt-12 md:mt-25 lg:mt-35 px-7 md:px-14 md:justify-between w-full gap-10 md:gap-6 lgx:gap-22">
+            
             {/* Left Image */}
             <img
                 className="hidden md:block h-[clamp(300px,45vw,561px)] w-[clamp(100px,30vw,366px)] object-cover"
                 src="./Images/ContentBlockTopImg.png"
-                alt="Content Block Top"
+                alt="Premium natural gemstone collection display"
             />
 
             {/* Right Content */}
@@ -13,13 +14,14 @@ export function ContentBlock() {
 
                 {/* Heading */}
                 <div className="flex flex-col gap-4">
+                    
                     {/* Subheading */}
                     <p className="text-[12px] tracking-[1.77px] text-[#282930]">
                         || MINIMALISTIC
                     </p>
 
                     {/* Main Heading */}
-                    <h1
+                    <h2
                         className="text-[clamp(28px,4.5vw,70px)] 
                                    tracking-[0.01em] 
                                    text-nowrap
@@ -30,7 +32,8 @@ export function ContentBlock() {
                         OUR PREMIUM <br />
                         COLLECTION OF <br />
                         NATURAL GEMSTONES
-                    </h1>
+                    </h2>
+
                 </div>
 
                 {/* Description + Bottom Image */}
@@ -50,8 +53,9 @@ export function ContentBlock() {
                     <img
                         className="w-full md:w-[clamp(150px,22vw,239px)] md:h-[clamp(163px,22vw,252px)] object-cover"
                         src="./Images/ContentBlockBottomImg.png"
-                        alt="Content Block Bottom"
+                        alt="Natural gemstone selection close-up"
                     />
+
                 </div>
 
             </div>

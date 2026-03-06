@@ -26,14 +26,34 @@ const faqData = [
 export function FAQ() {
   const [openIndex, setOpenIndex] = useState(0);
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqData.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <section className="max-w-[1200px] mt-20 md:mt-40 mb-20 md:mb-40 mx-auto px-6 py-20 flex flex-col items-center">
-      
+
+      {/* SEO FAQ Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       {/* Header Section */}
       <header className="text-center mb-12">
         <h2 className="text-[#003034] text-[clamp(32px,4vw,56px)] font-bold uppercase tracking-tight">
           Frequently Asked Questions
         </h2>
+
         <p className="text-[#003034] opacity-70 text-[clamp(13px,1.2vw,16px)] mt-2 max-w-[900px] mx-auto">
           Overcoming Distrust with Effective Communication Tools for Better Understanding and Stronger Relationships
         </p>
@@ -49,17 +69,17 @@ export function FAQ() {
             <button
               onClick={() => setOpenIndex(openIndex === index ? -1 : index)}
               className={`w-full flex items-center justify-between text-left group transition-all duration-300
-                ${openIndex === index ? 'px-6 pt-6 md:px-8 md:pt-8 pb-4' : 'p-6 md:p-8'}
-                `}
+                ${openIndex === index ? 'px-6 pt-6 md:px-8 md:pt-8 pb-4' : 'p-6 md:p-8'}`}
               aria-expanded={openIndex === index}
             >
               <span className="text-[#003034] text-[clamp(14px,1.8vw,32px)] font-semibold pr-4 leading-snug">
                 {faq.question}
               </span>
-              
-              {/* Toggle Icon */}
-              <div className={`flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-colors
-                ${openIndex === index ? 'bg-[#CA0A7F] text-white' : 'bg-[#F2E5EC] text-[#003034]'}`}>
+
+              <div
+                className={`flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-colors
+                ${openIndex === index ? 'bg-[#CA0A7F] text-white' : 'bg-[#F2E5EC] text-[#003034]'}`}
+              >
                 {openIndex === index ? (
                   <span className="text-2xl font-medium leading-none">−</span>
                 ) : (
@@ -68,7 +88,6 @@ export function FAQ() {
               </div>
             </button>
 
-            {/* Answer Panel */}
             <div
               className={`transition-all duration-300 ease-in-out px-6 md:px-8 overflow-hidden
                 ${openIndex === index ? 'max-h-[200px] pb-8 opacity-100' : 'max-h-0 opacity-0'}`}
