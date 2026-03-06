@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchAllProducts } from "../../../services/productsService";
 import { addToCart, fetchCart } from "../../../services/cartService";
 import { addToGuestCart, getGuestCart } from "../../../utils/guestCart";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Check } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
@@ -21,19 +21,25 @@ export function Showcase() {
         });
 
         if (data && data.products) {
-          const filtered = data.products.filter(p =>
-            p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
-          ).slice(0, 6);
+          const filtered = data.products
+            .filter(
+              (p) => p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
+            )
+            .slice(0, 6);
 
           setProducts(filtered);
         } else if (Array.isArray(data)) {
-          const filtered = data.filter(p =>
-            p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
-          ).slice(0, 6);
+          const filtered = data
+            .filter(
+              (p) => p.portal === "PUBLIC" || p.portal === "PUBLIC BY INVESTED"
+            )
+            .slice(0, 6);
+
           setProducts(filtered);
         }
 
         const token = localStorage.getItem("token");
+
         if (!token) {
           const guestItems = getGuestCart() ?? [];
           setCartIds(guestItems.map((item) => item._id));
@@ -46,15 +52,13 @@ export function Showcase() {
         console.error("Showcase Init Error:", err);
       }
     }
+
     initShowcase();
   }, []);
 
-  const handleCardClick = (id) => {
-    navigate(`/product/${id}`);
-  };
-
   const handleAddToCart = async (e, product) => {
     e.stopPropagation();
+    e.preventDefault();
 
     if (cartIds.includes(product._id)) {
       navigate("/cart");
@@ -74,6 +78,7 @@ export function Showcase() {
     } catch (err) {
       console.error("Add to cart failed", err);
     }
+
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
@@ -81,38 +86,48 @@ export function Showcase() {
     <section className="flex flex-col justify-center items-center mt-25 md:mt-60 w-full overflow-hidden">
       {/* Header Section */}
       <div className="flex flex-col px-6 lg:px-10 items-start lg:flex-row lg:items-end w-full max-w-[1440px] justify-between z-50">
-        <h1 className="text-[clamp(32px,6vw,72px)] tracking-tight leading-none font-regular max-w-[800px] uppercase">
+        <h2 className="text-[clamp(32px,6vw,72px)] tracking-tight leading-none font-regular max-w-[800px] uppercase">
           Our Premium Collection of Natural Gemstones
-        </h1>
+        </h2>
+
         <button
-          onClick={() => navigate('/shop')}
+          onClick={() => navigate("/shop")}
           className="mt-7 text-[12px] font-bold text-[#282930] text-nowrap border-[1px] px-5.5 py-2 flex justify-center items-center gap-2 rounded-[40px]
                 lg:w-[250px] lg:h-[54px] lg:gap-2.5 lg:text-[18px] font-['Satoshi'] hover:bg-[#282930] hover:text-white transition-all group"
         >
-          View All <img className="w-4 h-4 lg:w-6 lg:h-6 transition-all group-hover:invert" src="./Icons/arrow.svg" alt="Arrow" />
+          View All
+          <img
+            className="w-4 h-4 lg:w-6 lg:h-6 transition-all group-hover:invert"
+            src="./Icons/arrow.svg"
+            alt="Arrow"
+          />
         </button>
       </div>
 
-      <div className="w-full mt-10 flex flex-nowrap overflow-x-auto snap-x snap-mandatory px-6 gap-6 pb-10
+      <div
+        className="w-full mt-10 flex flex-nowrap overflow-x-auto snap-x snap-mandatory px-6 gap-6 pb-10
                       md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible md:px-10 lg:px-10 md:max-w-[1440px]
-                      scrollbar-hide">
-
+                      scrollbar-hide"
+      >
         {products.map((product) => {
           const isInCart = cartIds.includes(product._id);
 
-          const displayPrice = product.publicPrice || (
-            product.portal === "PUBLIC BY INVESTED"
-              ? (product.price + (product.price * (product.profitMargin / 100))).toFixed(0)
-              : product.price
-          );
+          const displayPrice =
+            product.publicPrice ||
+            (product.portal === "PUBLIC BY INVESTED"
+              ? (
+                  product.price +
+                  product.price * (product.profitMargin / 100)
+                ).toFixed(0)
+              : product.price);
 
           return (
-            <div
+            <Link
+              to={`/product/${product._id}`}
               key={product._id}
-              onClick={() => handleCardClick(product._id)}
               className="relative group overflow-hidden rounded-[32px] border-white border-[5px] shadow-sm
                          w-[85vw] aspect-square max-w-[400px] shrink-0 snap-center
-                         md:w-full md:max-w-none cursor-pointer"
+                         md:w-full md:max-w-none cursor-pointer block"
             >
               <img
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -120,51 +135,58 @@ export function Showcase() {
                 alt={product.name}
               />
 
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] z-10 
-                              p-4 flex justify-between items-center bg-white rounded-2xl shadow-lg">
-
-                {/* Text Container Fix: flex-1 min-w-0 allows truncation to work */}
+              <div
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] z-10 
+                              p-4 flex justify-between items-center bg-white rounded-2xl shadow-lg"
+              >
                 <div className="flex flex-col flex-1 min-w-0">
-                  <p className="text-[16px] font-normal text-[#282930] font-satoshi truncate">
+                  <h3 className="text-[16px] font-normal text-[#282930] font-satoshi truncate">
                     {product.name}
-                  </p>
+                  </h3>
+
                   <p className="text-[12px] text-[#282930]/60 uppercase font-satoshi font-medium">
                     Rs {Number(displayPrice).toLocaleString()}
                   </p>
                 </div>
 
-                {/* Button Container Fix: flex-shrink-0 keeps the icon from getting smaller */}
                 <div className="flex items-center gap-4 flex-shrink-0 ml-3">
                   <div className="h-6 w-[1px] bg-black/10" />
 
                   <button
                     onClick={(e) => handleAddToCart(e, product)}
-                    className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0 flex items-center justify-center ${isInCart
-                      ? "bg-[#CA0A7F] text-white"
-                      : "bg-transparent hover:scale-110"
-                      }`}
+                    className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0 flex items-center justify-center ${
+                      isInCart
+                        ? "bg-[#CA0A7F] text-white"
+                        : "bg-transparent hover:scale-110"
+                    }`}
                     aria-label={isInCart ? "Already in cart" : "Add to cart"}
                   >
                     {isInCart ? (
                       <Check className="w-5 h-5 flex-shrink-0" />
                     ) : (
-                      <img className="w-6 h-6 flex-shrink-0" src="./Icons/cart-2.svg" alt="Cart" />
+                      <img
+                        className="w-6 h-6 flex-shrink-0"
+                        src="./Icons/cart-2.svg"
+                        alt="Cart"
+                      />
                     )}
                   </button>
                 </div>
-
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
 
       {/* Utilities */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}} />
+      `,
+        }}
+      />
     </section>
   );
 }
