@@ -64,6 +64,11 @@ const RegisterInvestor = lazy(() => import("./pages/investment/RegisterInvestor"
 const AdminLayout = lazy(() => import("./Layout/AdminLayout"));
 
 /* =======================
+   📃 Stamp Generator
+======================= */
+const StampPage = lazy(() => import("./pages/stamp/stampPage"));
+
+/* =======================
    ⏳ UTILS
 ======================= */
 const Loader = () => (
@@ -234,6 +239,13 @@ function App() {
                 <Route path="/admin/Payout" element={<PayoutRequests />} />
               </Route>
             </Route>
+
+            {/* {
+            ========================
+            Stamp
+            ========================
+            } */}
+            <Route path="/stampGenerator" element={<StampPage/>}/>
 
             {/* =======================
                 🚫 404
