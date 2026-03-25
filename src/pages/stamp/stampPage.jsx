@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import StampUpload    from "../../components/stampGenerator/StampUpload";
 import MarginControl  from "../../components/stampGenerator/MarginControl";
@@ -25,22 +25,23 @@ const EMPTY_CONTRACT = {
 };
 
 const EMPTY_SIGS = { seller: null, buyer: null, witness1: null, witness2: null };
+const EMPTY_FPS  = { sellerFp: null, buyerFp: null, witness1Fp: null, witness2Fp: null };
 
 const STEPS = [
-  { id: 1, title: "Stamp Paper",     subtitle: "اسٹامپ پیپر اپلوڈ کریں" },
-  { id: 2, title: "Align",           subtitle: "متن کی پوزیشن طے کریں"   },
-  { id: 3, title: "Contract",        subtitle: "معاہدے کی تفصیل بھریں"    },
-  { id: 4, title: "Vehicle Images",  subtitle: "گاڑی کی تصاویر اپلوڈ کریں" },
-  { id: 5, title: "Party Photos",    subtitle: "فریقین کی تصاویر"          },
-  { id: 6, title: "Signatures",      subtitle: "دستخط کریں"               },
-  { id: 7, title: "Preview",         subtitle: "پیش نظارہ دیکھیں"         },
-  { id: 8, title: "Export",          subtitle: "PDF محفوظ کریں"           },
+  { id: 1, title: "Stamp Paper",     subtitle: "اسٹامپ پیپر اپلوڈ کریں"    },
+  { id: 2, title: "Align",           subtitle: "متن کی پوزیشن طے کریں"      },
+  { id: 3, title: "Contract",        subtitle: "معاہدے کی تفصیل بھریں"       },
+  { id: 4, title: "Vehicle Images",  subtitle: "گاڑی کی تصاویر اپلوڈ کریں"  },
+  { id: 5, title: "Party Photos",    subtitle: "فریقین کی تصاویر"             },
+  { id: 6, title: "Signatures",      subtitle: "دستخط اور فنگرپرنٹ"          },
+  { id: 7, title: "Preview",         subtitle: "پیش نظارہ دیکھیں"            },
+  { id: 8, title: "Export",          subtitle: "PDF محفوظ کریں"              },
 ];
 
 const STATUS_CONFIG = {
-  online:  { label: "Online",  dot: "bg-green-500",  text: "text-green-700",  bg: "bg-green-50",  border: "border-green-200" },
-  busy:    { label: "Busy",    dot: "bg-amber-500",  text: "text-amber-700",  bg: "bg-amber-50",  border: "border-amber-200" },
-  offline: { label: "Offline", dot: "bg-slate-400",  text: "text-slate-600",  bg: "bg-slate-100", border: "border-slate-200" },
+  online:  { label: "Online",  dot: "bg-green-500",  text: "text-green-700",  bg: "bg-green-50",  border: "border-green-200"  },
+  busy:    { label: "Busy",    dot: "bg-amber-500",  text: "text-amber-700",  bg: "bg-amber-50",  border: "border-amber-200"  },
+  offline: { label: "Offline", dot: "bg-slate-400",  text: "text-slate-600",  bg: "bg-slate-100", border: "border-slate-200"  },
 };
 const STATUS_CYCLE = ["online", "busy", "offline"];
 
@@ -62,16 +63,17 @@ export default function StampGeneratorApp() {
   const { agent, logout } = useAgentAuth();
   const navigate = useNavigate();
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [pdfData, setPdfData]         = useState(null);
-  const [topMargin, setTopMargin]     = useState(200);
-  const [fontSize, setFontSize]       = useState(13);
-  const [paddingH, setPaddingH]       = useState(98);
+  const [currentStep, setCurrentStep]   = useState(1);
+  const [pdfData, setPdfData]           = useState(null);
+  const [topMargin, setTopMargin]       = useState(200);
+  const [fontSize, setFontSize]         = useState(13);
+  const [paddingH, setPaddingH]         = useState(98);
   const [contractData, setContractData] = useState(EMPTY_CONTRACT);
-  const [sellerPhoto, setSellerPhoto] = useState(null);
-  const [buyerPhoto, setBuyerPhoto]   = useState(null);
-  const [signatures, setSignatures]   = useState(EMPTY_SIGS);
-  const [agentStatus, setAgentStatus] = useState(agent?.status || "online");
+  const [sellerPhoto, setSellerPhoto]   = useState(null);
+  const [buyerPhoto, setBuyerPhoto]     = useState(null);
+  const [signatures, setSignatures]     = useState(EMPTY_SIGS);
+  const [fingerprints, setFingerprints] = useState(EMPTY_FPS);
+  const [agentStatus, setAgentStatus]   = useState(agent?.status || "online");
   const [statusUpdating, setStatusUpdating] = useState(false);
 
   // Vehicle images
@@ -91,9 +93,12 @@ export default function StampGeneratorApp() {
 
   const handleSig      = (key, d) => setSignatures(prev => ({ ...prev, [key]: d }));
   const handleSigClear = (key)    => setSignatures(prev => ({ ...prev, [key]: null }));
+
+  const handleFp      = (key, d) => setFingerprints(prev => ({ ...prev, [key]: d }));
+  const handleFpClear = (key)    => setFingerprints(prev => ({ ...prev, [key]: null }));
+
   const getContractText = () => buildContractText(contractData);
 
-  // ── Status cycle ──
   const cycleStatus = async () => {
     if (statusUpdating) return;
     const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(agentStatus) + 1) % STATUS_CYCLE.length];
@@ -101,11 +106,10 @@ export default function StampGeneratorApp() {
     try {
       await agentApi.patch("/agents/status", { status: next });
       setAgentStatus(next);
-    } catch { /* ignore — UI already optimistic */ }
+    } catch { /* ignore */ }
     finally { setStatusUpdating(false); }
   };
 
-  // ── Logout ──
   const handleLogout = async () => {
     await logout();
     navigate("/agent/login", { replace: true });
@@ -117,7 +121,7 @@ export default function StampGeneratorApp() {
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [currentStep]);
 
-  const previewProps = { pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, agentName: agent?.fullName };
+  const previewProps = { pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, fingerprints, agentName: agent?.fullName };
   const sc = STATUS_CONFIG[agentStatus];
 
   return (
@@ -125,101 +129,81 @@ export default function StampGeneratorApp() {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');`}</style>
 
       {/* ── Navbar ── */}
-      <header className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
-
-          {/* Brand */}
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+      <header className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
             </div>
             <div className="min-w-0">
               <h1 className="text-sm font-bold text-slate-800 leading-none truncate">اقرار نامہ ساز</h1>
-              <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">Step {currentStep}/{STEPS.length}</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">Step {currentStep}/{STEPS.length}</p>
             </div>
           </div>
 
-          {/* Search contracts link */}
-          <a href="/stampGenerator/search"
-            className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 px-3 py-1.5 rounded-lg transition-colors">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            Search
-          </a>
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <a href="/stampGenerator/search"
+              className="p-2 sm:px-3 sm:py-1.5 text-slate-500 hover:text-emerald-700 border border-slate-200 rounded-lg transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </a>
 
-          {/* Status toggle */}
-          <button
-            onClick={cycleStatus}
-            disabled={statusUpdating}
-            title="Click to change status"
-            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all ${sc.bg} ${sc.border} ${sc.text}`}
-          >
-            <span className={`w-2 h-2 rounded-full shrink-0 ${sc.dot} ${agentStatus === "online" ? "animate-pulse" : ""}`}/>
-            <span className="hidden sm:block">{sc.label}</span>
-          </button>
+            <button onClick={cycleStatus} disabled={statusUpdating}
+              className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold px-2 py-1.5 sm:px-3 rounded-lg border transition-all ${sc.bg} ${sc.border} ${sc.text}`}>
+              <span className={`w-2 h-2 rounded-full shrink-0 ${sc.dot} ${agentStatus === "online" ? "animate-pulse" : ""}`}/>
+              <span className="hidden xs:block">{sc.label}</span>
+            </button>
 
-          {/* Agent name + avatar */}
-          {agent && (
-            <div className="flex items-center gap-2 shrink-0">
-              {agent.pfp ? (
-                <img
-                  src={`${import.meta.env.VITE_API_URL?.replace("/api","")}/${agent.pfp}`}
-                  alt={agent.fullName}
-                  className="w-7 h-7 rounded-full object-cover border border-slate-200"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-700">
-                  {agent.fullName?.[0] || "A"}
-                </div>
-              )}
-              <span className="text-xs font-semibold text-slate-700 hidden sm:block truncate max-w-[100px]">
-                {agent.fullName}
-              </span>
-            </div>
-          )}
+            {agent && (
+              <div className="flex items-center gap-2 shrink-0">
+                {agent.pfp ? (
+                  <img src={`${import.meta.env.VITE_API_URL?.replace("/api", "")}/${agent.pfp}`}
+                    alt="" className="w-7 h-7 rounded-full object-cover border border-slate-200"/>
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-[10px] font-bold text-emerald-700">
+                    {agent.fullName?.[0]}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Logout */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200 px-3 py-1.5 rounded-lg transition-all"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-            <span className="hidden sm:block">Logout</span>
-          </button>
+            <button onClick={handleLogout}
+              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* Progress bar */}
         <div className="h-1 bg-slate-100">
           <div className="h-full bg-emerald-500 transition-all duration-500"
             style={{ width: `${(currentStep / STEPS.length) * 100}%` }}/>
         </div>
       </header>
 
-      {/* ── Step strip ── */}
-      <div className="bg-white border-b border-slate-100 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="flex overflow-x-auto gap-0 py-3">
+      {/* ── Step Strip ── */}
+      <div className="bg-white border-b border-slate-100 shadow-sm overflow-hidden">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center overflow-x-auto no-scrollbar py-3 px-4 gap-2">
             {STEPS.map((s) => (
               <button key={s.id}
                 onClick={() => { if (s.id < currentStep || s.id === 1 || pdfData) setCurrentStep(s.id); }}
-                className={`flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors
-                  ${s.id === currentStep ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : s.id < currentStep ? "text-emerald-600 hover:bg-emerald-50"
-                    : "text-slate-400 cursor-not-allowed"}`}>
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0
-                  ${s.id === currentStep ? "bg-emerald-600 text-white"
+                className={`flex items-center gap-2 shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all
+                  ${s.id === currentStep ? "bg-emerald-600 text-white shadow-md shadow-emerald-100"
+                    : s.id < currentStep ? "text-emerald-600 bg-emerald-50"
+                    : "text-slate-400 bg-slate-50 cursor-not-allowed"}`}>
+                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0
+                  ${s.id === currentStep ? "bg-white text-emerald-600"
                     : s.id < currentStep ? "bg-emerald-500 text-white"
                     : "bg-slate-200 text-slate-400"}`}>
                   {s.id < currentStep ? "✓" : s.id}
                 </span>
-                <span className="hidden md:block">{s.title}</span>
+                <span>{s.title}</span>
               </button>
             ))}
           </div>
@@ -227,14 +211,14 @@ export default function StampGeneratorApp() {
       </div>
 
       {/* ── Main ── */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-6">
+      <main className="max-w-3xl mx-auto px-4 py-6 sm:py-8 flex flex-col gap-6">
 
-        <div>
-          <h2 className="text-xl font-bold text-slate-800">{STEPS[currentStep - 1].title}</h2>
-          <p className="text-sm text-slate-500 mt-1" dir="rtl">{STEPS[currentStep - 1].subtitle}</p>
+        <div className="px-1">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-800">{STEPS[currentStep - 1].title}</h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1" dir="rtl">{STEPS[currentStep - 1].subtitle}</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-7">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-7">
 
           {/* 1 — Stamp upload */}
           {currentStep === 1 && <StampUpload onPdfLoaded={handlePdfLoaded} />}
@@ -258,16 +242,14 @@ export default function StampGeneratorApp() {
           {/* 4 — Vehicle images */}
           {currentStep === 4 && (
             <VehicleImageStep
-              chassisNo={contractData.chassisNo}
-              regNo={contractData.regNo}
-              engineNo={contractData.engineNo}
+              chassisNo={contractData.chassisNo} regNo={contractData.regNo} engineNo={contractData.engineNo}
               chassisImg={chassisImg} setChassisImg={setChassisImg}
               carImg={carImg}         setCarImg={setCarImg}
               engineImg={engineImg}   setEngineImg={setEngineImg}
             />
           )}
 
-          {/* 5 — Party photos */}
+          {/* 5 — Party photos — with camera support */}
           {currentStep === 5 && (
             <PhotoUploadSection
               sellerPhoto={sellerPhoto} buyerPhoto={buyerPhoto}
@@ -275,23 +257,53 @@ export default function StampGeneratorApp() {
             />
           )}
 
-          {/* 6 — Signatures */}
+          {/* 6 — Signatures + Fingerprints */}
           {currentStep === 6 && (
-            <div className="flex flex-col gap-6">
-              <p className="text-sm text-slate-500">Use finger, stylus, or mouse. Tap for a dot, drag for a line.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {[
-                  { key: "seller",   label: "فریق اول — Seller"  },
-                  { key: "buyer",    label: "فریق دوم — Buyer"   },
-                  { key: "witness1", label: "گواہ ۱ — Witness 1" },
-                  { key: "witness2", label: "گواہ ۲ — Witness 2" },
-                ].map(({ key, label }) => (
-                  <SignaturePad key={key} label={label}
-                    value={signatures[key]}
-                    onSave={(d) => handleSig(key, d)}
-                    onClear={() => handleSigClear(key)}
-                  />
-                ))}
+            <div className="flex flex-col gap-8">
+              {/* Signatures */}
+              <div className="flex flex-col gap-4">
+                <p className="text-sm font-semibold text-slate-700 border-b border-slate-100 pb-2">✍️ Signatures — دستخط</p>
+                <p className="text-xs text-slate-500">دستخط کے لیے انگلی یا قلم کا استعمال کریں۔</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  {[
+                    { key: "seller",   label: "فریق اول — Seller"  },
+                    { key: "buyer",    label: "فریق دوم — Buyer"   },
+                    { key: "witness1", label: "گواہ ۱ — Witness 1" },
+                    { key: "witness2", label: "گواہ ۲ — Witness 2" },
+                  ].map(({ key, label }) => (
+                    <SignaturePad key={key} label={label}
+                      value={signatures[key]}
+                      onSave={(d) => handleSig(key, d)}
+                      onClear={() => handleSigClear(key)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Fingerprints */}
+              <div className="flex flex-col gap-4">
+                <p className="text-sm font-semibold text-slate-700 border-b border-slate-100 pb-2">🖐 Fingerprints — فنگرپرنٹ</p>
+                <p className="text-xs text-slate-500">
+                  فنگرپرنٹ اسکینر کی تصویر اپلوڈ کریں یا کیمرہ سے کیپچر کریں۔
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { key: "sellerFp",   label: "Seller",   sub: "فریق اول" },
+                    { key: "buyerFp",    label: "Buyer",    sub: "فریق دوم" },
+                    { key: "witness1Fp", label: "Witness 1", sub: "گواہ ۱"  },
+                    { key: "witness2Fp", label: "Witness 2", sub: "گواہ ۲"  },
+                  ].map(({ key, label, sub }) => (
+                    <FingerprintBox
+                      key={key}
+                      label={label}
+                      sub={sub}
+                      value={fingerprints[key]}
+                      onCapture={(d) => handleFp(key, d)}
+                      onClear={() => handleFpClear(key)}
+                      inputId={`fp-${key}`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -318,33 +330,29 @@ export default function StampGeneratorApp() {
                 previewRef={previewRef}
                 contractData={contractData}
                 pdfDoc={pdfData.pdfDoc}
-                canvasWidth={pdfData.canvasWidth}
-                canvasHeight={pdfData.canvasHeight}
                 vehicleImages={{ chassisImg, carImg, engineImg }}
+                fingerprints={fingerprints}
               />
             </div>
           )}
-
         </div>
 
-        {/* ── Nav buttons ── */}
-        <div className="flex items-center justify-between gap-4">
+        {/* ── Footer Nav ── */}
+        <div className="flex items-center justify-between gap-3 px-1">
           <button onClick={goPrev} disabled={currentStep === 1}
-            className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all
+            className={`flex items-center gap-2 px-4 py-3 sm:px-5 rounded-xl text-sm font-semibold transition-all
               ${currentStep === 1
                 ? "bg-slate-100 text-slate-300 cursor-not-allowed"
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"}`}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
             </svg>
-            Back
+            <span className="hidden xs:block">Back</span>
           </button>
-
-          <span className="text-xs text-slate-400 hidden sm:block">{STEPS[currentStep - 1].title}</span>
 
           {currentStep < STEPS.length ? (
             <button onClick={goNext} disabled={!canNext}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all
+              className={`flex items-center gap-2 px-6 py-3 sm:px-8 rounded-xl text-sm font-semibold transition-all
                 ${!canNext
                   ? "bg-slate-100 text-slate-300 cursor-not-allowed"
                   : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm active:scale-95"}`}>
@@ -354,14 +362,12 @@ export default function StampGeneratorApp() {
               </svg>
             </button>
           ) : (
-            <button
-              onClick={() => {
-                setCurrentStep(1); setPdfData(null);
-                setContractData(EMPTY_CONTRACT); setSignatures(EMPTY_SIGS);
-                setSellerPhoto(null); setBuyerPhoto(null);
-                setChassisImg(null); setCarImg(null); setEngineImg(null);
-                setFontSize(13); setPaddingH(98);
-              }}
+            <button onClick={() => {
+              setCurrentStep(1); setPdfData(null);
+              setContractData(EMPTY_CONTRACT); setSignatures(EMPTY_SIGS); setFingerprints(EMPTY_FPS);
+              setSellerPhoto(null); setBuyerPhoto(null);
+              setChassisImg(null); setCarImg(null); setEngineImg(null);
+            }}
               className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-slate-600 hover:bg-slate-700 text-white shadow-sm">
               New Contract
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -370,69 +376,57 @@ export default function StampGeneratorApp() {
             </button>
           )}
         </div>
-
       </main>
     </div>
   );
 }
 
-/* ── Vehicle Image Upload Step ── */
+/* ── Vehicle Image Step ── */
 function VehicleImageStep({ chassisNo, regNo, engineNo, chassisImg, setChassisImg, carImg, setCarImg, engineImg, setEngineImg }) {
   const boxes = [
-    { label: "Chassis Photo",     sublabel: `Saved as: ${chassisNo || "chassis number"}`, state: chassisImg, setState: setChassisImg, id: "chassis-img", icon: "🔩" },
-    { label: "Car Photo",         sublabel: `Saved as: ${regNo     || "reg number"}`,     state: carImg,     setState: setCarImg,     id: "car-img",     icon: "🚗" },
-    { label: "Engine Photo",      sublabel: `Saved as: ${engineNo  || "engine number"}`,  state: engineImg,  setState: setEngineImg,  id: "engine-img",  icon: "⚙️" },
+    { label: "Chassis", sub: chassisNo, state: chassisImg, setState: setChassisImg, id: "chassis-img", icon: "🔩" },
+    { label: "Car",     sub: regNo,     state: carImg,     setState: setCarImg,     id: "car-img",     icon: "🚗" },
+    { label: "Engine",  sub: engineNo,  state: engineImg,  setState: setEngineImg,  id: "engine-img",  icon: "⚙️" },
   ];
-
   const toDataURL = (file, cb) => {
     if (!file || !file.type.startsWith("image/")) return;
     const r = new FileReader();
     r.onload = (e) => cb(e.target.result);
     r.readAsDataURL(file);
   };
-
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-sm text-slate-500">
-        Upload photos of the vehicle. These will be saved to the server using the chassis, registration, and engine numbers as filenames.
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        {boxes.map(({ label, sublabel, state, setState, id, icon }) => (
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {boxes.map(({ label, sub, state, setState, id, icon }) => (
           <div key={id} className="flex flex-col gap-2">
-            <div>
-              <p className="text-sm font-semibold text-slate-700">{icon} {label}</p>
-              <p className="text-xs text-slate-400 mt-0.5 font-mono truncate">{sublabel}</p>
-            </div>
+            <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">{icon} {label}</p>
             {state ? (
-              <div className="relative">
-                <img src={state} alt={label} className="w-full h-40 object-cover rounded-xl border border-slate-200 shadow-sm"/>
+              <div className="relative aspect-video sm:aspect-square">
+                <img src={state} alt="" className="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm"/>
                 <button onClick={() => setState(null)}
-                  className="absolute top-2 right-2 bg-white border border-slate-200 text-slate-400 hover:text-red-500 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow">
-                  ✕
-                </button>
+                  className="absolute top-2 right-2 bg-white/90 backdrop-blur rounded-full w-6 h-6 flex items-center justify-center text-[10px] shadow">✕</button>
               </div>
             ) : (
               <div onClick={() => document.getElementById(id).click()}
-                className="w-full h-40 rounded-xl border-2 border-dashed border-slate-300 hover:border-emerald-400 hover:bg-emerald-50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group">
-                <div className="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center text-xl">
-                  {icon}
-                </div>
-                <p className="text-xs text-slate-400 group-hover:text-emerald-600">Upload photo</p>
+                className="w-full aspect-video sm:aspect-square rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-400 hover:bg-emerald-50 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all">
+                <span className="text-xl opacity-50">{icon}</span>
+                <p className="text-[10px] font-bold text-slate-400">UPLOAD</p>
               </div>
             )}
-            <input id={id} type="file" accept="image/*" className="hidden"
+            {/* Back camera input */}
+            <input id={id} type="file" accept="image/*" capture="environment" className="hidden"
               onChange={(e) => toDataURL(e.target.files[0], setState)} />
           </div>
         ))}
       </div>
-      <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-        ⚠️ Fill in Chassis No, Reg No, and Engine No in Step 3 first — they are used as the filenames.
+      <p className="text-[10px] sm:text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 leading-relaxed">
+        ⚠️ گاڑی کا چیسیز، رجسٹریشن اور انجن نمبر پہلے لکھیں (Step 3) تاکہ فائلز ان ہی ناموں سے محفوظ ہوں۔
       </p>
     </div>
   );
 }
 
-/* ── Photo Upload ── */
+/* ── Photo Upload with Camera ── */
 function PhotoUploadSection({ sellerPhoto, buyerPhoto, onSellerPhoto, onBuyerPhoto }) {
   const toDataURL = (file, cb) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -441,49 +435,110 @@ function PhotoUploadSection({ sellerPhoto, buyerPhoto, onSellerPhoto, onBuyerPho
     r.readAsDataURL(file);
   };
   return (
-    <div className="flex flex-col gap-6">
-      <p className="text-sm text-slate-500">Upload passport-style photos. Seller on the right, Buyer on the left.</p>
-      <div className="grid grid-cols-2 gap-5">
-        <PhotoBox label="فریق اول — Seller" sublabel="Right side" photo={sellerPhoto}
-          onPhoto={(f) => toDataURL(f, onSellerPhoto)} onClear={() => onSellerPhoto(null)} inputId="seller-photo"/>
-        <PhotoBox label="فریق دوم — Buyer" sublabel="Left side" photo={buyerPhoto}
-          onPhoto={(f) => toDataURL(f, onBuyerPhoto)} onClear={() => onBuyerPhoto(null)} inputId="buyer-photo"/>
+    <div className="flex flex-col gap-4">
+      <p className="text-xs text-slate-500">
+        📷 تصویر گیلری سے منتخب کریں یا کیمرہ آئیکن سے براہ راست کیمرے سے لیں۔
+      </p>
+      <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
+        <PhotoBox label="فریق اول — Seller" photo={sellerPhoto}
+          onPhoto={(f) => toDataURL(f, onSellerPhoto)} onClear={() => onSellerPhoto(null)}
+          cameraId="seller-camera" />
+        <PhotoBox label="فریق دوم — Buyer" photo={buyerPhoto}
+          onPhoto={(f) => toDataURL(f, onBuyerPhoto)} onClear={() => onBuyerPhoto(null)}
+          cameraId="buyer-camera" />
       </div>
     </div>
   );
 }
 
-function PhotoBox({ label, sublabel, photo, onPhoto, onClear, inputId }) {
+function PhotoBox({ label, photo, onPhoto, onClear, cameraId }) {
   return (
     <div className="flex flex-col gap-2">
-      <div>
-        <p className="text-sm font-semibold text-slate-700">{label}</p>
-        <p className="text-xs text-slate-400 mt-0.5">{sublabel}</p>
-      </div>
+      <p className="text-sm font-semibold text-slate-700">{label}</p>
       {photo ? (
-        <div className="relative">
-          <img src={photo} alt="party" className="w-full h-44 object-cover rounded-xl border border-slate-200 shadow-sm"/>
+        <div className="relative aspect-[4/5]">
+          <img src={photo} alt="" className="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm"/>
           <button onClick={onClear}
-            className="absolute top-2 right-2 bg-white border border-slate-200 text-slate-400 hover:text-red-500 rounded-full w-7 h-7 flex items-center justify-center shadow">✕</button>
+            className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-slate-500 hover:text-red-500">✕</button>
+          {/* Retake button overlaid at bottom */}
+          <button onClick={() => document.getElementById(cameraId).click()}
+            className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 hover:bg-black/80 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full backdrop-blur transition-colors">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            Retake
+          </button>
+        </div>
+      ) : (
+        /* Camera-only tap area */
+        <div onClick={() => document.getElementById(cameraId).click()}
+          className="w-full aspect-[4/5] rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50 hover:bg-emerald-100 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all group">
+          <div className="w-14 h-14 rounded-full bg-emerald-100 group-hover:bg-emerald-200 flex items-center justify-center transition-colors">
+            <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-emerald-700">کیمرہ کھولیں</p>
+            <p className="text-[11px] text-emerald-500 mt-0.5">Tap to open camera</p>
+          </div>
+        </div>
+      )}
+      {/* Camera-only input: capture="user" = front camera (selfie), use "environment" for back */}
+      <input id={cameraId} type="file" accept="image/*" capture="user" className="hidden"
+        onChange={(e) => onPhoto(e.target.files[0])} />
+    </div>
+  );
+}
+
+/* ── Fingerprint Upload Box ── */
+function FingerprintBox({ label, sub, value, onCapture, onClear, inputId }) {
+  const toDataURL = (file, cb) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const r = new FileReader();
+    r.onload = (e) => cb(e.target.result);
+    r.readAsDataURL(file);
+  };
+
+  return (
+    <div className="flex flex-col gap-2 items-center">
+      <div className="text-center">
+        <p className="text-xs font-bold text-slate-700">{label}</p>
+        <p className="text-[10px] text-slate-400" dir="rtl">{sub}</p>
+      </div>
+
+      {value ? (
+        <div className="relative w-full aspect-square">
+          <img src={value} alt="fingerprint"
+            className="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm" style={{ filter: "contrast(1.5) grayscale(1)" }}/>
+          <button onClick={onClear}
+            className="absolute top-1 right-1 bg-white rounded-full w-5 h-5 flex items-center justify-center text-[9px] shadow text-slate-500 hover:text-red-500">✕</button>
         </div>
       ) : (
         <div onClick={() => document.getElementById(inputId).click()}
-          className="w-full h-44 rounded-xl border-2 border-dashed border-slate-300 hover:border-emerald-400 hover:bg-emerald-50 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all group">
-          <div className="w-11 h-11 rounded-full bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center">
-            <svg className="w-5 h-5 text-slate-400 group-hover:text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4"/>
-            </svg>
-          </div>
-          <p className="text-sm text-slate-400 group-hover:text-emerald-600">Upload photo</p>
+          className="w-full aspect-square rounded-xl border-2 border-dashed border-slate-200 hover:border-slate-400 hover:bg-slate-50 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all">
+          <svg className="w-7 h-7 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d="M12 2C8 2 5 5.5 5 9c0 5 3 9 7 13" strokeLinecap="round"/>
+            <path d="M12 2c4 0 7 3.5 7 7 0 5-3 9-7 13" strokeLinecap="round"/>
+            <path d="M9 9c0-1.7 1.3-3 3-3s3 1.3 3 3c0 3-1.5 6-3 9" strokeLinecap="round"/>
+          </svg>
+          <p className="text-[9px] font-bold text-slate-300 uppercase">Upload</p>
         </div>
       )}
-      <input id={inputId} type="file" accept="image/*" className="hidden" onChange={(e) => onPhoto(e.target.files[0])}/>
+
+      {/* Camera input for fingerprint scanner — capture="environment" opens back camera */}
+      <input id={inputId} type="file" accept="image/*" capture="environment" className="hidden"
+        onChange={(e) => toDataURL(e.target.files[0], onCapture)} />
     </div>
   );
 }
 
-/* ── Contract Preview (with agent name watermark) ── */
-function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, agentName }) {
+/* ── Contract Preview ── */
+function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, fingerprints, agentName }) {
   const canvasRef     = useRef(null);
   const wrapperRef    = useRef(null);
   const renderTaskRef = useRef(null);
@@ -493,16 +548,12 @@ function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, c
     if (!pdfData?.pdfDoc) return;
     let cancelled = false;
     const render = async () => {
-      if (renderTaskRef.current) {
-        try { renderTaskRef.current.cancel(); } catch (_) {}
-        renderTaskRef.current = null;
-      }
+      if (renderTaskRef.current) { try { renderTaskRef.current.cancel(); } catch (_) {} renderTaskRef.current = null; }
       const page     = await pdfData.pdfDoc.getPage(1);
       const viewport = page.getViewport({ scale: 1.5 });
       const canvas   = canvasRef.current;
       if (!canvas || cancelled) return;
-      canvas.width  = viewport.width;
-      canvas.height = viewport.height;
+      canvas.width = viewport.width; canvas.height = viewport.height;
       const task = page.render({ canvasContext: canvas.getContext("2d"), viewport });
       renderTaskRef.current = task;
       try { await task.promise; }
@@ -512,14 +563,14 @@ function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, c
     render();
     return () => {
       cancelled = true;
-      if (renderTaskRef.current) { try { renderTaskRef.current.cancel(); } catch (_) {} renderTaskRef.current = null; }
+      if (renderTaskRef.current) { try { renderTaskRef.current.cancel(); } catch (_) {} }
     };
   }, [pdfData]);
 
   useEffect(() => {
     const el = wrapperRef.current;
     if (!el) return;
-    const ro = new ResizeObserver((entries) => {
+    const ro = new ResizeObserver(entries => {
       for (const e of entries) setDisplayWidth(e.contentRect.width);
     });
     ro.observe(el);
@@ -528,12 +579,10 @@ function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, c
   }, []);
 
   return (
-    <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 p-2">
-      <div ref={wrapperRef} className="relative w-full overflow-hidden rounded-lg shadow"
+    <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 p-1 sm:p-2">
+      <div ref={wrapperRef} className="relative w-full overflow-hidden rounded-lg shadow bg-white"
         style={{ paddingBottom: `${(pdfData.canvasHeight / pdfData.canvasWidth) * 100}%` }}>
-
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block"/>
-
         <div ref={previewRef} data-export-preview="true" className="absolute inset-0">
           <div data-contract-overlay="true" style={{ position: "absolute", inset: 0 }}>
             <ContractTemplate
@@ -546,21 +595,25 @@ function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, c
               sellerPhoto={sellerPhoto}
               buyerPhoto={buyerPhoto}
               signatures={signatures}
+              fingerprints={fingerprints}
             />
           </div>
-
-          {/* ── Agent name watermark — bottom right ── */}
+          {/* Agent watermark */}
           {agentName && (
-            <div style={{
-              position:   "absolute",
-              bottom:     "1.5rem",
-              right:      "1.5rem",
-              fontSize:   `${11 * (displayWidth / (pdfData.canvasWidth || 900))}px`,
-              color:      "#555",
-              fontFamily: "serif",
-              pointerEvents: "none",
-              userSelect: "none",
-            }}>
+            <div
+              data-agent-watermark="true"
+              style={{
+                position:   "absolute",
+                bottom:     `${1.5 * (displayWidth / (pdfData.canvasWidth || 900))}rem`,
+                right:      `${1.5 * (displayWidth / (pdfData.canvasWidth || 900))}rem`,
+                fontSize:   `${10 * (displayWidth / (pdfData.canvasWidth || 900))}px`,
+                color:      "#555",
+                fontFamily: "serif",
+                fontStyle:  "italic",
+                pointerEvents: "none",
+                userSelect: "none",
+              }}
+            >
               {agentName}
             </div>
           )}

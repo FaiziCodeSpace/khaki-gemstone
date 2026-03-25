@@ -288,7 +288,7 @@ export default function ProductTable() {
                                                 <p className="text-sm font-bold text-gray-900">{product.name}</p>
                                                 <div className="flex gap-2 mt-1">
                                                     <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-500 font-mono uppercase">{product.productNumber}</span>
-                                                    <span className="text-[10px] text-[#CA0A7F] font-semibold">{product.gem_size} mm</span>
+                                                    <span className="text-[10px] text-[#CA0A7F] font-semibold">{product.gem_size}</span>
                                                 </div>
                                             </div>
                                         </td>

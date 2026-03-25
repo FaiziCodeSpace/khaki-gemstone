@@ -1,7 +1,4 @@
 // pages/stamp/StampSearch.jsx
-// Route: /stampGenerator/search  (agent protected)
-// Search contracts by chassis, reg, seller, buyer name, or model year
-
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAgentAuth } from "../../context/Agentauthcontext";
@@ -10,7 +7,7 @@ import agentApi from "../../services/agentServices/api.agentService";
 const STATUS_CONFIG = {
   online:  { dot: "bg-green-500", text: "text-green-700", bg: "bg-green-50",  border: "border-green-200",  label: "Online"  },
   busy:    { dot: "bg-amber-500", text: "text-amber-700", bg: "bg-amber-50",  border: "border-amber-200",  label: "Busy"    },
-  offline: { dot: "bg-slate-400", text: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200", label: "Offline" },
+  offline: { dot: "bg-slate-400", text: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200",  label: "Offline" },
 };
 
 export default function StampSearch() {
@@ -42,7 +39,8 @@ export default function StampSearch() {
     }
   };
 
-  const formatDate = (iso) => iso ? new Date(iso).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" }) : "—";
+  const formatDate = (iso) =>
+    iso ? new Date(iso).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" }) : "—";
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -71,7 +69,6 @@ export default function StampSearch() {
             New Contract
           </Link>
 
-          {/* Status dot */}
           <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border ${sc.bg} ${sc.border} ${sc.text}`}>
             <span className={`w-2 h-2 rounded-full ${sc.dot}`}/>
             <span className="hidden sm:block">{sc.label}</span>
@@ -80,7 +77,7 @@ export default function StampSearch() {
           {agent && (
             <div className="flex items-center gap-2 shrink-0">
               {agent.pfp ? (
-                <img src={`${import.meta.env.VITE_API_URL?.replace("/api","")}/${agent.pfp}`}
+                <img src={`${import.meta.env.VITE_API_URL?.replace("/api", "")}/${agent.pfp}`}
                   alt={agent.fullName} className="w-7 h-7 rounded-full object-cover border border-slate-200"/>
               ) : (
                 <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-700">
@@ -92,11 +89,11 @@ export default function StampSearch() {
           )}
 
           <button onClick={() => { logout(); window.location.href = "/agent/login"; }}
-            className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200 px-3 py-1.5 rounded-lg transition-all">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
-            <span className="hidden sm:block">Logout</span>
           </button>
         </div>
       </header>
@@ -106,7 +103,6 @@ export default function StampSearch() {
         {/* Search card */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-7">
           <form onSubmit={handleSearch} className="flex flex-col gap-4">
-
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
                 Chassis / Reg No / Seller / Buyer / Model
@@ -146,7 +142,8 @@ export default function StampSearch() {
                 {status === "loading" ? "تلاش جاری ہے..." : "تلاش کریں"}
               </button>
               {searched && (
-                <button type="button" onClick={() => { setQuery(""); setYear(""); setResults([]); setStatus("idle"); setSearched(false); }}
+                <button type="button"
+                  onClick={() => { setQuery(""); setYear(""); setResults([]); setStatus("idle"); setSearched(false); }}
                   className="px-4 py-3 rounded-xl text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-slate-50">
                   Clear
                 </button>
@@ -162,7 +159,7 @@ export default function StampSearch() {
 
         {/* Results */}
         {status === "done" && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold text-slate-700">
                 {results.length === 0 ? "کوئی نتیجہ نہیں ملا" : `${results.length} معاہدے ملے`}
@@ -177,38 +174,109 @@ export default function StampSearch() {
             )}
 
             {results.map((c) => (
-              <div key={c._id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-4 hover:border-emerald-200 transition-all">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-bold text-slate-800" dir="rtl">{c.carModel || "گاڑی"} — {c.modelYear || "—"}</p>
-                    <p className="text-xs text-slate-500 font-mono mt-0.5">{c.chassisNo || "—"}</p>
+              <div key={c._id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:border-emerald-200 transition-all">
+
+                {/* Header */}
+                <div className="p-5 flex flex-col gap-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-bold text-slate-800" dir="rtl">{c.carModel || "گاڑی"} — {c.modelYear || "—"}</p>
+                      <p className="text-xs text-slate-500 font-mono mt-0.5">{c.chassisNo || "—"}</p>
+                    </div>
+                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-lg shrink-0">{formatDate(c.createdAt)}</span>
                   </div>
-                  <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-lg shrink-0">{formatDate(c.createdAt)}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="bg-slate-50 rounded-lg p-3" dir="rtl">
-                    <p className="text-slate-400 mb-0.5">فریق اول</p>
-                    <p className="font-semibold text-slate-700">{c.sellerName || "—"}</p>
+
+                  {/* Parties */}
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="bg-slate-50 rounded-lg p-3" dir="rtl">
+                      <p className="text-slate-400 mb-0.5">فریق اول</p>
+                      <p className="font-semibold text-slate-700">{c.sellerName || "—"}</p>
+                    </div>
+                    <div className="bg-slate-50 rounded-lg p-3" dir="rtl">
+                      <p className="text-slate-400 mb-0.5">فریق دوم</p>
+                      <p className="font-semibold text-slate-700">{c.buyerName || "—"}</p>
+                    </div>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-3" dir="rtl">
-                    <p className="text-slate-400 mb-0.5">فریق دوم</p>
-                    <p className="font-semibold text-slate-700">{c.buyerName || "—"}</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <span>Reg: <strong className="text-slate-600">{c.regNo || "—"}</strong></span>
-                    <span>Date: <strong className="text-slate-600">{c.date || "—"}</strong></span>
-                  </div>
-                  {c.pdfUrl && (
-                    <a href={c.pdfUrl} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                      </svg>
-                      PDF دیکھیں
-                    </a>
+
+                  {/* ── Vehicle Images ── */}
+                  {(c.chassisImgUrl || c.carImgUrl || c.engineImgUrl) && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Vehicle Photos</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { url: c.chassisImgUrl, label: "🔩 Chassis" },
+                          { url: c.carImgUrl,     label: "🚗 Car"     },
+                          { url: c.engineImgUrl,  label: "⚙️ Engine"  },
+                        ].map(({ url, label }) => url ? (
+                          <a key={label} href={url} target="_blank" rel="noreferrer" className="group flex flex-col gap-1">
+                            <div className="aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+                              <img src={url} alt={label}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"/>
+                            </div>
+                            <p className="text-[10px] text-slate-400 text-center">{label}</p>
+                          </a>
+                        ) : (
+                          <div key={label} className="flex flex-col gap-1">
+                            <div className="aspect-square rounded-lg border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center">
+                              <span className="text-sm opacity-30">{label.split(" ")[0]}</span>
+                            </div>
+                            <p className="text-[10px] text-slate-300 text-center">{label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
+
+                  {/* ── Fingerprints ── */}
+                  {(c.sellerFpUrl || c.buyerFpUrl || c.witness1FpUrl || c.witness2FpUrl) && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Fingerprints</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {[
+                          { url: c.sellerFpUrl,   label: "Seller"   },
+                          { url: c.buyerFpUrl,    label: "Buyer"    },
+                          { url: c.witness1FpUrl, label: "W1"       },
+                          { url: c.witness2FpUrl, label: "W2"       },
+                        ].map(({ url, label }) => url ? (
+                          <a key={label} href={url} target="_blank" rel="noreferrer" className="group flex flex-col gap-1">
+                            <div className="aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+                              <img src={url} alt={label}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                style={{ filter: "contrast(1.5) grayscale(1)" }}/>
+                            </div>
+                            <p className="text-[9px] text-slate-400 text-center">{label}</p>
+                          </a>
+                        ) : (
+                          <div key={label} className="flex flex-col gap-1">
+                            <div className="aspect-square rounded-lg border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center">
+                              <svg className="w-4 h-4 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                                <path d="M12 2C8 2 5 5.5 5 9c0 5 3 9 7 13" strokeLinecap="round"/>
+                                <path d="M12 2c4 0 7 3.5 7 7 0 5-3 9-7 13" strokeLinecap="round"/>
+                              </svg>
+                            </div>
+                            <p className="text-[9px] text-slate-300 text-center">{label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                    <div className="flex items-center gap-3 text-xs text-slate-400">
+                      <span>Reg: <strong className="text-slate-600">{c.regNo || "—"}</strong></span>
+                      <span>Date: <strong className="text-slate-600">{c.date || "—"}</strong></span>
+                    </div>
+                    {c.pdfUrl && (
+                      <a href={c.pdfUrl} target="_blank" rel="noreferrer"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        PDF دیکھیں
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
