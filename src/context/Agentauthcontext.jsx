@@ -5,18 +5,23 @@ import axios from "axios";
 
 export const AgentAuthContext = createContext();
 
-// ── A plain axios instance used ONLY for the refresh-token call ──
-// This deliberately bypasses the agentApi interceptor to prevent
-// the infinite loop: refresh fails → interceptor tries to refresh → repeat
-const BASE = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-const plainAxios = axios.create({ baseURL: BASE, withCredentials: true });
+// ── Plain axios ONLY for refresh-token — bypasses the agentApi interceptor
+// to prevent the infinite loop: 401 → try refresh → 401 → repeat
+//
+// VITE_API_URL should be the full base including /api
+// e.g. https://api.khakigemstone.com/api  OR  http://localhost:8080/api
+const BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+
+const plainAxios = axios.create({
+  baseURL:         BASE,
+  withCredentials: true,   // sends the agentRefreshToken cookie
+});
 
 export const AgentAuthProvider = ({ children }) => {
   const [agent, setAgent]     = useState(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    // Always reset loading at the start
     setLoading(true);
     try {
       const res = await plainAxios.post("/agents/refresh-token");
@@ -28,11 +33,11 @@ export const AgentAuthProvider = ({ children }) => {
         setAgent(null);
       }
     } catch {
-      // Any error (401, network, CORS) — just mark as not logged in
+      // 401 = no cookie / expired — agent is simply not logged in
       window.agentAccessToken = null;
       setAgent(null);
     } finally {
-      // This ALWAYS runs — loading will never get stuck
+      // Always runs — loading never gets stuck
       setLoading(false);
     }
   }, []);
@@ -42,7 +47,6 @@ export const AgentAuthProvider = ({ children }) => {
   }, [refresh]);
 
   const login = async (credentials) => {
-    // Import agentApi here to avoid circular dependency issues
     const { default: agentApi } = await import("../services/agentServices/api.agentService");
     const res = await agentApi.post("/agents/login", credentials);
     window.agentAccessToken = res.data.accessToken;
@@ -54,7 +58,7 @@ export const AgentAuthProvider = ({ children }) => {
     try {
       await plainAxios.post("/agents/logout");
     } catch {
-      // Even if logout request fails, clear local state
+      // Ignore — clear state regardless
     } finally {
       window.agentAccessToken = null;
       setAgent(null);
