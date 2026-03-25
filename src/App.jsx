@@ -52,7 +52,7 @@ import ScrollToTop     from "./utils/ScrollToTop";
 ======================= */
 import AgentLogin  from "./components/stampGenerator/auth/Agentlogin";
 import CreateAgent from "./components/stampGenerator/auth/CreateAgent";
-import StampSearch from "./components/stampGenerator/stampSearch";
+import StampSearch from "./components/stampGenerator/Stampsearch";
 
 /* =======================
    💼 INVESTOR (LAZY)
@@ -74,7 +74,7 @@ const AdminLayout = lazy(() => import("./Layout/AdminLayout"));
 /* =======================
    📃 STAMP GENERATOR (LAZY)
 ======================= */
-const StampPage = lazy(() => import("./pages/stamp/stampPage"));
+const StampGeneratorApp = lazy(() => import("./pages/stamp/stampPage"));
 
 const Loader = () => (
   <div style={{ padding: "3rem", textAlign: "center" }}>Loading...</div>
@@ -170,7 +170,7 @@ function App() {
                 element={
                   <AgentProtectedRoute>
                     <Suspense fallback={<Loader />}>
-                      <StampPage />
+                      <StampGeneratorApp />
                     </Suspense>
                   </AgentProtectedRoute>
                 }
