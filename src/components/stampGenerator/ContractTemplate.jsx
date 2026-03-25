@@ -8,6 +8,7 @@ export default function ContractTemplate({
   sellerPhoto,
   buyerPhoto,
   signatures = {},
+  fingerprints = {},
 }) {
   const intrinsic = canvasWidth || 900;
 
@@ -133,12 +134,12 @@ export default function ContractTemplate({
         {/* ── 4-column signature row ── */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: `${10 * scale}px`, marginTop: `${18 * scale}px`, direction: "rtl" }}>
           {[
-            { cnic: d.witness1Cnic, name: d.witness1Name, tehsil: d.witness1Tehsil, tag: "گواہ شد", sigKey: "witness1" },
-            { cnic: d.sellerCnic,   name: d.sellerName,   tehsil: d.sellerTehsil,   tag: "الحد",   sigKey: "seller"   },
-            { cnic: d.buyerCnic,    name: d.buyerName,    tehsil: d.buyerTehsil,    tag: "الحد",   sigKey: "buyer"    },
-            { cnic: d.witness2Cnic, name: d.witness2Name, tehsil: d.witness2Tehsil, tag: "گواہ شد", sigKey: "witness2" },
+            { cnic: d.witness1Cnic, name: d.witness1Name, tehsil: d.witness1Tehsil, tag: "گواہ شد", sigKey: "witness1", fpKey: "witness1Fp" },
+            { cnic: d.sellerCnic,   name: d.sellerName,   tehsil: d.sellerTehsil,   tag: "الحد",   sigKey: "seller",   fpKey: "sellerFp"   },
+            { cnic: d.buyerCnic,    name: d.buyerName,    tehsil: d.buyerTehsil,    tag: "الحد",   sigKey: "buyer",    fpKey: "buyerFp"    },
+            { cnic: d.witness2Cnic, name: d.witness2Name, tehsil: d.witness2Tehsil, tag: "گواہ شد", sigKey: "witness2", fpKey: "witness2Fp" },
           ].map((person, i) => (
-            <SignatureBox key={i} person={person} sig={signatures[person.sigKey]} scale={scale} />
+            <SignatureBox key={i} person={person} sig={signatures[person.sigKey]} fp={fingerprints[person.fpKey]} scale={scale} />
           ))}
         </div>
 
@@ -171,7 +172,7 @@ function PhotoBox({ label, photo, scale }) {
   );
 }
 
-function SignatureBox({ person, sig, scale }) {
+function SignatureBox({ person, sig, fp, scale }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", fontSize: `${10 * scale}px`, gap: `${4 * scale}px` }}>
       <div style={{ color: "#555", fontSize: `${9 * scale}px` }}>
@@ -187,18 +188,25 @@ function SignatureBox({ person, sig, scale }) {
           ? <img src={sig} alt="sig" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           : <span style={{ color: "#ddd", fontSize: `${9 * scale}px` }}>دستخط</span>}
       </div>
+      {/* Fingerprint box */}
       <div style={{
-        width: `${36 * scale}px`, height: `${36 * scale}px`,
-        border: `${1 * scale}px dashed #bbb`, borderRadius: `${4 * scale}px`,
-        backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center",
+        width: `${70 * scale}px`, height: `${90 * scale}px`,
+        border: `${1 * scale}px solid #bbb`, borderRadius: `${4 * scale}px`,
+        backgroundColor: "#fafafa", overflow: "hidden",
+        display: "flex", alignItems: "center", justifyContent: "center",
       }}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.2"
-          style={{ width: `${20 * scale}px`, height: `${20 * scale}px` }}>
-          <path d="M12 2C8 2 5 5.5 5 9c0 5 3 9 7 13" strokeLinecap="round"/>
-          <path d="M12 2c4 0 7 3.5 7 7 0 5-3 9-7 13" strokeLinecap="round"/>
-          <path d="M9 9c0-1.7 1.3-3 3-3s3 1.3 3 3c0 3-1.5 6-3 9" strokeLinecap="round"/>
-          <path d="M7 8c.3-3 2.3-5 5-5" strokeLinecap="round"/>
-        </svg>
+        {fp ? (
+          <img src={fp} alt="fp"
+            style={{ width: "100%", height: "100%", objectFit: "cover", filter: "contrast(1.4) grayscale(1)" }} />
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.2"
+            style={{ width: `${20 * scale}px`, height: `${20 * scale}px` }}>
+            <path d="M12 2C8 2 5 5.5 5 9c0 5 3 9 7 13" strokeLinecap="round"/>
+            <path d="M12 2c4 0 7 3.5 7 7 0 5-3 9-7 13" strokeLinecap="round"/>
+            <path d="M9 9c0-1.7 1.3-3 3-3s3 1.3 3 3c0 3-1.5 6-3 9" strokeLinecap="round"/>
+            <path d="M7 8c.3-3 2.3-5 5-5" strokeLinecap="round"/>
+          </svg>
+        )}
       </div>
       <div style={{ width: "100%", borderTop: `${1 * scale}px solid #888`, paddingTop: `${4 * scale}px` }}>
         <div style={{ fontWeight: "bold", fontSize: `${11 * scale}px` }}>{person.name || ""}</div>

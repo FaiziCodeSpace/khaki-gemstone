@@ -85,7 +85,7 @@ export function ProductDetails({ product }) {
             {product?.gem_size && (
               <div>
                 <h2 className="list-heading text-lg font-bold">Gem Size</h2>
-                <ul className='list-styling'><li>{product.gem_size} mm</li></ul>
+                <ul className='list-styling'><li>{product.gem_size}</li></ul>
               </div>
             )}
 
