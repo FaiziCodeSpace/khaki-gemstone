@@ -22,6 +22,9 @@ const EMPTY_CONTRACT = {
   date: "",
   witness1Name: "", witness1Cnic: "", witness1Tehsil: "",
   witness2Name: "", witness2Cnic: "", witness2Tehsil: "",
+  numberPlate: "دو عدد نمبر پلیٹ",
+  remainingClause: "",
+  conditions: "",
 };
 
 const EMPTY_SIGS = { seller: null, buyer: null, witness1: null, witness2: null };
@@ -121,7 +124,7 @@ export default function StampGeneratorApp() {
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [currentStep]);
 
-  const previewProps = { pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, fingerprints, agentName: agent?.fullName };
+  const previewProps = { pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, agentName: agent?.fullName };
   const sc = STATUS_CONFIG[agentStatus];
 
   return (
@@ -442,16 +445,16 @@ function PhotoUploadSection({ sellerPhoto, buyerPhoto, onSellerPhoto, onBuyerPho
       <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
         <PhotoBox label="فریق اول — Seller" photo={sellerPhoto}
           onPhoto={(f) => toDataURL(f, onSellerPhoto)} onClear={() => onSellerPhoto(null)}
-          cameraId="seller-camera" />
+          galleryId="seller-gallery" cameraId="seller-camera" />
         <PhotoBox label="فریق دوم — Buyer" photo={buyerPhoto}
           onPhoto={(f) => toDataURL(f, onBuyerPhoto)} onClear={() => onBuyerPhoto(null)}
-          cameraId="buyer-camera" />
+          galleryId="buyer-gallery" cameraId="buyer-camera" />
       </div>
     </div>
   );
 }
 
-function PhotoBox({ label, photo, onPhoto, onClear, cameraId }) {
+function PhotoBox({ label, photo, onPhoto, onClear, galleryId, cameraId }) {
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm font-semibold text-slate-700">{label}</p>
@@ -460,36 +463,36 @@ function PhotoBox({ label, photo, onPhoto, onClear, cameraId }) {
           <img src={photo} alt="" className="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm"/>
           <button onClick={onClear}
             className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-slate-500 hover:text-red-500">✕</button>
-          {/* Retake button overlaid at bottom */}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {/* Gallery pick */}
+          <div onClick={() => document.getElementById(galleryId).click()}
+            className="w-full aspect-[4/5] rounded-xl border-2 border-dashed border-slate-200 hover:bg-slate-50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group">
+            <div className="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center">
+              <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <p className="text-xs text-slate-400">Gallery</p>
+          </div>
+          {/* Camera capture button */}
           <button onClick={() => document.getElementById(cameraId).click()}
-            className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 hover:bg-black/80 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full backdrop-blur transition-colors">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            className="flex items-center justify-center gap-2 w-full py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            Retake
+            Open Camera
           </button>
         </div>
-      ) : (
-        /* Camera-only tap area */
-        <div onClick={() => document.getElementById(cameraId).click()}
-          className="w-full aspect-[4/5] rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50 hover:bg-emerald-100 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all group">
-          <div className="w-14 h-14 rounded-full bg-emerald-100 group-hover:bg-emerald-200 flex items-center justify-center transition-colors">
-            <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-semibold text-emerald-700">کیمرہ کھولیں</p>
-            <p className="text-[11px] text-emerald-500 mt-0.5">Tap to open camera</p>
-          </div>
-        </div>
       )}
-      {/* Camera-only input: capture="user" = front camera (selfie), use "environment" for back */}
-      <input id={cameraId} type="file" accept="image/*" capture="user" className="hidden"
+      {/* Gallery input — no capture attribute = file picker */}
+      <input id={galleryId} type="file" accept="image/*" className="hidden"
+        onChange={(e) => onPhoto(e.target.files[0])} />
+      {/* Camera input — capture="environment" = back camera on tablets */}
+      <input id={cameraId} type="file" accept="image/*" capture="environment" className="hidden"
         onChange={(e) => onPhoto(e.target.files[0])} />
     </div>
   );
@@ -513,10 +516,16 @@ function FingerprintBox({ label, sub, value, onCapture, onClear, inputId }) {
 
       {value ? (
         <div className="relative w-full aspect-square">
-          <img src={value} alt="fingerprint"
-            className="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm" style={{ filter: "contrast(1.5) grayscale(1)" }}/>
+          <img 
+            src={value} 
+            alt="fingerprint"
+            className="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm" 
+            style={{ filter: "contrast(1.5) grayscale(1)" }}
+          />
           <button onClick={onClear}
-            className="absolute top-1 right-1 bg-white rounded-full w-5 h-5 flex items-center justify-center text-[9px] shadow text-slate-500 hover:text-red-500">✕</button>
+            className="absolute top-1 right-1 bg-white rounded-full w-5 h-5 flex items-center justify-center text-[9px] shadow text-slate-500 hover:text-red-500">
+            ✕
+          </button>
         </div>
       ) : (
         <div onClick={() => document.getElementById(inputId).click()}
@@ -526,19 +535,24 @@ function FingerprintBox({ label, sub, value, onCapture, onClear, inputId }) {
             <path d="M12 2c4 0 7 3.5 7 7 0 5-3 9-7 13" strokeLinecap="round"/>
             <path d="M9 9c0-1.7 1.3-3 3-3s3 1.3 3 3c0 3-1.5 6-3 9" strokeLinecap="round"/>
           </svg>
-          <p className="text-[9px] font-bold text-slate-300 uppercase">Upload</p>
+          <p className="text-[9px] font-bold text-slate-300 uppercase">Gallery</p>
         </div>
       )}
 
-      {/* Camera input for fingerprint scanner — capture="environment" opens back camera */}
-      <input id={inputId} type="file" accept="image/*" capture="environment" className="hidden"
-        onChange={(e) => toDataURL(e.target.files[0], onCapture)} />
+      {/* REMOVED capture="environment" to ensure Gallery opens instead of Camera */}
+      <input 
+        id={inputId} 
+        type="file" 
+        accept="image/*" 
+        className="hidden"
+        onChange={(e) => toDataURL(e.target.files[0], onCapture)} 
+      />
     </div>
   );
 }
 
 /* ── Contract Preview ── */
-function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, fingerprints, agentName }) {
+function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, agentName }) {
   const canvasRef     = useRef(null);
   const wrapperRef    = useRef(null);
   const renderTaskRef = useRef(null);
@@ -595,7 +609,6 @@ function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, c
               sellerPhoto={sellerPhoto}
               buyerPhoto={buyerPhoto}
               signatures={signatures}
-              fingerprints={fingerprints}
             />
           </div>
           {/* Agent watermark */}

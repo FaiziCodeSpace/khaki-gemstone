@@ -1,24 +1,20 @@
+// ContractTemplate.jsx
 export default function ContractTemplate({
   topMargin,
   canvasWidth,
   displayWidth,
-  fontSize   = 13,
-  paddingH   = 98,
+  fontSize     = 13,
+  paddingH     = 98,
   data,
   sellerPhoto,
   buyerPhoto,
-  signatures = {},
+  signatures   = {},
   fingerprints = {},
 }) {
-  const intrinsic = canvasWidth || 900;
-
-  // scale factor relative to our design baseline of 900px
-  const scale = intrinsic / 900;
-
-  // CSS display scale: how much the canvas is shrunk by the browser
+  const intrinsic    = canvasWidth || 900;
+  const scale        = intrinsic / 900;
   const displayScale = displayWidth ? displayWidth / intrinsic : 1;
-
-  const d = data;
+  const d            = data;
 
   const formatDate = (val) => {
     if (!val) return "۔۔۔";
@@ -29,12 +25,6 @@ export default function ContractTemplate({
   const F = ({ val, fallback = "۔۔۔" }) => <strong>{val || fallback}</strong>;
 
   return (
-    /*
-     * The wrapper sits at the top-left of the canvas container.
-     * It is scaled down by `displayScale` so it exactly matches the
-     * visually-rendered canvas size regardless of screen width.
-     * transform-origin: top left ensures it scales from the same corner as the canvas.
-     */
     <div
       data-template-scaler="true"
       style={{
@@ -47,21 +37,20 @@ export default function ContractTemplate({
         pointerEvents:   "none",
       }}
     >
-      {/* Inner content positioned inside the intrinsic space */}
       <div
         data-contract-overlay="true"
         dir="rtl"
         style={{
-          position:    "absolute",
-          top:         `${topMargin}px`,
-          left:        0,
-          width:       "100%",
-          fontFamily:  "'Noto Nastaliq Urdu', serif",
-          fontSize:    `${fontSize * scale}px`,
-          lineHeight:  2.22,
-          color:       "#111",
-          padding:     `${10 * scale}px ${paddingH * scale}px`,
-          boxSizing:   "border-box",
+          position:   "absolute",
+          top:        `${topMargin}px`,
+          left:       0,
+          width:      "100%",
+          fontFamily: "'Noto Nastaliq Urdu', serif",
+          fontSize:   `${fontSize * scale}px`,
+          lineHeight: 2.22,
+          color:      "#111",
+          padding:    `${10 * scale}px ${paddingH * scale}px`,
+          boxSizing:  "border-box",
         }}
       >
         {/* ── Photo + Title ── */}
@@ -77,69 +66,91 @@ export default function ContractTemplate({
 
         {/* ── Party 1 ── */}
         <p style={{ margin: `${3 * scale}px 0` }}>
-          مالک: <F val={d.sellerName} /> ولد <F val={d.sellerFather} /> ساکنہ <F val={d.sellerMohalla} /> <F val={d.sellerTehsil} /> (فریق اول)۔
+          مالک: <F val={d.sellerName} /> ولد <F val={d.sellerFather} /> سکنہ <F val={d.sellerMohalla} /> <F val={d.sellerTehsil} /> (فریق اول)۔
         </p>
 
         {/* ── Party 2 ── */}
         <p style={{ margin: `${3 * scale}px 0` }}>
-          <F val={d.buyerName} /> ولد <F val={d.buyerFather} /> ساکنہ <F val={d.buyerMohalla} /> <F val={d.buyerTehsil} /> (فریق دوم)۔
+          <F val={d.buyerName} /> ولد <F val={d.buyerFather} /> سکنہ <F val={d.buyerMohalla} /> <F val={d.buyerTehsil} /> (فریق دوم)۔
         </p>
 
         {/* ── Car details ── */}
         <p style={{ margin: `${3 * scale}px 0` }}>
-          بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی نمبر <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> باڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
+          بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی نمبر <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> ماڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیزز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
         </p>
 
         {/* ── Payment paragraph ── */}
         {d.paymentMode === "advance" ? (
+
+          // ── Advance / Partial Payment ──
           <p style={{ margin: `${3 * scale}px 0` }}>
-            فریق اول نے گاڑی مذکورہ بالامعہ کاغذات بدست فریق دوم بعوض مبلغ کل{" "}
-            <F val={d.priceNum ? `${d.priceNum}/-` : ""} /> روپے{" "}
-            (<F val={d.priceWords} /> روپے) فروخت کردی ہے۔
-            جس میں سے بعنوان پیشگی مبلغ{" "}
-            <F val={d.advanceNum ? `${d.advanceNum}/-` : ""} /> روپے{" "}
-            (<F val={d.advanceWords} /> روپے) نقد روبرو گواہان از فریق دوم وصول کرلیے ہیں۔
-            بقایا مبلغ <F val={d.remainingNum ? `${d.remainingNum}/-` : ""} /> روپے{" "}
-            (<F val={d.remainingWords} /> روپے) مورخہ <F val={formatDate(d.dueDate)} /> کو ادا کیے جائیں گے۔
-            گاڑی بمعہ رجسٹریشن کاپی، ٹرانسفر لیٹر، دو عدد نمبر پلیٹ، حوالہ فریق دوم کردی ہے۔
-            گاڑی کی ملکیت قانونی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری دھوکہ دہی نہیں ہے۔
-            مورخہ <F val={formatDate(d.date)} /> سے قبل اگر گاڑی چوری کی نکلی یا انجن نمبر یا چیسز نمبر میں ٹمپرنگ پائی گئی یا گاڑی کے کاغذات میں کوئی قانونی سقم ہوا تو اس کا ذمہ دار فریق اول ہوگا۔
-            آج کے بعد چالان، ایکسیڈنٹ، <strong>FIR</strong>، ٹوکن بذمہ فریق دوم ہوں گے۔
+            سواب فریق اول نے گاڑی مذکورہ بالامعہ کاغذات بدست فریق دوم بعوض مبلغ{" "}
+            <F val={d.priceNum ? `${d.priceNum}` : ""} /> روپے{" "}
+            (<F val={d.priceWords} /> روپے) فروخت کردی ہے۔اور سالم رقم سے مبلغ{" "}
+            <F val={d.advanceNum ? `${d.advanceNum}` : ""} /> روپے{" "}
+            (<F val={d.advanceWords} /> روپے) نقد ازاں فریق دوم روبروگواہان وصول کر لیے ہیں اور{" "}
+
+            {/*
+              ── DYNAMIC REMAINING CLAUSE ──
+              If the agent has typed a custom clause, use it verbatim (bold).
+              Otherwise fall back to the standard sentence with dynamic values.
+            */}
+            {d.remainingClause ? (
+              <strong>{d.remainingClause}</strong>
+            ) : (
+              <>
+                بقایا رقم مبلغ{" "}
+                <F val={d.remainingNum ? `${d.remainingNum}` : ""} /> روپے{" "}
+                (<F val={d.remainingWords} /> روپے) فریق دوم مورخہ <F val={formatDate(d.dueDate)} /> کو ادا کرنے کا پابند وذمہ دار ہوگا۔ اور گاڑی کے جملہ کاغذات رجسٹریشن وغیرہ فریق اول مورخہ <F val={formatDate(d.dueDate)} /> بوقت وصولی بقایا رقم دینے کا پابند وذ مہ دار ہوگا۔
+              </>
+            )}
+
+            {" "}گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے ۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے ۔ اور آج سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ <strong>FIR</strong> بذمہ فریق اول ہونگے اور آج کے بعد چالان، ٹیکس، ایکسیڈنٹ، <strong>FIR</strong> ، بذمہ فریق دوم ہوں گے۔ اگر فریق دوم نے بقایا رقم مقررہ تاریخ تک ادا نہ کی تو سودا منسوخ تصور ہوگا۔ اور ادا شدہ رقم ضبط تصور ہوگی۔ اور فریق اول گاڑی پکڑنے کا حق دار ہوگا۔ لہذا اقرار نامہ ہذا بعد سن وسمجھ لینے کے مضمون کے بحق فریق دوم سندا تحریر وتکمیل ہے ۔
           </p>
+
         ) : (
+
+          // ── Full Payment ──
           <p style={{ margin: `${3 * scale}px 0` }}>
-            فریق اول نے گاڑی مذکورہ بالامعہ کاغذات بدست فریق دوم بعوض مبلغ{" "}
-            <F val={d.priceNum ? `${d.priceNum}/-` : ""} /> روپے{" "}
-            (<F val={d.priceWords} /> روپے) فروخت کردی ہے۔
-            فریق دوم نے کل رقم مبلغ <F val={d.priceNum ? `${d.priceNum}/-` : ""} /> روپے{" "}
-            نقد روبرو گواہان ادا کردی اور فریق اول نے وصول کرلی۔ اور کوئی مطالبہ باقی نہیں۔
-            گاڑی بمعہ رجسٹریشن کاپی، ٹرانسفر لیٹر، دو عدد نمبر پلیٹ، حوالہ فریق دوم کردی ہے۔
-            گاڑی کی ملکیت قانونی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری دھوکہ دہی نہیں ہے۔
-            مورخہ <F val={formatDate(d.date)} /> سے قبل اگر گاڑی چوری کی نکلی یا انجن نمبر یا چیسز نمبر میں ٹمپرنگ پائی گئی یا گاڑی کے کاغذات میں کوئی قانونی سقم ہوا تو اس کا ذمہ دار فریق اول ہوگا۔
-            آج کے بعد چالان، ایکسیڈنٹ، <strong>FIR</strong>، ٹوکن بذمہ فریق دوم ہوں گے۔
+            سواب فریق اول نے گاڑی مذکورہ بالامعہ کاغذات بدست فریق دوم بعوض مبلغ{" "}
+            <F val={d.priceNum ? `${d.priceNum}` : ""} /> روپے{" "}
+            (<F val={d.priceWords} /> روپے) فروخت کردی ہے۔اور فریق اول نے سالم رقم مبلغ{" "}
+            <F val={d.priceNum ? `${d.priceNum}` : ""} /> روپے{" "}
+            (<F val={d.priceWords} /> روپے) نقد روبرو گواہان ازاں فریق دوم وصول کرلیے ہیں۔ گاڑی بمعہ جملہ کاغذات رجسٹریشن کاپی، ٹرانسفر لیٹر،{" "}
+            {/* ── DYNAMIC NUMBER PLATE — blank = sentence omits it cleanly ── */}
+            {d.numberPlate ? <>{d.numberPlate}، </> : null}
+            حوالہ فریق دوم کردیے ہیں۔ گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے ۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے ۔ اور آج کی بعد فریق اول اور اس کے ورثاء کا گاڑی مذکورہ کے ساتھ تعلق واسطہ نہیں رہا ہے اور نہ ہوگا۔اور آج سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ <strong>FIR</strong> بذمہ فریق اول ہونگے اور آج کے بعد چالان، ٹیکس، ایکسیڈنٹ، <strong>FIR</strong> ، بذمہ فریق دوم ہوں گے۔ لہذا اقرار نامہ ہذا بعد سن وسمجھ لینے کے مضمون کے بحق فریق دوم سندا تحریر وتکمیل ہے ۔
+          </p>
+
+        )}
+
+        {/* ── Extra conditions (shown in both modes if filled) ── */}
+        {d.conditions && d.conditions.trim() && (
+          <p style={{ margin: `${6 * scale}px 0`, borderTop: `${0.5 * scale}px dashed #aaa`, paddingTop: `${6 * scale}px` }}>
+            <strong>شرائط:</strong> {d.conditions}
           </p>
         )}
 
-        {/* ── Closing ── */}
-        <p style={{ margin: `${3 * scale}px 0` }}>
-          لہذا اقرار نامہ ہذا بقائمی ہوش و حواس خمسہ برضا و رغبت بلا جبر و اکراہ روبرو گواہان تحریر کرادیا تاکہ سند رہے۔
-        </p>
-
         {/* ── Date row ── */}
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: `${14 * scale}px`, fontSize: `${11 * scale}px` }}>
-          <span>فریق دوم سند تحریر تکمیل ہے۔</span>
+        <div style={{ display: "flex", justifyContent: "left", marginTop: `${14 * scale}px`, fontSize: `${11 * scale}px` }}>
           <span>مورخہ <strong>{formatDate(d.date)}</strong></span>
         </div>
 
         {/* ── 4-column signature row ── */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: `${10 * scale}px`, marginTop: `${18 * scale}px`, direction: "rtl" }}>
           {[
-            { cnic: d.witness1Cnic, name: d.witness1Name, tehsil: d.witness1Tehsil, tag: "گواہ شد", sigKey: "witness1", fpKey: "witness1Fp" },
-            { cnic: d.sellerCnic,   name: d.sellerName,   tehsil: d.sellerTehsil,   tag: "الحد",   sigKey: "seller",   fpKey: "sellerFp"   },
-            { cnic: d.buyerCnic,    name: d.buyerName,    tehsil: d.buyerTehsil,    tag: "الحد",   sigKey: "buyer",    fpKey: "buyerFp"    },
-            { cnic: d.witness2Cnic, name: d.witness2Name, tehsil: d.witness2Tehsil, tag: "گواہ شد", sigKey: "witness2", fpKey: "witness2Fp" },
+            { cnic: d.witness1Cnic, name: d.witness1Name, tehsil: d.witness1Tehsil, tag: "گواہ شد",  sigKey: "witness1", fpKey: "witness1Fp" },
+            { cnic: d.sellerCnic,   name: d.sellerName,   tehsil: d.sellerTehsil,   tag: "العبد",    sigKey: "seller",   fpKey: "sellerFp"   },
+            { cnic: d.buyerCnic,    name: d.buyerName,    tehsil: d.buyerTehsil,    tag: "العبد",    sigKey: "buyer",    fpKey: "buyerFp"    },
+            { cnic: d.witness2Cnic, name: d.witness2Name, tehsil: d.witness2Tehsil, tag: "گواہ شد",  sigKey: "witness2", fpKey: "witness2Fp" },
           ].map((person, i) => (
-            <SignatureBox key={i} person={person} sig={signatures[person.sigKey]} fp={fingerprints[person.fpKey]} scale={scale} />
+            <SignatureBox
+              key={i}
+              person={person}
+              sig={signatures[person.sigKey]}
+              fp={fingerprints[person.fpKey]}
+              scale={scale}
+            />
           ))}
         </div>
 
@@ -152,8 +163,8 @@ function PhotoBox({ label, photo, scale }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: `${4 * scale}px` }}>
       <div style={{
-        width: `${70 * scale}px`, height: `${80 * scale}px`,
-        border: `${1.5 * scale}px solid #999`, borderRadius: `${4 * scale}px`,
+        width: `${120 * scale}px`, height: `${120 * scale}px`,
+        border: `${1.5 * scale}px solid #999`, borderRadius: "50%",
         overflow: "hidden", backgroundColor: "#f1f5f9",
         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
       }}>
@@ -167,7 +178,7 @@ function PhotoBox({ label, photo, scale }) {
           </svg>
         )}
       </div>
-      <span style={{ fontSize: `${10 * scale}px`, color: "#555" }}>{label}</span>
+      <span style={{ fontSize: `${15 * scale}px`, color: "#555" }}>{label}</span>
     </div>
   );
 }
@@ -175,7 +186,7 @@ function PhotoBox({ label, photo, scale }) {
 function SignatureBox({ person, sig, fp, scale }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", fontSize: `${10 * scale}px`, gap: `${4 * scale}px` }}>
-      <div style={{ color: "#555", fontSize: `${9 * scale}px` }}>
+      <div style={{ color: "#555", fontSize: `${15 * scale}px` }}>
         {person.tag} {person.cnic || ""}
       </div>
       <div style={{
@@ -188,7 +199,6 @@ function SignatureBox({ person, sig, fp, scale }) {
           ? <img src={sig} alt="sig" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           : <span style={{ color: "#ddd", fontSize: `${9 * scale}px` }}>دستخط</span>}
       </div>
-      {/* Fingerprint box */}
       <div style={{
         width: `${70 * scale}px`, height: `${90 * scale}px`,
         border: `${1 * scale}px solid #bbb`, borderRadius: `${4 * scale}px`,
@@ -201,10 +211,10 @@ function SignatureBox({ person, sig, fp, scale }) {
         ) : (
           <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.2"
             style={{ width: `${20 * scale}px`, height: `${20 * scale}px` }}>
-            <path d="M12 2C8 2 5 5.5 5 9c0 5 3 9 7 13" strokeLinecap="round"/>
-            <path d="M12 2c4 0 7 3.5 7 7 0 5-3 9-7 13" strokeLinecap="round"/>
-            <path d="M9 9c0-1.7 1.3-3 3-3s3 1.3 3 3c0 3-1.5 6-3 9" strokeLinecap="round"/>
-            <path d="M7 8c.3-3 2.3-5 5-5" strokeLinecap="round"/>
+            <path d="M12 2C8 2 5 5.5 5 9c0 5 3 9 7 13" strokeLinecap="round" />
+            <path d="M12 2c4 0 7 3.5 7 7 0 5-3 9-7 13" strokeLinecap="round" />
+            <path d="M9 9c0-1.7 1.3-3 3-3s3 1.3 3 3c0 3-1.5 6-3 9" strokeLinecap="round" />
+            <path d="M7 8c.3-3 2.3-5 5-5" strokeLinecap="round" />
           </svg>
         )}
       </div>
