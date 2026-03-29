@@ -54,7 +54,7 @@ export default function StampUpload({ onPdfLoaded }) {
         const page    = await pdfDoc.getPage(1);
         
         // Android WebView performance tip: Use a standard scale
-        const viewport = page.getViewport({ scale: 1.2 });
+        const viewport = page.getViewport({ scale: 1.5 });
         const canvas  = canvasRef.current;
         if (!canvas || cancelled) return;
 

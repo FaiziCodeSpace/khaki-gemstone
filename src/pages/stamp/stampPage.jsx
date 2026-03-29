@@ -69,7 +69,7 @@ export default function StampGeneratorApp() {
   const [currentStep, setCurrentStep]   = useState(1);
   const [pdfData, setPdfData]           = useState(null);
   const [topMargin, setTopMargin]       = useState(200);
-  const [fontSize, setFontSize]         = useState(13);
+  const [fontSize, setFontSize]         = useState(14);
   const [paddingH, setPaddingH]         = useState(98);
   const [contractData, setContractData] = useState(EMPTY_CONTRACT);
   const [sellerPhoto, setSellerPhoto]   = useState(null);
@@ -88,7 +88,7 @@ export default function StampGeneratorApp() {
 
   const handlePdfLoaded = (data) => {
     setPdfData(data);
-    setTopMargin(Math.round(data.canvasHeight * 0.20));
+    setTopMargin(Math.round(data.canvasHeight * 0.32));
   };
 
   const handleFieldChange = (field, value) =>
