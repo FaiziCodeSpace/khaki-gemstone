@@ -124,7 +124,7 @@ export default function StampGeneratorApp() {
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [currentStep]);
 
-  const previewProps = { pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, agentName: agent?.fullName };
+  const previewProps = { pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, fingerprints, agentName: agent?.fullName };
   const sc = STATUS_CONFIG[agentStatus];
 
   return (
@@ -333,6 +333,7 @@ export default function StampGeneratorApp() {
                 previewRef={previewRef}
                 contractData={contractData}
                 pdfDoc={pdfData.pdfDoc}
+                pdfScale={pdfData.pdfScale || 1.2}
                 vehicleImages={{ chassisImg, carImg, engineImg }}
                 fingerprints={fingerprints}
               />
@@ -552,7 +553,7 @@ function FingerprintBox({ label, sub, value, onCapture, onClear, inputId }) {
 }
 
 /* ── Contract Preview ── */
-function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, agentName }) {
+function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, fingerprints, agentName }) {
   const canvasRef     = useRef(null);
   const wrapperRef    = useRef(null);
   const renderTaskRef = useRef(null);
@@ -564,7 +565,7 @@ function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, c
     const render = async () => {
       if (renderTaskRef.current) { try { renderTaskRef.current.cancel(); } catch (_) {} renderTaskRef.current = null; }
       const page     = await pdfData.pdfDoc.getPage(1);
-      const viewport = page.getViewport({ scale: 1.5 });
+      const viewport = page.getViewport({ scale: pdfData?.pdfScale || 1.2 });
       const canvas   = canvasRef.current;
       if (!canvas || cancelled) return;
       canvas.width = viewport.width; canvas.height = viewport.height;
@@ -609,6 +610,7 @@ function ContractPreview({ previewRef, pdfData, topMargin, fontSize, paddingH, c
               sellerPhoto={sellerPhoto}
               buyerPhoto={buyerPhoto}
               signatures={signatures}
+              fingerprints={fingerprints}
             />
           </div>
           {/* Agent watermark */}
