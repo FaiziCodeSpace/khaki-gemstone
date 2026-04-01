@@ -38,7 +38,7 @@ export default function FormBox() {
         profitSharingModel: "",
         details: { gemstone: "", cut_type: "", color: "", clarity: "" },
         more_information: { weight: "", origin: "", treatment: "", refractive_index: "" },
-        isLimitedProduct: false,
+        isLimitedProduct: false, // Always false by default
     });
 
     const [tags, setTags] = useState([]);
@@ -129,7 +129,8 @@ export default function FormBox() {
                             treatment: data.more_information?.treatment || "",
                             refractive_index: data.more_information?.refractive_index || "",
                         },
-                        isLimitedProduct: data.isLimitedProduct || false,
+                        // Explicitly cast to boolean so a missing/null field stays false
+                        isLimitedProduct: data.isLimitedProduct === true,
                     });
                     setTags(data.tags || []);
                     setPreviews({
@@ -159,6 +160,59 @@ export default function FormBox() {
             ...prev,
             [section]: { ...prev[section], [name]: value ?? "" }
         }));
+    };
+
+    // --- TAG HELPERS ---
+    // Parse a raw string into cleaned, unique, non-empty tags
+    const parseTagString = (raw) => {
+        return raw
+            .split(",")
+            .map(t => t.trim())
+            .filter(t => t.length > 0);
+    };
+
+    // Add tags from the current input, supporting comma-separated values
+    const commitTagInput = () => {
+        const incoming = parseTagString(tagInput);
+        if (incoming.length === 0) return;
+        setTags(prev => {
+            const next = [...prev];
+            incoming.forEach(t => { if (!next.includes(t)) next.push(t); });
+            return next;
+        });
+        setTagInput("");
+    };
+
+    const handleTagKeyDown = (e) => {
+        // Commit on Enter or comma
+        if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            commitTagInput();
+        }
+    };
+
+    const handleTagChange = (e) => {
+        const val = e.target.value;
+        // If the user just typed or pasted something ending in a comma, commit immediately
+        if (val.endsWith(",")) {
+            const withoutTrailingComma = val.slice(0, -1);
+            const incoming = parseTagString(withoutTrailingComma);
+            if (incoming.length > 0) {
+                setTags(prev => {
+                    const next = [...prev];
+                    incoming.forEach(t => { if (!next.includes(t)) next.push(t); });
+                    return next;
+                });
+                setTagInput("");
+                return;
+            }
+        }
+        setTagInput(val);
+    };
+
+    const handleTagBlur = () => {
+        // Commit whatever is in the input when the field loses focus
+        commitTagInput();
     };
 
     // --- COMPRESSION HANDLERS ---
@@ -448,13 +502,15 @@ export default function FormBox() {
                                         {tag} <X size={12} className="cursor-pointer" onClick={() => setTags(tags.filter((_, i) => i !== idx))} />
                                     </span>
                                 ))}
-                                <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => {
-                                    if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
-                                        e.preventDefault();
-                                        if (!tags.includes(tagInput.trim())) setTags([...tags, tagInput.trim()]);
-                                        setTagInput("");
-                                    }
-                                }} className="flex-1 outline-none text-sm bg-transparent" placeholder="Type & Enter..." />
+                                <input
+                                    type="text"
+                                    value={tagInput}
+                                    onChange={handleTagChange}
+                                    onKeyDown={handleTagKeyDown}
+                                    onBlur={handleTagBlur}
+                                    className="flex-1 outline-none text-sm bg-transparent"
+                                    placeholder="Type & Enter, or paste comma-separated..."
+                                />
                             </div>
                         </div>
                         <div className="bg-pink-50 p-6 rounded-2xl flex items-center justify-between border border-pink-100">
@@ -463,7 +519,13 @@ export default function FormBox() {
                                 <p className="text-[10px] text-pink-400 font-bold uppercase tracking-tight">Show Badge</p>
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" name="isLimitedProduct" checked={formData.isLimitedProduct || false} onChange={handleChange} className="sr-only peer" />
+                                <input
+                                    type="checkbox"
+                                    name="isLimitedProduct"
+                                    checked={formData.isLimitedProduct}
+                                    onChange={handleChange}
+                                    className="sr-only peer"
+                                />
                                 <div className="w-12 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#CA0A7F] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6"></div>
                             </label>
                         </div>
