@@ -13,7 +13,7 @@ export default function TermsAndConditions() {
     return (
         <div className="bg-white text-black font-sans">
             {/* Hero Section */}
-            <section className="relative py-24 md:py-40 bg-[#CA0A7F] text-white overflow-hidden">
+            <section className="relative pt-55 pb-40 bg-[#CA0A7F] text-white overflow-hidden">
                 <div className="absolute inset-0 opacity-10 z-10">
                     <div className="absolute transform -rotate-12 -right-10 -bottom-10 color-white">
                         <FileText size={450} strokeWidth={0.5} />

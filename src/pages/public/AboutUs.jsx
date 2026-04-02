@@ -17,7 +17,7 @@ export default function AboutUsPage() {
             <div className="bg-white text-black font-sans ">
 
                 {/* Hero Section - High Impact with Icon Background */}
-                <section className="relative py-24 md:py-40 bg-[#CA0A7F] text-white overflow-hidden">
+                <section className="relative md:pt-70 py-50 bg-[#CA0A7F] text-white overflow-hidden">
                     {/* The "Iconic" Background Watermark from the first version */}
                     <div className="absolute inset-0 opacity-10 z-10">
                         <div className="absolute transform -rotate-12 -right-10 -bottom-10 color-white">
