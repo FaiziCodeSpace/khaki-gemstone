@@ -11,7 +11,7 @@ export function HeroPortion() {
             <section className="bg-[#CA0A7F] pt-[100px] pb-10 overflow-hidden relative">
                 
                 {/* --- MAIN CONTENT CONTAINER --- */}
-                <div className="px-6 flex flex-col items-center text-white relative z-10 mt-[clamp(32px,10vw,100px)]">
+                <div className="px-6 flex flex-col items-center text-white relative z-10 mt-[clamp(32px,22vw,100px)]">
                     
                     {/* Header */}
                     <div className="flex w-full justify-between px-4 text-[9px] sm:text-[14px]">

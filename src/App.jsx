@@ -102,6 +102,7 @@ function App() {
               ======================== */}
               <Route element={<PublicLayout />}>
                 <Route path="/"            element={<LandingPage />} />
+                {/* <Route path="/agent-hub"            element={<Agenthub />} /> */}
                 <Route path="/shop"        element={<ProductsPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/cart"        element={<CartPage />} />

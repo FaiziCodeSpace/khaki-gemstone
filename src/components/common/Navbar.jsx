@@ -11,6 +11,7 @@ export function Navbar() {
   const navigate = useNavigate();
   const path = location.pathname;
   const cartCount = useCartCount();
+  const [isVisible, setIsVisible] = useState(true);
 
   const menuRef = useRef(null);
 
@@ -37,7 +38,7 @@ export function Navbar() {
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-    };
+    }
   }, [menu]);
 
   const handleLogout = () => {
@@ -59,25 +60,54 @@ export function Navbar() {
   const borderColor = isDarkGray ? "border-[#4B4B4B]/20" : "border-white/20";
   const accentColor = "#CA0A7F";
 
- // Inside Navbar.js
-const getInvestorLink = () => {
-  if (!isLoggedIn || !user) {
-    return { text: "Join as Investor", path: "/investor-register" };
-  }
+  const getInvestorLink = () => {
+    if (!isLoggedIn || !user) {
+      return { text: "Join as Investor", path: "/investor-register" };
+    }
 
-  const status = user.status || user.investor?.status;
-  if (status === "approved") {
-    return { text: "Investor Portal", path: "/investor/dashboard", disabled: false };
-  }
-  if (status === "pending") {
-    return { text: "Application Submitted", path: "/investor-application-submitted", disabled: false };
-  }
-  return { text: "Join as Investor", path: "/investor-register", disabled: false };
-};
+    const status = user.status || user.investor?.status;
+    if (status === "approved") {
+      return { text: "Investor Portal", path: "/investor/dashboard", disabled: false };
+    }
+    if (status === "pending") {
+      return { text: "Application Submitted", path: "/investor-application-submitted", disabled: false };
+    }
+    return { text: "Join as Investor", path: "/investor-register", disabled: false };
+  };
+  
   const investorLink = getInvestorLink();
 
   return (
     <nav className="absolute top-0 left-0 w-full z-20">
+      {isVisible && (
+        <div className="sticky top-0 z-50 w-full h-[40px] flex items-center px-4 bg-gradient-to-r from-[#000000] via-[#CA0A7F] to-[#000000] shadow-md transition-all duration-300">
+          <div className="flex-1 hidden md:block"></div>
+
+          <p className="text-[#FFFFFF] text-xs md:text-sm font-medium text-center flex-1 md:flex-none">
+            Need help with car deals? Call a nearby agent instantly.
+          </p>
+
+          <div className="flex-1 flex justify-end items-center gap-3">
+            <button
+              className="bg-[#FFFFFF] text-[#CA0A7F] text-xs font-semibold px-3 py-1 rounded-md hover:bg-[#CA0A7F] hover:text-[#FFFFFF] transition-colors duration-300 ease-in-out whitespace-nowrap"
+              type="button"
+            >
+              Open AgentHub
+            </button>
+            <button
+              onClick={() => setIsVisible(false)}
+              className="text-[#FFFFFF] hover:text-gray-300 transition-colors duration-200 focus:outline-none flex items-center justify-center p-1"
+              aria-label="Close promotional banner"
+              type="button"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="pt-5.5 px-6 md:px-[50px] flex justify-between items-center">
 
         {/* Logo */}
