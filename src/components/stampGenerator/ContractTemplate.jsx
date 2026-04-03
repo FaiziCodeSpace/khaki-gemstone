@@ -54,15 +54,22 @@ export default function ContractTemplate({
         }}
       >
         {/* ── Photo + Title ── */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
-          <PhotoBox label="فریق اول" photo={sellerPhoto} scale={scale} />
-          <div style={{ textAlign: "center", flex: 1, padding: `0 ${12 * scale}px` }}>
-            <div style={{ fontSize: `${20 * scale}px`, fontWeight: "bold", letterSpacing: "normal", whiteSpace: "nowrap" }}>
-              {'۔ ۔ ۔ ۔ ۔ اقرار نامہ گاڑی ۔ ۔ ۔ ۔ ۔'}
-            </div>
-          </div>
-          <PhotoBox label="فریق دوم" photo={buyerPhoto} scale={scale} />
-        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
+  <PhotoBox label="فریق اول" photo={sellerPhoto} scale={scale} />
+  
+  <div style={{ 
+    textAlign: "center", 
+    flex: 1, 
+    padding: `0 ${12 * scale}px`,
+    marginTop: `-${50 * scale}px` // Adjust the multiplier (e.g., -10) to pull it higher
+  }}>
+    <div style={{ fontSize: `${20 * scale}px`, fontWeight: "bold", letterSpacing: "normal", whiteSpace: "nowrap" }}>
+      {'۔ ۔ ۔ ۔ ۔ اقرار نامہ گاڑی ۔ ۔ ۔ ۔ ۔'}
+    </div>
+  </div>
+  
+  <PhotoBox label="فریق دوم" photo={buyerPhoto} scale={scale} />
+</div>
 
         {/* ── Party 1 ── */}
         <p style={{ margin: `${3 * scale}px 0` }}>
@@ -74,22 +81,18 @@ export default function ContractTemplate({
           <F val={d.buyerName} /> ولد <F val={d.buyerFather} /> سکنہ <F val={d.buyerMohalla} /> <F val={d.buyerTehsil} /> (فریق دوم)۔
         </p>
 
-        {/* ── Car details ── */}
-        <p style={{ margin: `${3 * scale}px 0` }}>
-          بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی نمبر <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> ماڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیزز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
-        </p>
-
-        {/* ── Payment paragraph ── */}
+         {/* ── Car details + Payment paragraph — no line break between them ── */}
         {d.paymentMode === "advance" ? (
-
+ 
           // ── Advance / Partial Payment ──
-          <p style={{ margin: `${3 * scale}px 0` }}>
+          <p style={{ margin: `${3 * scale}px 0`, textAlign: "justify" }}>
+            بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی نمبر <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> ماڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیزز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
             سواب فریق اول نے گاڑی مذکورہ بالامعہ کاغذات بدست فریق دوم بعوض مبلغ{" "}
             <F val={d.priceNum ? `${d.priceNum}` : ""} /> روپے{" "}
             (<F val={d.priceWords} /> روپے) فروخت کردی ہے۔اور سالم رقم سے مبلغ{" "}
             <F val={d.advanceNum ? `${d.advanceNum}` : ""} /> روپے{" "}
             (<F val={d.advanceWords} /> روپے) نقد ازاں فریق دوم سے روبروگواہان وصول کر لیے ہیں اور{" "}
-
+ 
             {/*
               ── DYNAMIC REMAINING CLAUSE ──
               If the agent has typed a custom clause, use it verbatim (bold).
@@ -104,14 +107,15 @@ export default function ContractTemplate({
                 (<F val={d.remainingWords} /> روپے) فریق دوم مورخہ <F val={formatDate(d.date)} /> کو ادا کرنے کا پابند وذمہ دار ہوگا۔ اور گاڑی کے جملہ کاغذات رجسٹریشن وغیرہ فریق اول مورخہ <F val={formatDate(d.dueDate)} /> بوقت وصولی بقایا رقم دینے کا پابند وذ مہ دار ہوگا۔
               </>
             )}
-
+ 
             {" "}گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے ۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے ۔ اور آج سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ <strong>FIR</strong> بذمہ فریق اول ہونگے اور آج کے بعد چالان، ٹیکس، ایکسیڈنٹ، <strong>FIR</strong> ، بذمہ فریق دوم ہوں گے۔ اگر فریق دوم نے بقایا رقم مقررہ تاریخ تک ادا نہ کی تو سودا منسوخ تصور ہوگا۔ اور ادا شدہ رقم ضبط تصور ہوگی۔ اور فریق اول گاڑی پکڑنے کا حق دار ہوگا۔ لہذا اقرار نامہ ہذا بعد سن وسمجھ لینے کے بعد مضمون کے بحق فریق دوم سندا تحریر وتکمیل ہے ۔
           </p>
-
+ 
         ) : (
-
+ 
           // ── Full Payment ──
-          <p style={{ margin: `${3 * scale}px 0` }}>
+          <p style={{ margin: `${3 * scale}px 0`, textAlign: "justify" }}>
+            بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی نمبر <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> ماڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیزز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
             سواب فریق اول نے گاڑی مذکورہ بالامعہ کاغذات بدست فریق دوم بعوض مبلغ{" "}
             <F val={d.priceNum ? `${d.priceNum}` : ""} /> روپے{" "}
             (<F val={d.priceWords} /> روپے) فروخت کردی ہے۔اور فریق اول نے سالم رقم مبلغ{" "}
@@ -121,7 +125,7 @@ export default function ContractTemplate({
             {d.numberPlate ? <>{d.numberPlate}، </> : null}
             حوالہ فریق دوم کردیے ہیں۔ گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے ۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے ۔ اور آج کی بعد فریق اول اور اس کے ورثاء کا گاڑی مذکورہ کے ساتھ تعلق واسطہ نہیں رہا ہے اور نہ ہوگا۔اور آج سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ <strong>FIR</strong> بذمہ فریق اول ہونگے اور آج کے بعد چالان، ٹیکس، ایکسیڈنٹ، <strong>FIR</strong> ، بذمہ فریق دوم ہوں گے۔ ٖلہِذا اقرار نامہ بعد سند وسمجھ لینے کے بعد مضمون بحق فریق دوم سندا تحریر و تکمیل ہے۔
           </p>
-
+ 
         )}
 
         {/* ── Extra conditions (shown in both modes if filled) ── */}
@@ -163,8 +167,8 @@ function PhotoBox({ label, photo, scale }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: `${4 * scale}px` }}>
       <div style={{
-        width: `${120 * scale}px`, height: `${120 * scale}px`,
-        border: `${1.5 * scale}px solid #999`, borderRadius: "50%",
+        width: `${140 * scale}px`, height: `${150 * scale}px`,
+        border: `${1.5 * scale}px solid #999`, borderRadius: "6%",
         overflow: "hidden", backgroundColor: "#f1f5f9",
         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
       }}>
@@ -186,11 +190,11 @@ function PhotoBox({ label, photo, scale }) {
 function SignatureBox({ person, sig, fp, scale }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", fontSize: `${10 * scale}px`, gap: `${4 * scale}px` }}>
-      <div style={{ color: "#555", fontSize: `${15 * scale}px` }}>
+      <div style={{ color: "#555", fontSize: `${17 * scale}px` }}>
         {person.tag} {person.cnic || ""}
       </div>
       <div style={{
-        width: "100%", height: `${42 * scale}px`,
+        width: "100%", height: `${62 * scale}px`,
         border: `${1 * scale}px solid #ccc`, borderRadius: `${3 * scale}px`,
         backgroundColor: "#fff", overflow: "hidden",
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -200,7 +204,7 @@ function SignatureBox({ person, sig, fp, scale }) {
           : <span style={{ color: "#ddd", fontSize: `${9 * scale}px` }}>دستخط</span>}
       </div>
       <div style={{
-        width: `${70 * scale}px`, height: `${90 * scale}px`,
+        width: `${110 * scale}px`, height: `${125 * scale}px`,
         border: `${1 * scale}px solid #bbb`, borderRadius: `${4 * scale}px`,
         backgroundColor: "#fafafa", overflow: "hidden",
         display: "flex", alignItems: "center", justifyContent: "center",

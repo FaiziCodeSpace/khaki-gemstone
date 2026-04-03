@@ -60,11 +60,29 @@ export default function ExportButton({
       const prevW = scalerEl?.style.width;
       if (scalerEl) { scalerEl.style.transform = "none"; scalerEl.style.width = `${W}px`; }
 
+      // Pre-load all images before capture so html2canvas doesn't squeeze them
+      const imgs = overlayEl.querySelectorAll("img");
+      await Promise.all([...imgs].map(img =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise(r => { img.onload = r; img.onerror = r; })
+      ));
+
       const overlayCanvas = await html2canvas(overlayEl, {
         scale: 1, useCORS: true, allowTaint: true, backgroundColor: null,
         logging: false, width: W, height: H, windowWidth: W, windowHeight: H,
-        scrollX: 0, scrollY: 0,
+        scrollX: 0, scrollY: 0, imageTimeout: 0,
+        onclone: (_doc, el) => {
+          // Enforce correct sizing on every img so html2canvas renders without squeezing
+          el.querySelectorAll("img").forEach(img => {
+            img.style.width     = "100%";
+            img.style.height    = "100%";
+            img.style.maxWidth  = "none";
+            img.style.maxHeight = "none";
+          });
+        },
       });
+
       if (scalerEl) { scalerEl.style.transform = prevT; scalerEl.style.width = prevW; }
 
       // ── 3. Composite: stamp + overlay + agent watermark ──
@@ -81,12 +99,9 @@ export default function ExportButton({
         ctx.font      = "italic 13px serif";
         ctx.fillStyle = "#555555";
         ctx.fillText(txt, W - ctx.measureText(txt).width - 20, H - 20);
-        // Note: watermark is already on merged canvas; hires copy draws it scaled automatically
       }
 
       // ── 4. Upscale 2× for print quality, then build PDF ──
-      // merged is correct at 1× — draw onto 2× canvas before JPEG conversion.
-      // This doubles pixel density with zero alignment risk.
       const PRINT_MULT  = 2;
       const hires       = document.createElement("canvas");
       hires.width       = W * PRINT_MULT;
@@ -117,36 +132,36 @@ export default function ExportButton({
 
       // Metadata
       fd.append("metadata", JSON.stringify({
-        chassisNo:    contractData?.chassisNo    || "",
-        modelYear:    contractData?.modelYear    || "",
-        regNo:        contractData?.regNo        || "",
-        carModel:     contractData?.carModel     || "",
-        carColor:     contractData?.carColor     || "",
-        engineNo:     contractData?.engineNo     || "",
-        sellerName:    contractData?.sellerName    || "",
-        sellerFather:  contractData?.sellerFather  || "",
-        sellerMohalla: contractData?.sellerMohalla || "",
-        sellerCnic:    contractData?.sellerCnic    || "",
-        sellerTehsil:  contractData?.sellerTehsil  || "",
-        buyerName:     contractData?.buyerName     || "",
-        buyerFather:   contractData?.buyerFather   || "",
-        buyerMohalla:  contractData?.buyerMohalla  || "",
-        buyerCnic:     contractData?.buyerCnic     || "",
-        buyerTehsil:   contractData?.buyerTehsil   || "",
-        paymentMode:   contractData?.paymentMode   || "full",
-        priceNum:      contractData?.priceNum      || "",
-        priceWords:    contractData?.priceWords    || "",
-        advanceNum:    contractData?.advanceNum    || "",
-        advanceWords:  contractData?.advanceWords  || "",
-        remainingNum:  contractData?.remainingNum  || "",
-        remainingWords:contractData?.remainingWords|| "",
-        dueDate:       contractData?.dueDate       || "",
-        witness1Name:  contractData?.witness1Name  || "",
-        witness1Cnic:  contractData?.witness1Cnic  || "",
-        witness1Tehsil:contractData?.witness1Tehsil|| "",
-        witness2Name:  contractData?.witness2Name  || "",
-        witness2Cnic:  contractData?.witness2Cnic  || "",
-        witness2Tehsil: contractData?.witness2Tehsil  || "",
+        chassisNo:      contractData?.chassisNo      || "",
+        modelYear:      contractData?.modelYear      || "",
+        regNo:          contractData?.regNo          || "",
+        carModel:       contractData?.carModel       || "",
+        carColor:       contractData?.carColor       || "",
+        engineNo:       contractData?.engineNo       || "",
+        sellerName:     contractData?.sellerName     || "",
+        sellerFather:   contractData?.sellerFather   || "",
+        sellerMohalla:  contractData?.sellerMohalla  || "",
+        sellerCnic:     contractData?.sellerCnic     || "",
+        sellerTehsil:   contractData?.sellerTehsil   || "",
+        buyerName:      contractData?.buyerName      || "",
+        buyerFather:    contractData?.buyerFather    || "",
+        buyerMohalla:   contractData?.buyerMohalla   || "",
+        buyerCnic:      contractData?.buyerCnic      || "",
+        buyerTehsil:    contractData?.buyerTehsil    || "",
+        paymentMode:    contractData?.paymentMode    || "full",
+        priceNum:       contractData?.priceNum       || "",
+        priceWords:     contractData?.priceWords     || "",
+        advanceNum:     contractData?.advanceNum     || "",
+        advanceWords:   contractData?.advanceWords   || "",
+        remainingNum:   contractData?.remainingNum   || "",
+        remainingWords: contractData?.remainingWords || "",
+        dueDate:        contractData?.dueDate        || "",
+        witness1Name:   contractData?.witness1Name   || "",
+        witness1Cnic:   contractData?.witness1Cnic   || "",
+        witness1Tehsil: contractData?.witness1Tehsil || "",
+        witness2Name:   contractData?.witness2Name   || "",
+        witness2Cnic:   contractData?.witness2Cnic   || "",
+        witness2Tehsil: contractData?.witness2Tehsil || "",
         numberPlate:    contractData?.numberPlate    ?? "دو عدد نمبر پلیٹ",
         remainingClause:contractData?.remainingClause|| "",
         conditions:     contractData?.conditions     || "",
@@ -165,7 +180,7 @@ export default function ExportButton({
       if (fingerprints.witness2Fp) fd.append("witness2Fp", dataURLtoBlob(fingerprints.witness2Fp), "witness2_fp.jpg");
 
       // ── 7. Single upload request ──
-      const res  = await agentApi.post("/stamps/upload", fd);
+      const res = await agentApi.post("/stamps/upload", fd);
       if (!res.data.success) throw new Error(res.data.message || "Upload failed");
 
       setUploadedUrl(res.data.contract.pdfUrl);
@@ -205,10 +220,10 @@ export default function ExportButton({
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
           </svg>
         )}
-        {status === "capturing" ? "PDF بن رہی ہے..."          :
+        {status === "capturing" ? "PDF بن رہی ہے..."           :
          status === "uploading" ? "سرور پر اپلوڈ ہو رہی ہے..."  :
-         status === "done"      ? "تمام فائلیں محفوظ ✓"        :
-         status === "error"     ? "دوبارہ کوشش کریں"           :
+         status === "done"      ? "تمام فائلیں محفوظ ✓"         :
+         status === "error"     ? "دوبارہ کوشش کریں"            :
                                   "PDF ڈاؤنلوڈ اور محفوظ کریں"}
       </button>
 
