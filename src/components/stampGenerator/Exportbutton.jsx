@@ -81,10 +81,21 @@ export default function ExportButton({
         ctx.font      = "italic 13px serif";
         ctx.fillStyle = "#555555";
         ctx.fillText(txt, W - ctx.measureText(txt).width - 20, H - 20);
+        // Note: watermark is already on merged canvas; hires copy draws it scaled automatically
       }
 
-      // ── 4. Build PDF ──
-      const imgData   = merged.toDataURL("image/jpeg", 0.95);
+      // ── 4. Upscale 2× for print quality, then build PDF ──
+      // merged is correct at 1× — draw onto 2× canvas before JPEG conversion.
+      // This doubles pixel density with zero alignment risk.
+      const PRINT_MULT  = 2;
+      const hires       = document.createElement("canvas");
+      hires.width       = W * PRINT_MULT;
+      hires.height      = H * PRINT_MULT;
+      const hiCtx       = hires.getContext("2d");
+      hiCtx.scale(PRINT_MULT, PRINT_MULT);
+      hiCtx.drawImage(merged, 0, 0);
+
+      const imgData   = hires.toDataURL("image/jpeg", 0.97);
       const pdfWidth  = 210;
       const pdfHeight = (H / W) * pdfWidth;
       const pdf = new jsPDF({
