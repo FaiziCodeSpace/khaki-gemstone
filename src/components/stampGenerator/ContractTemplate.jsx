@@ -57,8 +57,8 @@ export default function ContractTemplate({
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
           <PhotoBox label="فریق اول" photo={sellerPhoto} scale={scale} />
           <div style={{ textAlign: "center", flex: 1, padding: `0 ${12 * scale}px` }}>
-            <div style={{ fontSize: `${20 * scale}px`, fontWeight: "bold", letterSpacing: "1px" }}>
-              ۔۔۔۔۔اقرار نامہ گاڑی۔۔۔۔۔
+            <div style={{ fontSize: `${20 * scale}px`, fontWeight: "bold", letterSpacing: "normal", whiteSpace: "nowrap" }}>
+              {'۔ ۔ ۔ ۔ ۔ اقرار نامہ گاڑی ۔ ۔ ۔ ۔ ۔'}
             </div>
           </div>
           <PhotoBox label="فریق دوم" photo={buyerPhoto} scale={scale} />
