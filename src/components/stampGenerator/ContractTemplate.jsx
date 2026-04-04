@@ -170,10 +170,27 @@ function PhotoBox({ label, photo, scale }) {
         width: `${140 * scale}px`, height: `${150 * scale}px`,
         border: `${1.5 * scale}px solid #999`, borderRadius: "6%",
         overflow: "hidden", backgroundColor: "#f1f5f9",
-        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-      }}>
+        position: "relative", flexShrink: 0,
+      }} data-cover-box="true">
         {photo ? (
-          <img src={photo} alt={label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img
+            data-cover-draw="true"
+            src={photo}
+            alt={label}
+            style={{
+              position:        "absolute",
+              top:             "50%",
+              left:            "50%",
+              transform:       "translate(-50%, -50%)",
+              width:           "auto",
+              height:          "100%",
+              minWidth:        "100%",
+              minHeight:       "100%",
+              objectFit:       "cover",
+              objectPosition:  "center top",
+              display:         "block",
+            }}
+          />
         ) : (
           <svg viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="1.2"
             style={{ width: `${36 * scale}px`, height: `${36 * scale}px` }}>
@@ -207,11 +224,28 @@ function SignatureBox({ person, sig, fp, scale }) {
         width: `${110 * scale}px`, height: `${125 * scale}px`,
         border: `${1 * scale}px solid #bbb`, borderRadius: `${4 * scale}px`,
         backgroundColor: "#fafafa", overflow: "hidden",
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}>
+        position: "relative", flexShrink: 0,
+      }} data-cover-box="true">
         {fp ? (
-          <img src={fp} alt="fp"
-            style={{ width: "100%", height: "100%", objectFit: "cover", filter: "contrast(1.4) grayscale(1)" }} />
+          <img
+            data-cover-draw="true"
+            src={fp}
+            alt="fp"
+            style={{
+              position:       "absolute",
+              top:            "50%",
+              left:           "50%",
+              transform:      "translate(-50%, -50%)",
+              width:          "100%",
+              height:         "100%",
+              minWidth:       "100%",
+              minHeight:      "100%",
+              objectFit:      "cover",
+              objectPosition: "center",
+              display:        "block",
+              filter:         "contrast(1.4) grayscale(1)",
+            }}
+          />
         ) : (
           <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.2"
             style={{ width: `${20 * scale}px`, height: `${20 * scale}px` }}>
