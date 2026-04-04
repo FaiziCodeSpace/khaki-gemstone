@@ -44,7 +44,7 @@ export default function ExportButton({
     setUploadedUrl(null);
 
     try {
-      // ── 1. Re-render PDF onto fresh offscreen canvas ──
+      // 1. Re-render PDF onto fresh offscreen canvas
       const page     = await pdfDoc.getPage(1);
       const viewport = page.getViewport({ scale: 1.5 });
       const W = viewport.width, H = viewport.height;
@@ -53,60 +53,116 @@ export default function ExportButton({
       offscreen.width = W; offscreen.height = H;
       await page.render({ canvasContext: offscreen.getContext("2d"), viewport }).promise;
 
-      // ── 2. Capture overlay at intrinsic size ──
-      const overlayEl = previewRef.current.querySelector("[data-contract-overlay]");
-      const scalerEl  = previewRef.current.querySelector("[data-template-scaler]");
+      // 2. Collect cover-image data BEFORE touching the scaler
+      // html2canvas ignores objectFit/position:absolute/transform entirely.
+      // We snapshot each cover-box rect at display scale, collect the src,
+      // then redraw them manually with proper cover-crop after compositing.
+      const overlayEl  = previewRef.current.querySelector("[data-contract-overlay]");
+      const scalerEl   = previewRef.current.querySelector("[data-template-scaler]");
+
+      // Pre-load all images
+      const imgs = overlayEl.querySelectorAll("img");
+      await Promise.all([...imgs].map(img =>
+        img.complete ? Promise.resolve()
+          : new Promise(r => { img.onload = r; img.onerror = r; })
+      ));
+
+      // Measure cover boxes at CURRENT display scale (before any transform change)
+      const overlayRect = overlayEl.getBoundingClientRect();
+      const displayW    = overlayRect.width;
+      const coverImgData = [...overlayEl.querySelectorAll("img[data-cover-draw]")].map(img => {
+        const box = img.closest("[data-cover-box]") || img.parentElement;
+        const r   = box.getBoundingClientRect();
+        // Convert display-pixel coords to intrinsic canvas coords
+        const ratio = W / displayW;
+        return {
+          src:    img.src,
+          filter: img.dataset.filter || img.style.filter || "",
+          x: Math.round((r.left - overlayRect.left) * ratio),
+          y: Math.round((r.top  - overlayRect.top)  * ratio),
+          w: Math.round(r.width  * ratio),
+          h: Math.round(r.height * ratio),
+        };
+      });
+
+      // 3. Now set scaler to intrinsic size for html2canvas
       const prevT = scalerEl?.style.transform;
       const prevW = scalerEl?.style.width;
       if (scalerEl) { scalerEl.style.transform = "none"; scalerEl.style.width = `${W}px`; }
-
-      // Pre-load all images before capture so html2canvas doesn't squeeze them
-      const imgs = overlayEl.querySelectorAll("img");
-      await Promise.all([...imgs].map(img =>
-        img.complete
-          ? Promise.resolve()
-          : new Promise(r => { img.onload = r; img.onerror = r; })
-      ));
 
       const overlayCanvas = await html2canvas(overlayEl, {
         scale: 1, useCORS: true, allowTaint: true, backgroundColor: null,
         logging: false, width: W, height: H, windowWidth: W, windowHeight: H,
         scrollX: 0, scrollY: 0, imageTimeout: 0,
         onclone: (_doc, el) => {
-          // Enforce correct sizing on every img so html2canvas renders without squeezing
-          el.querySelectorAll("img").forEach(img => {
-            img.style.width     = "100%";
-            img.style.height    = "100%";
-            img.style.maxWidth  = "none";
-            img.style.maxHeight = "none";
+          // Hide cover images — we draw them ourselves below
+          el.querySelectorAll("img[data-cover-draw]").forEach(img => {
+            img.style.display = "none";
+          });
+          // Signatures: stretch to fill normally
+          el.querySelectorAll("img:not([data-cover-draw])").forEach(img => {
+            img.style.width = "100%"; img.style.height = "100%";
+            img.style.maxWidth = "none"; img.style.maxHeight = "none";
           });
         },
       });
 
       if (scalerEl) { scalerEl.style.transform = prevT; scalerEl.style.width = prevW; }
 
-      // ── 3. Composite: stamp + overlay + agent watermark ──
+      // 4. Composite: stamp + overlay
       const merged = document.createElement("canvas");
       merged.width = W; merged.height = H;
       const ctx = merged.getContext("2d");
       ctx.drawImage(offscreen, 0, 0);
       ctx.drawImage(overlayCanvas, 0, 0);
 
-      // Agent name watermark burned onto the PDF canvas
+      // 5. Paint cover images with correct cover-crop (immune to html2canvas limitations)
+      const drawCover = (ctx, src, x, y, w, h, filterStr) => new Promise(resolve => {
+        const image = new Image();
+        image.onload = () => {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(x, y, w, h);
+          ctx.clip();
+          if (filterStr) ctx.filter = filterStr;
+          const ir = image.naturalWidth / image.naturalHeight;
+          const br = w / h;
+          let dw, dh, dx, dy;
+          if (ir > br) {
+            dh = h; dw = h * ir;
+            dx = x - (dw - w) / 2; dy = y;
+          } else {
+            dw = w; dh = w / ir;
+            dx = x; dy = y - (dh - h) / 2;
+          }
+          ctx.drawImage(image, dx, dy, dw, dh);
+          ctx.restore();
+          resolve();
+        };
+        image.onerror = resolve;
+        image.src = src;
+      });
+
+      for (const cd of coverImgData) {
+        await drawCover(ctx, cd.src, cd.x, cd.y, cd.w, cd.h, cd.filter);
+      }
+
+      // 6. Agent watermark
       const watermarkEl = previewRef.current.querySelector("[data-agent-watermark]");
       if (watermarkEl?.textContent) {
         const txt = watermarkEl.textContent.trim();
+        ctx.filter    = "none";
         ctx.font      = "italic 13px serif";
         ctx.fillStyle = "#555555";
         ctx.fillText(txt, W - ctx.measureText(txt).width - 20, H - 20);
       }
 
-      // ── 4. Upscale 2× for print quality, then build PDF ──
-      const PRINT_MULT  = 2;
-      const hires       = document.createElement("canvas");
-      hires.width       = W * PRINT_MULT;
-      hires.height      = H * PRINT_MULT;
-      const hiCtx       = hires.getContext("2d");
+      // 7. Upscale 2x for print quality
+      const PRINT_MULT = 2;
+      const hires      = document.createElement("canvas");
+      hires.width      = W * PRINT_MULT;
+      hires.height     = H * PRINT_MULT;
+      const hiCtx      = hires.getContext("2d");
       hiCtx.scale(PRINT_MULT, PRINT_MULT);
       hiCtx.drawImage(merged, 0, 0);
 
@@ -119,18 +175,14 @@ export default function ExportButton({
       });
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
 
-      // ── 5. Download ──
+      // 8. Download
       const fileName = getFileName();
       pdf.save(fileName);
 
-      // ── 6. Build single FormData with everything ──
+      // 9. Upload to server
       setStatus("uploading");
       const fd = new FormData();
-
-      // PDF
       fd.append("pdf", pdf.output("blob"), fileName);
-
-      // Metadata
       fd.append("metadata", JSON.stringify({
         chassisNo:      contractData?.chassisNo      || "",
         modelYear:      contractData?.modelYear      || "",
@@ -167,26 +219,18 @@ export default function ExportButton({
         conditions:     contractData?.conditions     || "",
         date:           contractData?.date           || "",
       }));
-
-      // Vehicle images (dataURL → Blob)
       if (vehicleImages.chassisImg) fd.append("chassisImg", dataURLtoBlob(vehicleImages.chassisImg), "chassis.jpg");
       if (vehicleImages.carImg)     fd.append("carImg",     dataURLtoBlob(vehicleImages.carImg),     "car.jpg");
       if (vehicleImages.engineImg)  fd.append("engineImg",  dataURLtoBlob(vehicleImages.engineImg),  "engine.jpg");
-
-      // Fingerprints (dataURL → Blob)
       if (fingerprints.sellerFp)   fd.append("sellerFp",   dataURLtoBlob(fingerprints.sellerFp),   "seller_fp.jpg");
       if (fingerprints.buyerFp)    fd.append("buyerFp",    dataURLtoBlob(fingerprints.buyerFp),    "buyer_fp.jpg");
       if (fingerprints.witness1Fp) fd.append("witness1Fp", dataURLtoBlob(fingerprints.witness1Fp), "witness1_fp.jpg");
       if (fingerprints.witness2Fp) fd.append("witness2Fp", dataURLtoBlob(fingerprints.witness2Fp), "witness2_fp.jpg");
-
-      // ── 7. Single upload request ──
       const res = await agentApi.post("/stamps/upload", fd);
       if (!res.data.success) throw new Error(res.data.message || "Upload failed");
-
       setUploadedUrl(res.data.contract.pdfUrl);
       setStatus("done");
       setTimeout(() => setStatus("idle"), 5000);
-
     } catch (err) {
       setStatus("error");
       setErrorMsg(err.response?.data?.message || err.message);
