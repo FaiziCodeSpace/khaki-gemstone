@@ -51,7 +51,7 @@ export function Navbar() {
 
   const closeMenu = () => setMenu(false);
 
-  const hiddenPages = ["/login", "/register", "/signup"];
+  const hiddenPages = ["/login", "/register", "/signup", "/agent-hub", "/bargainer-register"];
   if (hiddenPages.includes(path)) return null;
 
   const isDarkGray = path.includes("/product/") || path === "/cart";
