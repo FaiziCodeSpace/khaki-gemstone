@@ -57,6 +57,7 @@ export default function AdminSideBar() {
     { to: "AdminManagement", icon: UserStar, label: "Admin Management", roles: ["SUPER_ADMIN"] },
     { to: "Payout", icon: Banknote, label: "Payout Requests", roles: ["SUPER_ADMIN"] },
     { to: "agents-create", icon: UserPlus, label: "Create Agent", roles: ["SUPER_ADMIN"] },
+    { to: "bargainerApplications", icon: UserPlus, label: "Bargainer Applications", roles: ["SUPER_ADMIN"] },
   ];
 
 

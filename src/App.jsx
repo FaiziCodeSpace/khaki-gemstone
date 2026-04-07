@@ -53,6 +53,9 @@ import ScrollToTop     from "./utils/ScrollToTop";
 import AgentLogin  from "./components/stampGenerator/auth/Agentlogin";
 import CreateAgent from "./components/stampGenerator/auth/CreateAgent";
 import StampSearch from "./components/stampGenerator/Stampsearch";
+import AgentHub from "./pages/AgentHub/Agenthub";
+import BargainerRegister from "./pages/AgentHub/Auth/Bargainerregister";
+import BargainerApplications from "./pages/admin/Bargainerapplications";
 
 /* =======================
    💼 INVESTOR (LAZY)
@@ -102,7 +105,8 @@ function App() {
               ======================== */}
               <Route element={<PublicLayout />}>
                 <Route path="/"            element={<LandingPage />} />
-                {/* <Route path="/agent-hub"            element={<Agenthub />} /> */}
+                <Route path="/agent-hub"            element={<AgentHub />} />
+                <Route path="/bargainer-register"            element={<BargainerRegister />} />
                 <Route path="/shop"        element={<ProductsPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/cart"        element={<CartPage />} />
@@ -151,6 +155,7 @@ function App() {
                   <Route path="/admin/transactions"               element={<TransactionHistory />} />
                   <Route path="/admin/AdminManagement"            element={<AdminManagement />} />
                   <Route path="/admin/Payout"                     element={<PayoutRequests />} />
+                  <Route path="/admin/bargainerApplications"      element={<BargainerApplications />} />
                   {/* Super Admin: register a new agent */}
                   <Route path="/admin/agents-create"              element={<CreateAgent />} />
                 </Route>
