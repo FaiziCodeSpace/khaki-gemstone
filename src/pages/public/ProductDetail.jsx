@@ -90,8 +90,38 @@ export function ProductDetailPage() {
               "priceCurrency": "PKR",
               "price": product.publicPrice,
               "availability": "https://schema.org/InStock",
-              "url": shareUrl
-            }
+              "url": shareUrl,
+
+              "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingDestination": {
+                  "@type": "DefinedRegion",
+                  "addressCountry": "PK"
+                }
+              },
+
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "merchantReturnDays": 7
+              }
+            },
+            "additionalProperty": [
+              {
+                "@type": "PropertyValue",
+                "name": "Origin",
+                "value": product.more_information?.origin
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Weight",
+                "value": product.more_information?.weight
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Clarity",
+                "value": product.details?.clarity
+              }
+            ]
           })}
         </script>
       </Helmet>
