@@ -118,7 +118,7 @@ export default function AboutUsPage() {
                                 <Facebook className="mb-4 mx-auto md:mx-0" style={{ color: accentColor }} />
                                 <h4 className="font-bold uppercase tracking-widest mb-4">Connect</h4>
                                 <a
-                                    href="https://www.facebook.com/KHAKIGEMSTONE/"
+                                    href="https://www.facebook.com/people/Khaki-Gemstone/61576767505416/?rdid=7AINPDaB1DUaXwYV&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F18JyNvqmF8%2F"
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-black font-bold hover:underline inline-flex items-center"
