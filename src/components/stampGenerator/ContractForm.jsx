@@ -109,13 +109,6 @@ function formatCnic(raw) {
   return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12)}`;
 }
 
-function formatPhone(raw) {
-  // Strip non-digits, cap at 11
-  const digits = raw.replace(/\D/g, "").slice(0, 11);
-  if (digits.length <= 4) return digits;
-  return `${digits.slice(0, 4)}-${digits.slice(4)}`;
-}
-
 // ─────────────────────────────────────────────
 // Validation
 // ─────────────────────────────────────────────
@@ -127,12 +120,10 @@ function validateData(data) {
     { key: "sellerFather", label: "Seller Father's Name" },
     { key: "sellerCnic",   label: "Seller CNIC", cnic: true },
     { key: "sellerTehsil", label: "Seller District/Tehsil" },
-    { key: "sellerPhone",  label: "Seller Phone" },
     { key: "buyerName",    label: "Buyer Name" },
     { key: "buyerFather",  label: "Buyer Father's Name" },
     { key: "buyerCnic",    label: "Buyer CNIC", cnic: true },
     { key: "buyerTehsil",  label: "Buyer District/Tehsil" },
-    { key: "buyerPhone",   label: "Buyer Phone" },
     { key: "carModel",     label: "Vehicle Make/Model" },
     { key: "regNo",        label: "Registration No." },
     { key: "modelYear",    label: "Model Year" },
@@ -203,8 +194,6 @@ export default function ContractForm({ data, onChange }) {
       let formatted = value;
       if (name.toLowerCase().includes("cnic")) {
         formatted = formatCnic(value);
-      } else if (name.toLowerCase().includes("phone")) {
-        formatted = formatPhone(value);
       }
       onChange(name, formatted);
     },
@@ -232,7 +221,6 @@ export default function ContractForm({ data, onChange }) {
           <Field label="Mohalla / Village (اردو)" name="sellerMohalla" value={data.sellerMohalla} onChange={handleChange} placeholder="اما میل" />
           <Field label="تحصیل و ضلع (اردو)"       name="sellerTehsil"  value={data.sellerTehsil}  onChange={handleChange} placeholder="تحصیل و ضلع ٹانک" />
           <Field label="CNIC"                     name="sellerCnic"    value={data.sellerCnic}    onChange={handleChange} placeholder="12345-1234567-1" />
-          <Field label="Phone Number"             name="sellerPhone"   value={data.sellerPhone}   onChange={handleChange} placeholder="0300-1234567" />
         </div>
 
         {/* ── Buyer ── */}
@@ -243,7 +231,6 @@ export default function ContractForm({ data, onChange }) {
           <Field label="Mohalla / Village (اردو)" name="buyerMohalla" value={data.buyerMohalla} onChange={handleChange} placeholder="گرہی سدوزئی" />
           <Field label="تحصیل و ضلع (اردو)"       name="buyerTehsil"  value={data.buyerTehsil}  onChange={handleChange} placeholder="تحصیل و ضلع ڈیرہ اسماعیل خان" />
           <Field label="CNIC"                     name="buyerCnic"    value={data.buyerCnic}    onChange={handleChange} placeholder="12345-1234567-2" />
-          <Field label="Phone Number"             name="buyerPhone"   value={data.buyerPhone}   onChange={handleChange} placeholder="0300-7654321" />
         </div>
 
         {/* ── Vehicle ── */}
