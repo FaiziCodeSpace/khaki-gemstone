@@ -90,9 +90,9 @@ export function HeroPortion() {
                                        bg-white px-6 py-[10px] rounded-[62px] whitespace-nowrap
                                        text-[9.96px] font-semibold text-black
                                        sm:w-[160px] sm:h-[45px] sm:text-[14px]
-                                       md:w-[196px] md:h-[56px] md:text-[16px]"
+                                       md:w-[210px] md:h-[56px] md:text-[16px]"
                         >
-                            SHOP NOW
+                            MORE PRODUCTS
                             <img
                                 src="./Icons/cart.svg"
                                 alt="shopping cart icon"

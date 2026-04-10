@@ -59,7 +59,7 @@
     "logo": "https://khakigemstone.com/Logos/logo.png",
     "image": "https://khakigemstone.com/Logos/logo.png",
     "description": "Premium supplier of natural certified gemstones including sapphire, ruby, emerald and rough gemstones.",
-    
+
     "priceRange": "$$",
     "currenciesAccepted": "PKR, USD, GBP",
     "paymentAccepted": "Bank Transfer, Credit Card",
@@ -102,8 +102,8 @@
   }
   </script>
 
-  <!-- ✅ Fallback Product Schema (IMPORTANT FIX) -->
-  <script type="application/ld+json">
+  <!-- ✅ Fallback Product Schema -->
+  <script type="application/ld+json" id="fallback-product-schema">
   {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -116,7 +116,6 @@
     "offers": {
       "@type": "Offer",
       "priceCurrency": "PKR",
-      "price": "1000",
       "availability": "https://schema.org/InStock",
       "url": "https://khakigemstone.com/",
       "shippingDetails": {
@@ -128,20 +127,33 @@
       },
       "hasMerchantReturnPolicy": {
         "@type": "MerchantReturnPolicy",
-        "merchantReturnDays": 7
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 7,
+        "returnMethod": "https://schema.org/ReturnInStore",
+        "returnFees": "https://schema.org/FreeReturn"
       }
     }
   }
+  </script>
+  <!-- Auto-inject priceValidUntil = 1 year from today, so it never expires manually -->
+  <script>
+    (function () {
+      try {
+        var el = document.getElementById('fallback-product-schema');
+        var schema = JSON.parse(el.textContent);
+        var d = new Date();
+        d.setFullYear(d.getFullYear() + 1);
+        schema.offers.priceValidUntil = d.toISOString().split('T')[0];
+        el.textContent = JSON.stringify(schema);
+      } catch (e) {}
+    })();
   </script>
 
 </head>
 
 <body>
-
   <div id="root"></div>
-
   <script type="module" src="/src/main.jsx"></script>
-
 </body>
 
 </html>

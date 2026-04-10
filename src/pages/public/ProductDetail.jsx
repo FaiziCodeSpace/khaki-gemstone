@@ -48,10 +48,15 @@ export function ProductDetailPage() {
     );
   }
 
-  // Define main image for SEO
+  // SEO image and URL
   const seoImage = product.imgs_src?.[0] ? `${API_URL}${product.imgs_src[0]}` : "";
   const shareUrl = `https://khakigemstone.com/product/${id}`;
   const displayPrice = product.publicPrice?.toLocaleString() ?? "Contact for price";
+
+  // Auto-generate priceValidUntil = 1 year from today — never needs manual updating
+  const priceValidUntil = new Date(
+    new Date().setFullYear(new Date().getFullYear() + 1)
+  ).toISOString().split('T')[0];
 
   return (
     <>
@@ -82,14 +87,31 @@ export function ProductDetailPage() {
             "@context": "https://schema.org/",
             "@type": "Product",
             "name": product.name,
-            "image": seoImage,
-            "description": product.description,
-            "brand": { "@type": "Brand", "name": "Khaki Gemstone" },
+            "sku": product._id,
+
+            ...(seoImage && { "image": [seoImage] }),
+
+            "description": product.description ||
+              `${product.name} natural gemstone available at Khaki Gemstone.`,
+
+            "brand": {
+              "@type": "Brand",
+              "name": "Khaki Gemstone"
+            },
+
             "offers": {
               "@type": "Offer",
               "priceCurrency": "PKR",
-              "price": product.publicPrice,
-              "availability": "https://schema.org/InStock",
+
+              ...(product.publicPrice && {
+                "price": product.publicPrice,
+                "priceValidUntil": priceValidUntil,
+              }),
+
+              "availability": product.publicPrice
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+
               "url": shareUrl,
 
               "shippingDetails": {
@@ -102,26 +124,22 @@ export function ProductDetailPage() {
 
               "hasMerchantReturnPolicy": {
                 "@type": "MerchantReturnPolicy",
-                "merchantReturnDays": 7
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "merchantReturnDays": 7,
+                "returnMethod": "https://schema.org/ReturnInStore",
+                "returnFees": "https://schema.org/FreeReturn"
               }
             },
-            "additionalProperty": [
-              {
-                "@type": "PropertyValue",
-                "name": "Origin",
-                "value": product.more_information?.origin
-              },
-              {
-                "@type": "PropertyValue",
-                "name": "Weight",
-                "value": product.more_information?.weight
-              },
-              {
-                "@type": "PropertyValue",
-                "name": "Clarity",
-                "value": product.details?.clarity
-              }
-            ]
+
+            ...(product.more_information?.origin && {
+              "additionalProperty": [
+                {
+                  "@type": "PropertyValue",
+                  "name": "Origin",
+                  "value": product.more_information.origin
+                }
+              ]
+            })
           })}
         </script>
       </Helmet>
