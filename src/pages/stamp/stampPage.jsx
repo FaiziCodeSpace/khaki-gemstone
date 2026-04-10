@@ -86,9 +86,16 @@ export default function StampGeneratorApp() {
 
   const previewRef = useRef(null);
 
+  // ── Leave-guard state ──
+  // isDirty = true whenever work is in progress (pdfData loaded) and not yet exported
+  const [isDirty, setIsDirty]             = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [pendingNav, setPendingNav]         = useState(null); // callback to run if confirmed
+
   const handlePdfLoaded = (data) => {
     setPdfData(data);
     setTopMargin(Math.round(data.canvasHeight * 0.32));
+    setIsDirty(true);  // work has started
   };
 
   const handleFieldChange = (field, value) =>
@@ -145,6 +152,58 @@ export default function StampGeneratorApp() {
     return () => clearInterval(id);
   }, [agent]);
 
+  // ── beforeunload: native browser warning on tab close / refresh ──
+  useEffect(() => {
+    const handler = (e) => {
+      if (!isDirty) return;
+      e.preventDefault();
+      e.returnValue = "";  // triggers browser's native "Leave site?" dialog
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  // ── popstate: browser back button ──
+  useEffect(() => {
+    if (!isDirty) return;
+
+    // Push a dummy history entry so the back button triggers popstate instead
+    // of leaving the page immediately
+    window.history.pushState(null, "", window.location.href);
+
+    const handler = () => {
+      if (isDirty) {
+        // Immediately re-push so rapid back taps don't escape
+        window.history.pushState(null, "", window.location.href);
+        setPendingNav(() => () => {
+          setIsDirty(false);
+          navigate(-1);
+        });
+        setShowLeaveModal(true);
+      }
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, [isDirty]);
+
+  // ── confirmLeave: called by in-app buttons (search icon, logout) ──
+  const guardedNav = (navFn) => {
+    if (!isDirty) { navFn(); return; }
+    setPendingNav(() => navFn);
+    setShowLeaveModal(true);
+  };
+
+  const confirmLeave = () => {
+    setShowLeaveModal(false);
+    setIsDirty(false);
+    pendingNav?.();
+  };
+
+  const cancelLeave = () => {
+    setShowLeaveModal(false);
+    setPendingNav(null);
+  };
+
   const previewProps = { pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, fingerprints, agentName: agent?.fullName };
   const sc = STATUS_CONFIG[agentStatus];
 
@@ -168,12 +227,13 @@ export default function StampGeneratorApp() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-3">
-            <a href="/stampGenerator/search"
+            <button
+              onClick={() => guardedNav(() => navigate("/stampGenerator/search"))}
               className="p-2 sm:px-3 sm:py-1.5 text-slate-500 hover:text-emerald-700 border border-slate-200 rounded-lg transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-            </a>
+            </button>
 
             <button onClick={cycleStatus} disabled={statusUpdating}
               className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold px-2 py-1.5 sm:px-3 rounded-lg border transition-all ${sc.bg} ${sc.border} ${sc.text}`}>
@@ -194,7 +254,7 @@ export default function StampGeneratorApp() {
               </div>
             )}
 
-            <button onClick={handleLogout}
+            <button onClick={() => guardedNav(handleLogout)}
               className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -392,6 +452,7 @@ export default function StampGeneratorApp() {
               setContractData(EMPTY_CONTRACT); setSignatures(EMPTY_SIGS); setFingerprints(EMPTY_FPS);
               setSellerPhoto(null); setBuyerPhoto(null);
               setChassisImg(null); setCarImg(null); setEngineImg(null);
+              setIsDirty(false);  // clean slate
             }}
               className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-slate-600 hover:bg-slate-700 text-white shadow-sm">
               New Contract
@@ -402,6 +463,50 @@ export default function StampGeneratorApp() {
           )}
         </div>
       </main>
+      {/* ── Leave-guard confirmation modal ── */}
+      {showLeaveModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-150">
+
+            {/* Icon */}
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-base leading-tight">کام ادھورا رہ جائے گا</h3>
+                <p className="text-xs text-gray-500 mt-0.5">کیا آپ واقعی یہاں سے جانا چاہتے ہیں؟</p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <p className="text-sm text-gray-600 leading-relaxed">
+              ابھی تک کا سارا کام — اسٹامپ پیپر، فارم، تصاویر، دستخط — <strong className="text-gray-900">ضائع ہو جائے گا</strong>۔ واپس جانے سے پہلے یقین دلائیں۔
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={confirmLeave}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors active:scale-95"
+              >
+                ہاں، چھوڑ دیں
+              </button>
+              <button
+                onClick={cancelLeave}
+                className="flex-1 border-2 border-emerald-500 text-emerald-700 font-bold py-2.5 rounded-xl text-sm hover:bg-emerald-50 transition-colors active:scale-95"
+              >
+                نہیں، جاری رکھیں
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
