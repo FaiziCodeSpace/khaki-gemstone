@@ -51,7 +51,7 @@ export function Navbar() {
 
   const closeMenu = () => setMenu(false);
 
-  const hiddenPages = ["/login", "/register", "/signup", "/agent-hub", "/bargainer-register"];
+  const hiddenPages = ["/login", "/register", "/signup", "/agent-hub", "/bargainer-register", "/bargainer-login"];
   if (hiddenPages.includes(path)) return null;
 
   const isDarkGray = path.includes("/product/") || path === "/cart";
@@ -74,7 +74,7 @@ export function Navbar() {
     }
     return { text: "Join as Investor", path: "/investor-register", disabled: false };
   };
-  
+
   const investorLink = getInvestorLink();
 
   return (
@@ -88,12 +88,14 @@ export function Navbar() {
           </p>
 
           <div className="flex-1 flex justify-end items-center gap-3">
-            <button
-              className="bg-[#FFFFFF] text-[#CA0A7F] text-xs font-semibold px-3 py-1 rounded-md hover:bg-[#CA0A7F] hover:text-[#FFFFFF] transition-colors duration-300 ease-in-out whitespace-nowrap"
-              type="button"
-            >
-              Open AgentHub
-            </button>
+            <Link to="/agent-hub">
+              <button
+                className="bg-[#FFFFFF] text-[#CA0A7F] text-xs font-semibold px-3 py-1 rounded-md hover:bg-[#CA0A7F] hover:text-[#FFFFFF] transition-colors duration-300 ease-in-out whitespace-nowrap"
+                type="button"
+              >
+                Open AgentHub
+              </button>
+            </Link>
             <button
               onClick={() => setIsVisible(false)}
               className="text-[#FFFFFF] hover:text-gray-300 transition-colors duration-200 focus:outline-none flex items-center justify-center p-1"
