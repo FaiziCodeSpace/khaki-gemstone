@@ -56,9 +56,9 @@ import StampSearch from "./components/stampGenerator/Stampsearch";
 import AgentHub from "./pages/AgentHub/Agenthub";
 import BargainerRegister from "./pages/AgentHub/Auth/Bargainerregister";
 import BargainerApplications from "./pages/admin/Bargainerapplications";
-import BargainerLogin from "./pages/AgentHub/Auth/BargainerLogin";
+import BargainerLogin from "./pages/AgentHub/Auth/Bargainerlogin";
 import { BargainerAuthProvider } from "./context/BargainerAuthContext";
-import BargainerProtectedRoute from "./routes/BargainerProtectedRoute";
+import BargainerProtectedRoute from "./routes/Bargainerprotectedroute";
 
 /* =======================
    💼 INVESTOR (LAZY)
