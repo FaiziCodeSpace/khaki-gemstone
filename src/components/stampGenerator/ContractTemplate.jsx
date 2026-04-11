@@ -104,7 +104,7 @@ export default function ContractTemplate({
               <>
                 بقایا رقم مبلغ{" "}
                 <F val={d.remainingNum ? `${d.remainingNum}` : ""} /> روپے{" "}
-                (<F val={d.remainingWords} /> روپے) فریق دوم مورخہ <F val={formatDate(d.date)} /> کو ادا کرنے کا پابند وذمہ دار ہوگا۔ اور گاڑی کے جملہ کاغذات رجسٹریشن وغیرہ فریق اول مورخہ <F val={formatDate(d.dueDate)} /> بوقت وصولی بقایا رقم دینے کا پابند وذ مہ دار ہوگا۔
+                (<F val={d.remainingWords} /> روپے) فریق دوم مورخہ <F val={formatDate(d.dueDate)} /> کو ادا کرنے کا پابند وذمہ دار ہوگا۔ اور گاڑی کے جملہ کاغذات رجسٹریشن وغیرہ فریق اول مورخہ <F val={formatDate(d.dueDate)} /> بوقت وصولی بقایا رقم دینے کا پابند وذ مہ دار ہوگا۔
               </>
             )}
 

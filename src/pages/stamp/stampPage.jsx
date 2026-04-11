@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import StampUpload from "../../components/stampGenerator/StampUpload";
 import MarginControl from "../../components/stampGenerator/MarginControl";
@@ -86,16 +86,9 @@ export default function StampGeneratorApp() {
 
   const previewRef = useRef(null);
 
-  // ── Leave-guard state ──
-  // isDirty = true whenever work is in progress (pdfData loaded) and not yet exported
-  const [isDirty, setIsDirty]             = useState(false);
-  const [showLeaveModal, setShowLeaveModal] = useState(false);
-  const [pendingNav, setPendingNav]         = useState(null); // callback to run if confirmed
-
   const handlePdfLoaded = (data) => {
     setPdfData(data);
     setTopMargin(Math.round(data.canvasHeight * 0.32));
-    setIsDirty(true);  // work has started
   };
 
   const handleFieldChange = (field, value) =>
@@ -152,58 +145,6 @@ export default function StampGeneratorApp() {
     return () => clearInterval(id);
   }, [agent]);
 
-  // ── beforeunload: native browser warning on tab close / refresh ──
-  useEffect(() => {
-    const handler = (e) => {
-      if (!isDirty) return;
-      e.preventDefault();
-      e.returnValue = "";  // triggers browser's native "Leave site?" dialog
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [isDirty]);
-
-  // ── popstate: browser back button ──
-  useEffect(() => {
-    if (!isDirty) return;
-
-    // Push a dummy history entry so the back button triggers popstate instead
-    // of leaving the page immediately
-    window.history.pushState(null, "", window.location.href);
-
-    const handler = () => {
-      if (isDirty) {
-        // Immediately re-push so rapid back taps don't escape
-        window.history.pushState(null, "", window.location.href);
-        setPendingNav(() => () => {
-          setIsDirty(false);
-          navigate(-1);
-        });
-        setShowLeaveModal(true);
-      }
-    };
-    window.addEventListener("popstate", handler);
-    return () => window.removeEventListener("popstate", handler);
-  }, [isDirty]);
-
-  // ── confirmLeave: called by in-app buttons (search icon, logout) ──
-  const guardedNav = (navFn) => {
-    if (!isDirty) { navFn(); return; }
-    setPendingNav(() => navFn);
-    setShowLeaveModal(true);
-  };
-
-  const confirmLeave = () => {
-    setShowLeaveModal(false);
-    setIsDirty(false);
-    pendingNav?.();
-  };
-
-  const cancelLeave = () => {
-    setShowLeaveModal(false);
-    setPendingNav(null);
-  };
-
   const previewProps = { pdfData, topMargin, fontSize, paddingH, contractData, sellerPhoto, buyerPhoto, signatures, fingerprints, agentName: agent?.fullName };
   const sc = STATUS_CONFIG[agentStatus];
 
@@ -227,13 +168,12 @@ export default function StampGeneratorApp() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-3">
-            <button
-              onClick={() => guardedNav(() => navigate("/stampGenerator/search"))}
+            <a href="/stampGenerator/search"
               className="p-2 sm:px-3 sm:py-1.5 text-slate-500 hover:text-emerald-700 border border-slate-200 rounded-lg transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-            </button>
+            </a>
 
             <button onClick={cycleStatus} disabled={statusUpdating}
               className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold px-2 py-1.5 sm:px-3 rounded-lg border transition-all ${sc.bg} ${sc.border} ${sc.text}`}>
@@ -254,7 +194,7 @@ export default function StampGeneratorApp() {
               </div>
             )}
 
-            <button onClick={() => guardedNav(handleLogout)}
+            <button onClick={handleLogout}
               className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -452,7 +392,6 @@ export default function StampGeneratorApp() {
               setContractData(EMPTY_CONTRACT); setSignatures(EMPTY_SIGS); setFingerprints(EMPTY_FPS);
               setSellerPhoto(null); setBuyerPhoto(null);
               setChassisImg(null); setCarImg(null); setEngineImg(null);
-              setIsDirty(false);  // clean slate
             }}
               className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-slate-600 hover:bg-slate-700 text-white shadow-sm">
               New Contract
@@ -463,89 +402,89 @@ export default function StampGeneratorApp() {
           )}
         </div>
       </main>
-      {/* ── Leave-guard confirmation modal ── */}
-      {showLeaveModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-150">
-
-            {/* Icon */}
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-                <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-900 text-base leading-tight">کام ادھورا رہ جائے گا</h3>
-                <p className="text-xs text-gray-500 mt-0.5">کیا آپ واقعی یہاں سے جانا چاہتے ہیں؟</p>
-              </div>
-            </div>
-
-            {/* Body */}
-            <p className="text-sm text-gray-600 leading-relaxed">
-              ابھی تک کا سارا کام — اسٹامپ پیپر، فارم، تصاویر، دستخط — <strong className="text-gray-900">ضائع ہو جائے گا</strong>۔ واپس جانے سے پہلے یقین دلائیں۔
-            </p>
-
-            {/* Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={confirmLeave}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors active:scale-95"
-              >
-                ہاں، چھوڑ دیں
-              </button>
-              <button
-                onClick={cancelLeave}
-                className="flex-1 border-2 border-emerald-500 text-emerald-700 font-bold py-2.5 rounded-xl text-sm hover:bg-emerald-50 transition-colors active:scale-95"
-              >
-                نہیں، جاری رکھیں
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
 
 /* ── Vehicle Image Step ── */
 function VehicleImageStep({ chassisNo, regNo, engineNo, chassisImg, setChassisImg, carImg, setCarImg, engineImg, setEngineImg }) {
+  const [picker, setPicker] = React.useState(null); // id of the box whose picker is open
+
   const boxes = [
     { label: "Chassis", sub: chassisNo, state: chassisImg, setState: setChassisImg, id: "chassis-img", icon: "🔩" },
-    { label: "Car", sub: regNo, state: carImg, setState: setCarImg, id: "car-img", icon: "🚗" },
-    { label: "Engine", sub: engineNo, state: engineImg, setState: setEngineImg, id: "engine-img", icon: "⚙️" },
+    { label: "Car",     sub: regNo,     state: carImg,     setState: setCarImg,     id: "car-img",     icon: "🚗" },
+    { label: "Engine",  sub: engineNo,  state: engineImg,  setState: setEngineImg,  id: "engine-img",  icon: "⚙️" },
   ];
-  const toDataURL = (file, cb) => {
+  const toDataURL = (file, setState) => {
     if (!file || !file.type.startsWith("image/")) return;
     const r = new FileReader();
-    r.onload = (e) => cb(e.target.result);
+    r.onload = (e) => setState(e.target.result);
     r.readAsDataURL(file);
   };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {boxes.map(({ label, sub, state, setState, id, icon }) => (
           <div key={id} className="flex flex-col gap-2">
             <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">{icon} {label}</p>
+
             {state ? (
+              /* ── Image preview ── */
               <div className="relative aspect-video sm:aspect-square">
                 <img src={state} alt="" className="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm" />
                 <button onClick={() => setState(null)}
                   className="absolute top-2 right-2 bg-white/90 backdrop-blur rounded-full w-6 h-6 flex items-center justify-center text-[10px] shadow">✕</button>
               </div>
+            ) : picker === id ? (
+              /* ── Choice buttons: Camera or Gallery ── */
+              <div className="w-full aspect-video sm:aspect-square rounded-xl border-2 border-emerald-300 bg-emerald-50 flex flex-col items-center justify-center gap-3 p-3">
+                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">منتخب کریں</p>
+
+                {/* Camera */}
+                <button
+                  onClick={() => document.getElementById(`${id}-cam`).click()}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors active:scale-95">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  کیمرہ
+                </button>
+
+                {/* Gallery */}
+                <button
+                  onClick={() => document.getElementById(`${id}-gal`).click()}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors active:scale-95">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  گیلری
+                </button>
+
+                {/* Cancel */}
+                <button onClick={() => setPicker(null)}
+                  className="text-[10px] text-slate-400 hover:text-slate-600 underline">منسوخ</button>
+              </div>
             ) : (
-              <div onClick={() => document.getElementById(id).click()}
+              /* ── Tap to open choice ── */
+              <div onClick={() => setPicker(id)}
                 className="w-full aspect-video sm:aspect-square rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-400 hover:bg-emerald-50 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all">
                 <span className="text-xl opacity-50">{icon}</span>
                 <p className="text-[10px] font-bold text-slate-400">UPLOAD</p>
               </div>
             )}
-            {/* Back camera input */}
-            <input id={id} type="file" accept="image/*" capture="environment" className="hidden"
-              onChange={(e) => toDataURL(e.target.files[0], setState)} />
+
+            {/* Camera input */}
+            <input id={`${id}-cam`} type="file" accept="image/*" capture="environment" className="hidden"
+              onChange={(e) => { toDataURL(e.target.files[0], setState); setPicker(null); e.target.value = ""; }} />
+
+            {/* Gallery input — no capture attribute */}
+            <input id={`${id}-gal`} type="file" accept="image/*" className="hidden"
+              onChange={(e) => { toDataURL(e.target.files[0], setState); setPicker(null); e.target.value = ""; }} />
+
           </div>
         ))}
       </div>
