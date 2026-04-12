@@ -14,7 +14,7 @@ const Field = ({ label, name, value, onChange, type = "text", placeholder = "", 
 );
 
 export default function BargainerRegister() {
-  const [form, setForm]           = useState({ fullName: "", phone: "", cnic: "", password: "", city: "" });
+  const [form, setForm]           = useState({ fullName: "", phone: "", password: "", city: "" });
   const [pfpFile, setPfpFile]     = useState(null);
   const [pfpPreview, setPfpPreview] = useState(null);
   const [status, setStatus]       = useState("idle");
@@ -111,7 +111,6 @@ export default function BargainerRegister() {
             </div>
             <Field label="پورا نام"  name="fullName" value={form.fullName} onChange={handleChange} placeholder="محمد احمد خان" />
             <Field label="فون نمبر" name="phone"    value={form.phone}    onChange={handleChange} placeholder="03001234567" type="tel" />
-            <Field label="CNIC"     name="cnic"     value={form.cnic}     onChange={handleChange} placeholder="12345-1234567-1" />
             <Field label="شہر"      name="city"     value={form.city}     onChange={handleChange} placeholder="ڈیرہ اسماعیل خان" required={false} />
             <Field label="پاس ورڈ" name="password" value={form.password} onChange={handleChange} type="password" placeholder="کم از کم 6 حروف" />
             {status === "error" && (
