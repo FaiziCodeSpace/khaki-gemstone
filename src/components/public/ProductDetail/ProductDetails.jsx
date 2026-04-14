@@ -115,7 +115,7 @@ export function ProductDetails({ product }) {
           <div className="animate-fadeIn flex flex-col gap-6 mt-4 md:mt-8">
             {hasGemSize && (
               <div>
-                <h2 className="list-heading text-lg font-bold">Gem Size</h2>
+                <h2 className="list-heading text-lg font-bold">Size</h2>
                 <ul className="list-styling">
                   <li>{product.gem_size}</li>
                 </ul>
