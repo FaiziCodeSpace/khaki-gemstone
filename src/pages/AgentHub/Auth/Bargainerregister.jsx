@@ -1,25 +1,47 @@
-// pages/public/BargainerRegister.jsx
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Eye, EyeOff, UserPlus, Info, Check, Camera, Loader2, AlertCircle } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
-const Field = ({ label, name, value, onChange, type = "text", placeholder = "", required = true }) => (
-  <div className="flex flex-col gap-1.5">
-    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</label>
-    <input type={type} name={name} value={value} required={required} placeholder={placeholder}
-      onChange={(e) => onChange(name, e.target.value)}
-      className="border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder:text-gray-300 transition" />
-  </div>
-);
+const Field = ({ label, name, value, onChange, type = "text", placeholder = "", required = true }) => {
+  const [show, setShow] = useState(false);
+  const isPassword = type === "password";
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</label>
+      <div className="relative">
+        <input
+          type={isPassword ? (show ? "text" : "password") : type}
+          name={name}
+          value={value}
+          required={required}
+          placeholder={placeholder}
+          onChange={(e) => onChange(name, e.target.value)}
+          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder:text-gray-300 transition"
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShow(!show)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-600 transition-colors"
+          >
+            {show ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default function BargainerRegister() {
-  const [form, setForm]           = useState({ fullName: "", phone: "", password: "", city: "" });
-  const [pfpFile, setPfpFile]     = useState(null);
+  const [form, setForm] = useState({ fullName: "", phone: "", password: "", city: "" });
+  const [pfpFile, setPfpFile] = useState(null);
   const [pfpPreview, setPfpPreview] = useState(null);
-  const [status, setStatus]       = useState("idle");
-  const [message, setMessage]     = useState("");
-  const fileRef                   = useRef(null);
+  const [status, setStatus] = useState("idle");
+  const [message, setMessage] = useState("");
+  const fileRef = useRef(null);
 
   const handleChange = (name, value) => setForm((p) => ({ ...p, [name]: value }));
 
@@ -34,16 +56,20 @@ export default function BargainerRegister() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus("loading"); setMessage("");
+    setStatus("loading");
+    setMessage("");
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       if (pfpFile) fd.append("pfp", pfpFile);
-      const res  = await fetch(`${API_BASE}/bargainers/register`, { method: "POST", body: fd });
+      const res = await fetch(`${API_BASE}/bargainers/register`, { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Registration failed");
       setStatus("done");
-    } catch (err) { setStatus("error"); setMessage(err.message); }
+    } catch (err) {
+      setStatus("error");
+      setMessage(err.message);
+    }
   };
 
   if (status === "done") {
@@ -51,9 +77,7 @@ export default function BargainerRegister() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="max-w-sm w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
-            </svg>
+            <Check className="w-8 h-8 text-emerald-600" />
           </div>
           <h2 className="text-xl font-black text-gray-900 mb-2">درخواست موصول!</h2>
           <p className="text-gray-500 text-sm leading-relaxed">منظوری کے بعد لاگ ان کر سکیں گے۔</p>
@@ -71,65 +95,63 @@ export default function BargainerRegister() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-            </svg>
+            <UserPlus className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-2xl font-black text-gray-900">Bargainer رجسٹریشن</h1>
           <p className="text-gray-500 text-sm mt-1">AgentHub تک رسائی کے لیے اکاؤنٹ بنائیں</p>
         </div>
+
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
-          <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+          <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-xs text-amber-800 leading-relaxed">رجسٹریشن کے بعد ایڈمن منظوری دے گا، پھر لاگ ان کریں۔</p>
         </div>
+
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* PFP picker */}
             <div className="flex flex-col items-center gap-2 pb-1">
-              <div onClick={() => fileRef.current?.click()}
-                className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-dashed border-gray-300 hover:border-emerald-400 bg-gray-50 cursor-pointer flex items-center justify-center transition-colors">
+              <div
+                onClick={() => fileRef.current?.click()}
+                className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-dashed border-gray-300 hover:border-emerald-400 bg-gray-50 cursor-pointer flex items-center justify-center transition-colors"
+              >
                 {pfpPreview ? (
                   <img src={pfpPreview} alt="pfp" className="w-full h-full object-cover" />
                 ) : (
-                  <svg className="w-7 h-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
+                  <Camera className="w-7 h-7 text-gray-300" />
                 )}
-                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/>
-                  </svg>
-                </div>
               </div>
               <p className="text-xs text-gray-400">پروفائل تصویر (اختیاری)</p>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePfp} />
             </div>
-            <Field label="پورا نام"  name="fullName" value={form.fullName} onChange={handleChange} placeholder="محمد احمد خان" />
-            <Field label="فون نمبر" name="phone"    value={form.phone}    onChange={handleChange} placeholder="03001234567" type="tel" />
-            <Field label="شہر"      name="city"     value={form.city}     onChange={handleChange} placeholder="ڈیرہ اسماعیل خان" required={false} />
+
+            <Field label="پورا نام" name="fullName" value={form.fullName} onChange={handleChange} placeholder="محمد احمد خان" />
+            <Field label="فون نمبر" name="phone" value={form.phone} onChange={handleChange} placeholder="03001234567" type="tel" />
+            <Field label="شہر" name="city" value={form.city} onChange={handleChange} placeholder="ڈیرہ اسماعیل خان" required={false} />
             <Field label="پاس ورڈ" name="password" value={form.password} onChange={handleChange} type="password" placeholder="کم از کم 6 حروف" />
+
             {status === "error" && (
-              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">⚠️ {message}</div>
+              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 flex items-center gap-2">
+                <AlertCircle size={14} /> {message}
+              </div>
             )}
-            <button type="submit" disabled={status === "loading"}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2">
+
+            <button
+              type="submit"
+              disabled={status === "loading"}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
+            >
               {status === "loading" ? (
-                <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                </svg>درخواست بھیجی جا رہی ہے...</>
-              ) : "درخواست جمع کریں"}
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  درخواست بھیجی جا رہی ہے...
+                </>
+              ) : (
+                "درخواست جمع کریں"
+              )}
             </button>
           </form>
         </div>
         <p className="text-center text-xs text-gray-400 mt-4">
-          پہلے سے اکاؤنٹ ہے؟{" "}
-          <Link to="/bargainer-login" className="text-emerald-600 underline font-semibold">لاگ ان کریں</Link>
+          پہلے سے اکاؤنٹ ہے؟ <Link to="/bargainer-login" className="text-emerald-600 underline font-semibold">لاگ ان کریں</Link>
         </p>
       </div>
     </div>

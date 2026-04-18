@@ -73,7 +73,6 @@ function Stars({ rating, count, size = "sm" }) {
 }
 
 // ── Location Permission Modal ─────────────────────────────────────────
-// Shown on first load as a full modal — much more visible than a thin strip
 function LocationModal({ onAllow, onDismiss, error, loading }) {
   return (
     <div className="fixed inset-0 z-[600] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-4 sm:pb-0">
@@ -91,15 +90,12 @@ function LocationModal({ onAllow, onDismiss, error, loading }) {
           <p className="text-emerald-100 text-sm leading-relaxed">
             قریب ترین ایجنٹ تلاش کرنے کے لیے آپ کی موجودہ جگہ معلوم ہونی ضروری ہے
           </p>
-          {/* Decorative circles */}
           <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/5" />
           <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-white/5" />
         </div>
 
         {/* Content */}
         <div className="px-6 pt-5 pb-6 flex flex-col gap-4">
-
-          {/* What we use it for */}
           <div className="flex flex-col gap-2.5">
             {[
               { icon: <Navigation className="w-4 h-4 text-emerald-600" />, text: "قریب ترین ایجنٹ کا فاصلہ ناپنا" },
@@ -115,7 +111,6 @@ function LocationModal({ onAllow, onDismiss, error, loading }) {
             ))}
           </div>
 
-          {/* Error state */}
           {error && (
             <div className="flex items-start gap-2.5 bg-red-50 border border-red-100 rounded-xl px-3.5 py-3">
               <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
@@ -123,7 +118,6 @@ function LocationModal({ onAllow, onDismiss, error, loading }) {
             </div>
           )}
 
-          {/* Allow button */}
           <button
             onClick={onAllow}
             disabled={loading}
@@ -136,7 +130,6 @@ function LocationModal({ onAllow, onDismiss, error, loading }) {
             {loading ? "لوکیشن تلاش ہو رہی ہے..." : "لوکیشن کی اجازت دیں"}
           </button>
 
-          {/* Skip */}
           <button onClick={onDismiss}
             className="w-full py-2.5 text-sm text-gray-400 hover:text-gray-600 transition-colors">
             ابھی نہیں — بغیر لوکیشن جاری رکھیں
@@ -169,19 +162,16 @@ function AgentSheet({ agent, distKm, userPos, onClose, onRate, ratingGiven }) {
       <div className="fixed bottom-0 left-0 right-0 z-[500] bg-white rounded-t-3xl shadow-2xl max-w-lg mx-auto"
         style={{ animation: "slideUp 0.25s ease" }}>
 
-        {/* Handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 rounded-full bg-gray-200" />
         </div>
 
-        {/* Close button */}
         <button onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
           <X className="w-4 h-4 text-gray-500" />
         </button>
 
         <div className="px-5 pt-2 pb-7">
-          {/* Agent info */}
           <div className="flex items-center gap-4 mb-5">
             <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-gray-100 shadow-sm">
               {agent.pfp ? (
@@ -210,7 +200,6 @@ function AgentSheet({ agent, distKm, userPos, onClose, onRate, ratingGiven }) {
             </div>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-3 gap-2 mb-5">
             <div className="bg-gray-50 rounded-2xl p-3 text-center">
               <div className="flex items-center justify-center mb-0.5">
@@ -246,7 +235,6 @@ function AgentSheet({ agent, distKm, userPos, onClose, onRate, ratingGiven }) {
             </div>
           </div>
 
-          {/* WhatsApp */}
           <button onClick={openWhatsApp}
             className="w-full bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2.5 transition-colors active:scale-95 mb-3 shadow-sm">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -256,7 +244,6 @@ function AgentSheet({ agent, distKm, userPos, onClose, onRate, ratingGiven }) {
             WhatsApp پر رابطہ کریں
           </button>
 
-          {/* Rate */}
           {!ratingGiven[agent._id] ? (
             <div className="flex items-center justify-center gap-2 py-1">
               <span className="text-xs text-gray-400">ریٹنگ دیں:</span>
@@ -275,7 +262,11 @@ function AgentSheet({ agent, distKm, userPos, onClose, onRate, ratingGiven }) {
           )}
         </div>
       </div>
-      <style>{`@keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }`}</style>
+      <style>{`
+        @keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
+        @keyframes pulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+      `}</style>
     </>
   );
 }
@@ -336,11 +327,144 @@ export default function AgentHub() {
   const [loading, setLoading]             = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [ratingGiven, setRatingGiven]     = useState({});
-  const [tab, setTab]                     = useState("list");
+  const [tab, setTab]                     = useState("map");
   const [mapCenter, setMapCenter]         = useState([30.38, 69.35]);
-  // Controls the location modal — show on first load unless dismissed
   const [showLocModal, setShowLocModal]   = useState(true);
+  // "acquiring" = spinner shown on map/banner while polling; "found" = brief success flash
+  const [locStatus, setLocStatus]         = useState("idle"); // "idle" | "acquiring" | "found"
 
+  // ── Refs for location polling machinery ──────────────────────────
+  // watchId: the ID returned by watchPosition (continuous updates from browser)
+  // pollId:  the 1-second setInterval fallback (silent retries via getCurrentPosition)
+  // permissionGranted: once true, we stop showing any error UI on retry failure
+  const watchIdRef           = useRef(null);
+  const pollIdRef            = useRef(null);
+  const permissionGrantedRef = useRef(false);
+  const userPosRef           = useRef(null); // mirrors userPos so callbacks see latest
+
+  // Keep ref in sync with state
+  useEffect(() => { userPosRef.current = userPos; }, [userPos]);
+
+  // ── Success handler shared by both watchPosition and getCurrentPosition ──
+  const handlePositionSuccess = useCallback((pos) => {
+    const { latitude: lat, longitude: lng } = pos.coords;
+    permissionGrantedRef.current = true;
+    setLocError("");
+    setLocLoading(false);
+    setLocStatus("found");
+    setShowLocModal(false);
+
+    // Brief "found" flash, then settle to idle
+    setTimeout(() => setLocStatus("idle"), 2500);
+
+    const prev = userPosRef.current;
+    const moved = !prev || haversine(prev.lat, prev.lng, lat, lng) > 0.02;
+    if (moved) {
+      setUserPos({ lat, lng });
+      setMapCenter([lat, lng]);
+    }
+
+    if (pollIdRef.current !== null) {
+      clearInterval(pollIdRef.current);
+      pollIdRef.current = null;
+    }
+  }, []);
+
+  // ── Silent retry via getCurrentPosition (used by the 1-second interval) ──
+  // Does NOT touch locError or locLoading so there's no UI flicker on retry.
+  const silentGetPosition = useCallback(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      handlePositionSuccess,
+      () => { /* silently ignore — we keep retrying */ },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
+  }, [handlePositionSuccess]);
+
+  // ── Start the continuous location engine ─────────────────────────
+  // Called when the user taps "Allow" in the modal, OR automatically retried
+  // in the background once permission has been granted.
+  const startLocationEngine = useCallback(() => {
+    if (!navigator.geolocation) {
+      setLocError("آپ کا براؤزر لوکیشن سپورٹ نہیں کرتا۔");
+      setLocLoading(false);
+      return;
+    }
+
+    setLocError("");
+    setLocLoading(true);
+    setLocStatus("acquiring");
+
+    // 1. watchPosition fires every time the device position changes and keeps
+    //    running indefinitely — this is the ideal path.
+    if (watchIdRef.current === null) {
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        handlePositionSuccess,
+        (err) => {
+          // watchPosition error — fall through to poll fallback below.
+          // Only surface the error to the user if permission hasn't been
+          // granted yet (so we don't spam red banners on GPS glitches).
+          if (!permissionGrantedRef.current) {
+            setLocError("لوکیشن نہیں مل سکی۔ براہ کرم browser settings میں Location Permission دیں۔");
+            setLocLoading(false);
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    // 2. 1-second poll fallback — silently retries getCurrentPosition every
+    //    second. Once watchPosition delivers a fix (handlePositionSuccess
+    //    clears pollIdRef), or the component unmounts, this stops.
+    if (pollIdRef.current === null) {
+      // Kick off one immediate attempt, then repeat every 1 s
+      silentGetPosition();
+      pollIdRef.current = setInterval(silentGetPosition, 500);
+    }
+  }, [handlePositionSuccess, silentGetPosition]);
+
+  // ── Exposed "request location" for the modal button ──────────────
+  const requestLocation = useCallback(() => {
+    startLocationEngine();
+  }, [startLocationEngine]);
+
+  // ── Cleanup on unmount ────────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+      if (pollIdRef.current !== null) {
+        clearInterval(pollIdRef.current);
+        pollIdRef.current = null;
+      }
+    };
+  }, []);
+
+  // ── Auto-start if the user had already granted permission in a ────
+  // previous session (avoids needing to tap "Allow" again).
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    // navigator.permissions is not available in all browsers; guard it
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: "geolocation" }).then((result) => {
+        if (result.state === "granted") {
+          // Permission already granted — start silently, skip modal
+          permissionGrantedRef.current = true;
+          setShowLocModal(false);
+          startLocationEngine();
+        }
+        // "prompt" → show modal as normal; "denied" → do nothing (modal handles it)
+      }).catch(() => {
+        // permissions API unavailable — attempt silently; modal hides if it works
+        startLocationEngine();
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally run once on mount
+
+  // ── Agents fetching ───────────────────────────────────────────────
   const fetchAgents = useCallback(async () => {
     setLoading(true);
     try {
@@ -370,31 +494,6 @@ export default function AgentHub() {
 
   const closestAgent = agentsWithDist.find(a => a.distKm != null) || null;
 
-  const requestLocation = () => {
-    setLocError("");
-    setLocLoading(true);
-    if (!navigator.geolocation) {
-      setLocError("آپ کا براؤزر لوکیشن سپورٹ نہیں کرتا۔");
-      setLocLoading(false);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude: lat, longitude: lng } = pos.coords;
-        setUserPos({ lat, lng });
-        setMapCenter([lat, lng]);
-        setTab("map");
-        setShowLocModal(false);
-        setLocLoading(false);
-      },
-      () => {
-        setLocError("لوکیشن نہیں مل سکی۔ براہ کرم browser settings میں Location Permission دیں۔");
-        setLocLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
   const handleRate = async (agentId, stars) => {
     try {
       const res  = await fetch(`${API_BASE}/agents/rate/${agentId}`, {
@@ -411,6 +510,35 @@ export default function AgentHub() {
   const selectedDist = selectedAgent
     ? agentsWithDist.find(a => a._id === selectedAgent._id)?.distKm ?? null
     : null;
+
+  // ── Location status bar (shown below top bar while acquiring/found) ──
+  const LocationStatusBar = () => {
+    if (locStatus === "acquiring") return (
+      <div className="bg-blue-50 border-b border-blue-100 px-4 py-2 flex items-center gap-2.5">
+        <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin shrink-0" />
+        <p className="text-xs text-blue-700 font-medium">لوکیشن تلاش ہو رہی ہے — براہ کرم انتظار کریں...</p>
+        <span className="ml-auto flex gap-1">
+          {[0,1,2].map(i => (
+            <span key={i} className="w-1.5 h-1.5 rounded-full bg-blue-400"
+              style={{ animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+          ))}
+        </span>
+      </div>
+    );
+    if (locStatus === "found") return (
+      <div className="bg-emerald-50 border-b border-emerald-100 px-4 py-2 flex items-center gap-2.5"
+        style={{ animation: "fadeIn 0.3s ease" }}>
+        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+        <p className="text-xs text-emerald-700 font-medium">لوکیشن مل گئی!</p>
+        {userPos && (
+          <span className="text-[10px] text-emerald-500 ml-1">
+            {userPos.lat.toFixed(4)}, {userPos.lng.toFixed(4)}
+          </span>
+        )}
+      </div>
+    );
+    return null;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -444,22 +572,26 @@ export default function AgentHub() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Online count */}
           <div className="flex items-center gap-1.5 bg-emerald-600/60 px-2.5 py-1.5 rounded-full text-[10px] font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
             {agents.filter(a => a.status === "online").length} آن لائن
           </div>
 
-          {/* Re-request location if dismissed */}
           {!userPos && (
-            <button onClick={() => setShowLocModal(true)}
-              className="w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center transition-colors"
-              title="لوکیشن شیئر کریں">
-              <Locate className="w-4 h-4" />
+            <button onClick={() => locStatus === "acquiring" ? null : setShowLocModal(true)}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                locStatus === "acquiring"
+                  ? "bg-blue-500/40 cursor-default"
+                  : "bg-emerald-600 hover:bg-emerald-500"
+              }`}
+              title={locStatus === "acquiring" ? "لوکیشن تلاش ہو رہی ہے..." : "لوکیشن شیئر کریں"}>
+              {locStatus === "acquiring"
+                ? <Loader2 className="w-4 h-4 animate-spin text-white" />
+                : <Locate className="w-4 h-4" />
+              }
             </button>
           )}
 
-          {/* Location active indicator */}
           {userPos && (
             <div className="w-8 h-8 rounded-full bg-blue-500/30 flex items-center justify-center" title="لوکیشن فعال">
               <Navigation className="w-4 h-4 text-blue-200" />
@@ -473,7 +605,10 @@ export default function AgentHub() {
         </div>
       </div>
 
-      {/* ── Closest agent banner (after location granted) ── */}
+      {/* ── Location status bar ── */}
+      <LocationStatusBar />
+
+      {/* ── Closest agent banner ── */}
       {userPos && closestAgent && (
         <div onClick={() => setSelectedAgent(closestAgent)}
           className="mx-4 mt-3 bg-white rounded-2xl border border-emerald-200 p-3.5 flex items-center gap-3 cursor-pointer hover:shadow-md transition-all active:scale-[0.98] shadow-sm">
@@ -607,8 +742,14 @@ export default function AgentHub() {
             <button id="zoom-out" className="w-9 h-9 bg-white rounded-xl shadow-md flex items-center justify-center text-gray-700 text-lg font-bold hover:bg-gray-50 active:bg-gray-100 border border-gray-100">−</button>
           </div>
 
-          {/* Locate button on map */}
-          {!userPos && (
+          {!userPos && locStatus === "acquiring" && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-sm rounded-full shadow-md px-4 py-2 flex items-center gap-2 border border-blue-100">
+              <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+              <span className="text-xs text-blue-700 font-semibold whitespace-nowrap">لوکیشن تلاش ہو رہی ہے...</span>
+            </div>
+          )}
+
+          {!userPos && locStatus !== "acquiring" && (
             <button onClick={() => setShowLocModal(true)}
               className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] bg-emerald-600 text-white font-bold px-5 py-3 rounded-full shadow-lg text-sm flex items-center gap-2 hover:bg-emerald-700 transition-colors">
               <Locate className="w-4 h-4" />
