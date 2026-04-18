@@ -17,9 +17,10 @@ function ValidationPanel({ panel, onDismiss }) {
             ? "bg-white border-emerald-200"
             : "bg-white border-red-200"
           }`}
-        style={{ boxShadow: isSuccess
-          ? "0 8px 32px -4px rgba(16,185,129,0.18), 0 2px 8px -2px rgba(0,0,0,0.08)"
-          : "0 8px 32px -4px rgba(239,68,68,0.18), 0 2px 8px -2px rgba(0,0,0,0.08)"
+        style={{
+          boxShadow: isSuccess
+            ? "0 8px 32px -4px rgba(16,185,129,0.18), 0 2px 8px -2px rgba(0,0,0,0.08)"
+            : "0 8px 32px -4px rgba(239,68,68,0.18), 0 2px 8px -2px rgba(0,0,0,0.08)"
         }}
       >
         {/* Header bar */}
@@ -116,20 +117,20 @@ function validateData(data) {
   const errors = [];
 
   const required = [
-    { key: "sellerName",   label: "Seller Name" },
+    { key: "sellerName", label: "Seller Name" },
     { key: "sellerFather", label: "Seller Father's Name" },
-    { key: "sellerCnic",   label: "Seller CNIC", cnic: true },
+    { key: "sellerCnic", label: "Seller CNIC", cnic: true },
     { key: "sellerTehsil", label: "Seller District/Tehsil" },
-    { key: "buyerName",    label: "Buyer Name" },
-    { key: "buyerFather",  label: "Buyer Father's Name" },
-    { key: "buyerCnic",    label: "Buyer CNIC", cnic: true },
-    { key: "buyerTehsil",  label: "Buyer District/Tehsil" },
-    { key: "carModel",     label: "Vehicle Make/Model" },
-    { key: "regNo",        label: "Registration No." },
-    { key: "modelYear",    label: "Model Year" },
-    { key: "carColor",     label: "Vehicle Colour" },
-    { key: "engineNo",     label: "Engine No." },
-    { key: "chassisNo",    label: "Chassis No." },
+    { key: "buyerName", label: "Buyer Name" },
+    { key: "buyerFather", label: "Buyer Father's Name" },
+    { key: "buyerCnic", label: "Buyer CNIC", cnic: true },
+    { key: "buyerTehsil", label: "Buyer District/Tehsil" },
+    { key: "carModel", label: "Vehicle Make/Model" },
+    { key: "regNo", label: "Registration No." },
+    { key: "modelYear", label: "Model Year" },
+    { key: "carColor", label: "Vehicle Colour" },
+    { key: "engineNo", label: "Engine No." },
+    { key: "chassisNo", label: "Chassis No." },
   ];
 
   for (const field of required) {
@@ -216,32 +217,39 @@ export default function ContractForm({ data, onChange }) {
         {/* ── Seller ── */}
         <SectionTitle>فریق اول — Seller</SectionTitle>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Seller Name (اردو)"       name="sellerName"    value={data.sellerName}    onChange={handleChange} placeholder="عبداللہ خان" />
-          <Field label="Father's Name (اردو)"     name="sellerFather"  value={data.sellerFather}  onChange={handleChange} placeholder="عصمت اللہ خان" />
+          <Field label="Seller Name (اردو)" name="sellerName" value={data.sellerName} onChange={handleChange} placeholder="عبداللہ خان" />
+          <Field label="Father's Name (اردو)" name="sellerFather" value={data.sellerFather} onChange={handleChange} placeholder="عصمت اللہ خان" />
           <Field label="Mohalla / Village (اردو)" name="sellerMohalla" value={data.sellerMohalla} onChange={handleChange} placeholder="اما میل" />
-          <Field label="تحصیل و ضلع (اردو)"       name="sellerTehsil"  value={data.sellerTehsil}  onChange={handleChange} placeholder="تحصیل و ضلع ٹانک" />
-          <Field label="CNIC"                     name="sellerCnic"    value={data.sellerCnic}    onChange={handleChange} placeholder="12345-1234567-1" />
+          <Field label="تحصیل و ضلع (اردو)" name="sellerTehsil" value={data.sellerTehsil} onChange={handleChange} placeholder="تحصیل و ضلع ٹانک" />
+          <Field label="CNIC" name="sellerCnic" value={data.sellerCnic} onChange={handleChange} placeholder="12345-1234567-1" />
         </div>
 
         {/* ── Buyer ── */}
         <SectionTitle>فریق دوم — Buyer</SectionTitle>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Buyer Name (اردو)"        name="buyerName"    value={data.buyerName}    onChange={handleChange} placeholder="محمد حسنین خان" />
-          <Field label="Father's Name (اردو)"     name="buyerFather"  value={data.buyerFather}  onChange={handleChange} placeholder="محمد جاوید ظفر خان" />
+          <Field label="Buyer Name (اردو)" name="buyerName" value={data.buyerName} onChange={handleChange} placeholder="محمد حسنین خان" />
+          <Field label="Father's Name (اردو)" name="buyerFather" value={data.buyerFather} onChange={handleChange} placeholder="محمد جاوید ظفر خان" />
           <Field label="Mohalla / Village (اردو)" name="buyerMohalla" value={data.buyerMohalla} onChange={handleChange} placeholder="گرہی سدوزئی" />
-          <Field label="تحصیل و ضلع (اردو)"       name="buyerTehsil"  value={data.buyerTehsil}  onChange={handleChange} placeholder="تحصیل و ضلع ڈیرہ اسماعیل خان" />
-          <Field label="CNIC"                     name="buyerCnic"    value={data.buyerCnic}    onChange={handleChange} placeholder="12345-1234567-2" />
+          <Field label="تحصیل و ضلع (اردو)" name="buyerTehsil" value={data.buyerTehsil} onChange={handleChange} placeholder="تحصیل و ضلع ڈیرہ اسماعیل خان" />
+          <Field label="CNIC" name="buyerCnic" value={data.buyerCnic} onChange={handleChange} placeholder="12345-1234567-2" />
         </div>
 
         {/* ── Vehicle ── */}
         <SectionTitle>گاڑی کی تفصیل — Vehicle</SectionTitle>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Make / Model"     name="carModel"   value={data.carModel}   onChange={handleChange} placeholder="ALTO VXR" />
-          <Field label="Registration No." name="regNo"      value={data.regNo}      onChange={handleChange} placeholder="PZ-031" />
-          <Field label="Model Year"       name="modelYear"  value={data.modelYear}  onChange={handleChange} placeholder="2010" />
-          <Field label="Colour (اردو)"    name="carColor"   value={data.carColor}   onChange={handleChange} placeholder="سفید" />
-          <Field label="Engine No."       name="engineNo"   value={data.engineNo}   onChange={handleChange} placeholder="PKR257668" />
-          <Field label="Chassis No."      name="chassisNo"  value={data.chassisNo}  onChange={handleChange} placeholder="RA410PK561670" />
+          <Field label="Make / Model" name="carModel" value={data.carModel} onChange={handleChange} placeholder="ALTO VXR" />
+          <Field label="Registration No." name="regNo" value={data.regNo} onChange={handleChange} placeholder="PZ-031" />
+          <Field label="Model Year" name="modelYear" value={data.modelYear} onChange={handleChange} placeholder="2010" />
+          <Field label="Colour (اردو)" name="carColor" value={data.carColor} onChange={handleChange} placeholder="سفید" />
+          <Field label="Engine No." name="engineNo" value={data.engineNo} onChange={handleChange} placeholder="PKR257668" />
+          <Field label="Chassis No." name="chassisNo" value={data.chassisNo} onChange={handleChange} placeholder="RA410PK561670" />
+          <Field
+            label="Responsibility date"
+            type="date"
+            name="responsibility"
+            value={data.responsibility || ""}
+            onChange={handleChange}
+          />
         </div>
 
         {/* ── Number Plate ── */}
@@ -290,8 +298,8 @@ export default function ContractForm({ data, onChange }) {
               نقد روبرو گواہان ازاں فریق دوم وصول کرلیے ہیں۔
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Total Amount (figures)"  name="priceNum"   value={data.priceNum}   onChange={handleChange} placeholder="5,95,000" />
-              <Field label="Amount in Words (اردو)"  name="priceWords" value={data.priceWords} onChange={handleChange} placeholder="پانچ لاکھ پچانوے ہزار" />
+              <Field label="Total Amount (figures)" name="priceNum" value={data.priceNum} onChange={handleChange} placeholder="5,95,000" />
+              <Field label="Amount in Words (اردو)" name="priceWords" value={data.priceWords} onChange={handleChange} placeholder="پانچ لاکھ پچانوے ہزار" />
             </div>
           </div>
         )}
@@ -307,13 +315,13 @@ export default function ContractForm({ data, onChange }) {
               <span className="text-blue-600 font-bold">[آخری تاریخ]</span> کو ادا کیے جائیں گے۔
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Total Amount (figures)"         name="priceNum"       value={data.priceNum}       onChange={handleChange} placeholder="5,95,000" />
-              <Field label="Total in Words (اردو)"          name="priceWords"     value={data.priceWords}     onChange={handleChange} placeholder="پانچ لاکھ پچانوے ہزار" />
-              <Field label="Advance Amount (figures)"       name="advanceNum"     value={data.advanceNum}     onChange={handleChange} placeholder="2,00,000" />
-              <Field label="Advance in Words (اردو)"        name="advanceWords"   value={data.advanceWords}   onChange={handleChange} placeholder="دو لاکھ" />
-              <Field label="Remaining Amount (figures)"     name="remainingNum"   value={data.remainingNum}   onChange={handleChange} placeholder="3,95,000" />
-              <Field label="Remaining in Words (اردو)"      name="remainingWords" value={data.remainingWords} onChange={handleChange} placeholder="تین لاکھ پچانوے ہزار" />
-              <Field label="Due Date for Remaining Payment" name="dueDate"        value={data.dueDate}        onChange={handleChange} type="date" />
+              <Field label="Total Amount (figures)" name="priceNum" value={data.priceNum} onChange={handleChange} placeholder="5,95,000" />
+              <Field label="Total in Words (اردو)" name="priceWords" value={data.priceWords} onChange={handleChange} placeholder="پانچ لاکھ پچانوے ہزار" />
+              <Field label="Advance Amount (figures)" name="advanceNum" value={data.advanceNum} onChange={handleChange} placeholder="2,00,000" />
+              <Field label="Advance in Words (اردو)" name="advanceWords" value={data.advanceWords} onChange={handleChange} placeholder="دو لاکھ" />
+              <Field label="Remaining Amount (figures)" name="remainingNum" value={data.remainingNum} onChange={handleChange} placeholder="3,95,000" />
+              <Field label="Remaining in Words (اردو)" name="remainingWords" value={data.remainingWords} onChange={handleChange} placeholder="تین لاکھ پچانوے ہزار" />
+              <Field label="Due Date for Remaining Payment" name="dueDate" value={data.dueDate} onChange={handleChange} type="date" />
             </div>
 
             <div className="border-t border-slate-200 pt-3 flex flex-col gap-2">
@@ -336,14 +344,14 @@ export default function ContractForm({ data, onChange }) {
           <Field label="Contract Date" name="date" value={data.date} onChange={handleChange} type="date" />
           <div />
 
-          <Field label="Witness 1 Name (اردو)" name="witness1Name"   value={data.witness1Name}   onChange={handleChange} placeholder="عبدالحسیب اللہ خان" />
-          <Field label="Witness 1 CNIC"         name="witness1Cnic"   value={data.witness1Cnic}   onChange={handleChange} placeholder="12345-1234567-1" />
-          <Field label="Witness 1 تحصیل و ضلع"  name="witness1Tehsil" value={data.witness1Tehsil} onChange={handleChange} placeholder="تحصیل و ضلع DIK" />
+          <Field label="Witness 1 Name (اردو)" name="witness1Name" value={data.witness1Name} onChange={handleChange} placeholder="عبدالحسیب اللہ خان" />
+          <Field label="Witness 1 CNIC" name="witness1Cnic" value={data.witness1Cnic} onChange={handleChange} placeholder="12345-1234567-1" />
+          <Field label="Witness 1 تحصیل و ضلع" name="witness1Tehsil" value={data.witness1Tehsil} onChange={handleChange} placeholder="تحصیل و ضلع DIK" />
           <div />
 
-          <Field label="Witness 2 Name (اردو)" name="witness2Name"   value={data.witness2Name}   onChange={handleChange} placeholder="محمد خان ولد خان احمد" />
-          <Field label="Witness 2 CNIC"         name="witness2Cnic"   value={data.witness2Cnic}   onChange={handleChange} placeholder="12345-1234567-2" />
-          <Field label="Witness 2 تحصیل و ضلع"  name="witness2Tehsil" value={data.witness2Tehsil} onChange={handleChange} placeholder="تحصیل و ضلع DIK" />
+          <Field label="Witness 2 Name (اردو)" name="witness2Name" value={data.witness2Name} onChange={handleChange} placeholder="محمد خان ولد خان احمد" />
+          <Field label="Witness 2 CNIC" name="witness2Cnic" value={data.witness2Cnic} onChange={handleChange} placeholder="12345-1234567-2" />
+          <Field label="Witness 2 تحصیل و ضلع" name="witness2Tehsil" value={data.witness2Tehsil} onChange={handleChange} placeholder="تحصیل و ضلع DIK" />
         </div>
 
         {/* ── Extra Conditions ── */}

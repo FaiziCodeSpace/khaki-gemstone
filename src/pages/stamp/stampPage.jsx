@@ -10,6 +10,133 @@ import ExportButton from "../../components/stampGenerator/Exportbutton";
 import { useAgentAuth } from "../../context/Agentauthcontext";
 import agentApi from "../../services/agentServices/api.agentService";
 
+// ── LocalStorage key (text fields) ──
+const LS_KEY = "iqrarnama_contract_draft";
+
+// ── IndexedDB helper (images / signatures / fingerprints) ──
+// Images are base64 strings that can be several MB each — far too large for
+// localStorage. IndexedDB has no practical size limit for this use case.
+const IDB_NAME    = "iqrarnama_db";
+const IDB_STORE   = "draft_images";
+const IDB_VERSION = 1;
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE);
+      }
+    };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror   = (e) => reject(e.target.error);
+  });
+}
+
+async function idbSet(key, value) {
+  try {
+    const db = await openIDB();
+    return new Promise((resolve, reject) => {
+      const tx    = db.transaction(IDB_STORE, "readwrite");
+      const store = tx.objectStore(IDB_STORE);
+      const req   = store.put(value, key);
+      req.onsuccess = () => resolve();
+      req.onerror   = (e) => reject(e.target.error);
+    });
+  } catch (_) {}
+}
+
+async function idbGet(key) {
+  try {
+    const db = await openIDB();
+    return new Promise((resolve, reject) => {
+      const tx    = db.transaction(IDB_STORE, "readonly");
+      const store = tx.objectStore(IDB_STORE);
+      const req   = store.get(key);
+      req.onsuccess = (e) => resolve(e.target.result ?? null);
+      req.onerror   = (e) => reject(e.target.error);
+    });
+  } catch (_) { return null; }
+}
+
+async function idbDelete(key) {
+  try {
+    const db = await openIDB();
+    return new Promise((resolve, reject) => {
+      const tx    = db.transaction(IDB_STORE, "readwrite");
+      const store = tx.objectStore(IDB_STORE);
+      const req   = store.delete(key);
+      req.onsuccess = () => resolve();
+      req.onerror   = (e) => reject(e.target.error);
+    });
+  } catch (_) {}
+}
+
+async function idbClearAll() {
+  try {
+    const db = await openIDB();
+    return new Promise((resolve, reject) => {
+      const tx    = db.transaction(IDB_STORE, "readwrite");
+      const store = tx.objectStore(IDB_STORE);
+      const req   = store.clear();
+      req.onsuccess = () => resolve();
+      req.onerror   = (e) => reject(e.target.error);
+    });
+  } catch (_) {}
+}
+
+// Keys used in IDB for each image slot
+const IDB_KEYS = {
+  sellerPhoto:  "sellerPhoto",
+  buyerPhoto:   "buyerPhoto",
+  chassisImg:   "chassisImg",
+  carImg:       "carImg",
+  engineImg:    "engineImg",
+  // signatures
+  sigSeller:    "sig_seller",
+  sigBuyer:     "sig_buyer",
+  sigWitness1:  "sig_witness1",
+  sigWitness2:  "sig_witness2",
+  // fingerprints
+  fpSeller:     "fp_sellerFp",
+  fpBuyer:      "fp_buyerFp",
+  fpWitness1:   "fp_witness1Fp",
+  fpWitness2:   "fp_witness2Fp",
+};
+
+// ── Navigation Guard Modal ──
+function NavGuardModal({ open, onStay, onLeave }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden">
+        <div className="bg-amber-500 px-5 py-4 flex items-center gap-3">
+          <svg className="w-5 h-5 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          <p className="text-white font-bold text-sm">کیا آپ واقعی جانا چاہتے ہیں؟</p>
+        </div>
+        <div className="px-5 py-4 flex flex-col gap-3">
+          <p className="text-sm text-slate-600 leading-relaxed" dir="rtl">
+            اگر آپ ابھی واپس جائیں تو فارم کی تمام معلومات ضائع ہو سکتی ہیں۔ کیا آپ یقیناً چھوڑنا چاہتے ہیں؟
+          </p>
+          <div className="flex gap-2 pt-1">
+            <button onClick={onStay}
+              className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition-colors">
+              یہیں رہیں
+            </button>
+            <button onClick={onLeave}
+              className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-600 text-sm font-semibold border border-slate-200 transition-colors">
+              چھوڑ دیں
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const EMPTY_CONTRACT = {
   sellerName: "", sellerFather: "", sellerMohalla: "", sellerTehsil: "", sellerCnic: "",
   buyerName: "", buyerFather: "", buyerMohalla: "", buyerTehsil: "", buyerCnic: "",
@@ -22,7 +149,7 @@ const EMPTY_CONTRACT = {
   date: "",
   witness1Name: "", witness1Cnic: "", witness1Tehsil: "",
   witness2Name: "", witness2Cnic: "", witness2Tehsil: "",
-  numberPlate: "دو عدد نمبر پلیٹ",
+  numberPlate: "گاڑی بمعہ جملہ کاغذات رجسٹریشن کاپی، ٹرانسفر لیٹر، ایک عدد نمبر پلیٹ ،حوالہ فریق دوم کردیے ہیں",
   remainingClause: "",
   conditions: "",
 };
@@ -50,16 +177,46 @@ const STATUS_CYCLE = ["online", "busy", "offline"];
 
 function buildContractText(d) {
   if (!d) return "";
-  const fmt = (v) => v || "خالی";
+  const fmt = (v) => v || "۔۔۔";
   const fmtDate = (v) => {
-    if (!v) return "تاریخ نامعلوم";
+    if (!v) return "آج";
     const [y, m, day] = v.split("-");
     return `${day} ${m} ${y}`;
   };
-  const payPara = d.paymentMode === "advance"
-    ? `فریق اول نے گاڑی بعوض مبلغ کل ${fmt(d.priceNum)} روپے یعنی ${fmt(d.priceWords)} روپے فروخت کردی ہے۔ بعنوان پیشگی ${fmt(d.advanceNum)} روپے یعنی ${fmt(d.advanceWords)} روپے وصول کیے۔ بقایا ${fmt(d.remainingNum)} روپے مورخہ ${fmtDate(d.dueDate)} کو ادا کیے جائیں گے۔`
-    : `فریق اول نے گاڑی بعوض مبلغ ${fmt(d.priceNum)} روپے یعنی ${fmt(d.priceWords)} روپے فروخت کردی اور فریق دوم نے کل رقم ادا کردی۔`;
-  return `اقرار نامہ گاڑی\n\nمالک ${fmt(d.sellerName)} ولد ${fmt(d.sellerFather)} ساکنہ ${fmt(d.sellerMohalla)} ${fmt(d.sellerTehsil)}، فریق اول۔\n${fmt(d.buyerName)} ولد ${fmt(d.buyerFather)} ساکنہ ${fmt(d.buyerMohalla)} ${fmt(d.buyerTehsil)}، فریق دوم۔\n\nگاڑی نمبر ${fmt(d.regNo)}، ماڈل ${fmt(d.carModel)}، سال ${fmt(d.modelYear)}، انجن ${fmt(d.engineNo)}، چیسیز ${fmt(d.chassisNo)}، رنگ ${fmt(d.carColor)}۔\n\n${payPara}\n\nمورخہ ${fmtDate(d.date)}`.trim();
+
+  const responsibilityText = (v) => v ? fmtDate(v) : "آج";
+
+  let mainPara = "";
+  const carDetails = `گاڑی ${fmt(d.regNo)} رجسٹریشن نمبر ${fmt(d.carModel)} ماڈل ${fmt(d.modelYear)} انجن نمبر ${fmt(d.engineNo)} چیسیزز نمبر ${fmt(d.chassisNo)} رنگ ${fmt(d.carColor)}، ملکیہ و مقبوضہ ہے۔`;
+
+  if (d.paymentMode === "advance") {
+    const remainingClause = d.remainingClause
+      ? d.remainingClause
+      : `بقایا رقم مبلغ ${fmt(d.remainingNum)} روپے (${fmt(d.remainingWords)} روپے) فریق دوم مورخہ ${fmtDate(d.dueDate)} کو ادا کرنے کا پابند وذمہ دار ہوگا۔ اور گاڑی کے جملہ کاغذات رجسٹریشن وغیرہ فریق اول مورخہ ${fmtDate(d.dueDate)} بوقت وصولی بقایا رقم دینے کا پابند وذمہ دار ہوگا۔${d.numberPlate ? " " + d.numberPlate + "،" : ""}`;
+
+    mainPara = `بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی ${carDetails} سواب فریق اول نے گاڑی مذکورہ بالا معہ کاغذات بدست فریق دوم بعوض مبلغ ${fmt(d.priceNum)} روپے (${fmt(d.priceWords)} روپے) فروخت کردی ہے۔ اور سالم رقم سے مبلغ ${fmt(d.advanceNum)} روپے (${fmt(d.advanceWords)} روپے) نقد ازاں فریق دوم سے روبرو گواہان وصول کر لیے ہیں اور ${remainingClause} گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے۔ اور ${responsibilityText(d.responsibility)} سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ ایف آئی آر بذمہ فریق اول ہونگے اور ${responsibilityText(d.responsibility)} کے بعد چالان، ٹیکس، ایکسیڈنٹ، ایف آئی آر، بذمہ فریق دوم ہوں گے۔ لہذا اقرار نامہ ہذا بعد سن وسمجھ لینے کے بعد مضمون کے بحق فریق دوم سندا تحریر وتکمیل ہے۔`;
+  } else {
+    mainPara = `بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی ${carDetails} سواب فریق اول نے گاڑی مذکورہ بالا معہ کاغذات بدست فریق دوم بعوض مبلغ ${fmt(d.priceNum)} روپے (${fmt(d.priceWords)} روپے) فروخت کردی ہے۔ اور فریق اول نے سالم رقم مبلغ ${fmt(d.priceNum)} روپے (${fmt(d.priceWords)} روپے) نقد روبرو گواہان ازاں فریق دوم سے وصول کرلیے ہیں۔${d.numberPlate ? " " + d.numberPlate + "۔" : "۔"} گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے۔ اور ${responsibilityText(d.responsibility)} کے بعد فریق اول اور اس کے ورثاء کا گاڑی مذکورہ کے ساتھ تعلق واسطہ نہیں رہا ہے اور نہ ہوگا۔ اور ${responsibilityText(d.responsibility)} سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ ایف آئی آر بذمہ فریق اول ہونگے اور ${responsibilityText(d.responsibility)} کے بعد چالان، ٹیکس، ایکسیڈنٹ، ایف آئی آر، بذمہ فریق دوم ہوں گے۔ لہذا اقرار نامہ بعد سند وسمجھ لینے کے بعد مضمون بحق فریق دوم سندا تحریر و تکمیل ہے۔`;
+  }
+
+  const conditionsPart = d.conditions?.trim()
+    ? `\n\nنوٹ: ${d.conditions}`
+    : "";
+
+  const witnessLine = [
+    d.witness1Name ? `گواہ اول ${fmt(d.witness1Name)}` : null,
+    d.witness2Name ? `گواہ دوم ${fmt(d.witness2Name)}` : null,
+  ].filter(Boolean).join("۔ ");
+
+  return [
+    "اقرار نامہ گاڑی",
+    `\nمالک: ${fmt(d.sellerName)} ولد ${fmt(d.sellerFather)} سکنہ ${fmt(d.sellerMohalla)} ${fmt(d.sellerTehsil)}، فریق اول۔`,
+    `${fmt(d.buyerName)} ولد ${fmt(d.buyerFather)} سکنہ ${fmt(d.buyerMohalla)} ${fmt(d.buyerTehsil)}، فریق دوم۔`,
+    `\n${mainPara}`,
+    conditionsPart,
+    `\nمورخہ ${fmtDate(d.date)}`,
+    witnessLine ? `\n${witnessLine}۔` : "",
+  ].join("\n").trim();
 }
 
 export default function StampGeneratorApp() {
@@ -71,7 +228,17 @@ export default function StampGeneratorApp() {
   const [topMargin, setTopMargin] = useState(200);
   const [fontSize, setFontSize] = useState(14);
   const [paddingH, setPaddingH] = useState(98);
-  const [contractData, setContractData] = useState(EMPTY_CONTRACT);
+
+  // ── Load saved draft from localStorage on mount ──
+  const [contractData, setContractData] = useState(() => {
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) return { ...EMPTY_CONTRACT, ...JSON.parse(saved) };
+    } catch (_) {}
+    return EMPTY_CONTRACT;
+  });
+  const [hasSavedDraft, setHasSavedDraft] = useState(() => !!localStorage.getItem(LS_KEY));
+
   const [sellerPhoto, setSellerPhoto] = useState(null);
   const [buyerPhoto, setBuyerPhoto] = useState(null);
   const [signatures, setSignatures] = useState(EMPTY_SIGS);
@@ -84,7 +251,119 @@ export default function StampGeneratorApp() {
   const [carImg, setCarImg] = useState(null);
   const [engineImg, setEngineImg] = useState(null);
 
+  // ── Navigation guard ──
+  const [navGuard, setNavGuard] = useState({ open: false, pendingAction: null });
+  const pendingNavRef = useRef(null);
+
   const previewRef = useRef(null);
+
+  // ── Restore all images from IndexedDB on first mount ──
+  useEffect(() => {
+    (async () => {
+      const [sp, bp, ch, ca, en,
+             ss, sb, sw1, sw2,
+             fs, fb, fw1, fw2] = await Promise.all([
+        idbGet(IDB_KEYS.sellerPhoto),
+        idbGet(IDB_KEYS.buyerPhoto),
+        idbGet(IDB_KEYS.chassisImg),
+        idbGet(IDB_KEYS.carImg),
+        idbGet(IDB_KEYS.engineImg),
+        idbGet(IDB_KEYS.sigSeller),
+        idbGet(IDB_KEYS.sigBuyer),
+        idbGet(IDB_KEYS.sigWitness1),
+        idbGet(IDB_KEYS.sigWitness2),
+        idbGet(IDB_KEYS.fpSeller),
+        idbGet(IDB_KEYS.fpBuyer),
+        idbGet(IDB_KEYS.fpWitness1),
+        idbGet(IDB_KEYS.fpWitness2),
+      ]);
+      if (sp)  setSellerPhoto(sp);
+      if (bp)  setBuyerPhoto(bp);
+      if (ch)  setChassisImg(ch);
+      if (ca)  setCarImg(ca);
+      if (en)  setEngineImg(en);
+      const sigs = { seller: ss, buyer: sb, witness1: sw1, witness2: sw2 };
+      const fps  = { sellerFp: fs, buyerFp: fb, witness1Fp: fw1, witness2Fp: fw2 };
+      if (ss || sb || sw1 || sw2) setSignatures(prev => ({ ...prev, ...Object.fromEntries(Object.entries(sigs).filter(([,v]) => v)) }));
+      if (fs || fb || fw1 || fw2) setFingerprints(prev => ({ ...prev, ...Object.fromEntries(Object.entries(fps).filter(([,v]) => v)) }));
+      // Mark draft as having images if any were restored
+      if (sp || bp || ch || ca || en || ss || sb || sw1 || sw2 || fs || fb || fw1 || fw2) {
+        setHasSavedDraft(true);
+      }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Auto-save contractData (text) to localStorage ──
+  useEffect(() => {
+    try {
+      const hasAnyData = Object.entries(contractData).some(([k, v]) =>
+        k !== "paymentMode" && k !== "numberPlate" && String(v).trim() !== ""
+      );
+      if (hasAnyData) {
+        localStorage.setItem(LS_KEY, JSON.stringify(contractData));
+        setHasSavedDraft(true);
+      }
+    } catch (_) {}
+  }, [contractData]);
+
+  // ── Auto-save images to IndexedDB whenever they change ──
+  useEffect(() => { idbSet(IDB_KEYS.sellerPhoto, sellerPhoto);  }, [sellerPhoto]);
+  useEffect(() => { idbSet(IDB_KEYS.buyerPhoto,  buyerPhoto);   }, [buyerPhoto]);
+  useEffect(() => { idbSet(IDB_KEYS.chassisImg,  chassisImg);   }, [chassisImg]);
+  useEffect(() => { idbSet(IDB_KEYS.carImg,      carImg);       }, [carImg]);
+  useEffect(() => { idbSet(IDB_KEYS.engineImg,   engineImg);    }, [engineImg]);
+
+  useEffect(() => {
+    idbSet(IDB_KEYS.sigSeller,   signatures.seller);
+    idbSet(IDB_KEYS.sigBuyer,    signatures.buyer);
+    idbSet(IDB_KEYS.sigWitness1, signatures.witness1);
+    idbSet(IDB_KEYS.sigWitness2, signatures.witness2);
+  }, [signatures]);
+
+  useEffect(() => {
+    idbSet(IDB_KEYS.fpSeller,   fingerprints.sellerFp);
+    idbSet(IDB_KEYS.fpBuyer,    fingerprints.buyerFp);
+    idbSet(IDB_KEYS.fpWitness1, fingerprints.witness1Fp);
+    idbSet(IDB_KEYS.fpWitness2, fingerprints.witness2Fp);
+  }, [fingerprints]);
+
+  // ── Block browser back / refresh / tab-close ──
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
+
+  // ── Intercept React Router back navigation ──
+  useEffect(() => {
+    const handlePopState = (e) => {
+      // Push a state back so we stay on the page, then show the modal
+      window.history.pushState(null, "", window.location.href);
+      setNavGuard({ open: true, pendingAction: "back" });
+    };
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const clearDraft = () => {
+    try { localStorage.removeItem(LS_KEY); } catch (_) {}
+    idbClearAll(); // wipe all saved images / signatures / fingerprints
+    setHasSavedDraft(false);
+    setContractData(EMPTY_CONTRACT);
+    setSignatures(EMPTY_SIGS);
+    setFingerprints(EMPTY_FPS);
+    setSellerPhoto(null);
+    setBuyerPhoto(null);
+    setChassisImg(null);
+    setCarImg(null);
+    setEngineImg(null);
+    setPdfData(null);
+    setCurrentStep(1);
+  };
 
   const handlePdfLoaded = (data) => {
     setPdfData(data);
@@ -114,8 +393,13 @@ export default function StampGeneratorApp() {
   };
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/agent/login", { replace: true });
+    setNavGuard({
+      open: true,
+      pendingAction: async () => {
+        await logout();
+        navigate("/agent/login", { replace: true });
+      }
+    });
   };
 
   const canNext = currentStep === 1 ? !!pdfData : true;
@@ -151,6 +435,18 @@ export default function StampGeneratorApp() {
   return (
     <div className="min-h-screen bg-slate-100">
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');`}</style>
+
+      {/* ── Navigation Guard Modal ── */}
+      <NavGuardModal
+        open={navGuard.open}
+        onStay={() => setNavGuard({ open: false, pendingAction: null })}
+        onLeave={async () => {
+          setNavGuard({ open: false, pendingAction: null });
+          if (typeof navGuard.pendingAction === "function") {
+            await navGuard.pendingAction();
+          }
+        }}
+      />
 
       {/* ── Navbar ── */}
       <header className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
@@ -241,6 +537,29 @@ export default function StampGeneratorApp() {
           <h2 className="text-lg sm:text-xl font-bold text-slate-800">{STEPS[currentStep - 1].title}</h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1" dir="rtl">{STEPS[currentStep - 1].subtitle}</p>
         </div>
+
+        {/* ── Saved Draft Banner ── */}
+        {hasSavedDraft && (
+          <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+            <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <p className="text-xs text-emerald-700 flex-1" dir="rtl">
+              پچھلا ڈرافٹ بحال — فارم، تصاویر اور دستخط محفوظ تھے۔
+            </p>
+            <button
+              onClick={() => {
+                setNavGuard({
+                  open: true,
+                  pendingAction: () => clearDraft(),
+                });
+              }}
+              className="text-xs font-semibold text-red-500 hover:text-red-700 bg-white border border-red-200 rounded-lg px-3 py-1.5 transition-colors shrink-0"
+            >
+              Clear Draft
+            </button>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-7">
 
@@ -388,10 +707,7 @@ export default function StampGeneratorApp() {
             </button>
           ) : (
             <button onClick={() => {
-              setCurrentStep(1); setPdfData(null);
-              setContractData(EMPTY_CONTRACT); setSignatures(EMPTY_SIGS); setFingerprints(EMPTY_FPS);
-              setSellerPhoto(null); setBuyerPhoto(null);
-              setChassisImg(null); setCarImg(null); setEngineImg(null);
+              setNavGuard({ open: true, pendingAction: () => clearDraft() });
             }}
               className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold bg-slate-600 hover:bg-slate-700 text-white shadow-sm">
               New Contract

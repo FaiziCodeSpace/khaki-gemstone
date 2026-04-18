@@ -21,6 +21,10 @@ export default function ContractTemplate({
     const [y, m, day] = val.split("-");
     return `${day}-${m}-${y}`;
   };
+  const responsibilityText = (val) => {
+    if (!val) return "آج";
+    return `${formatDate(val)}`;
+  };
 
   const F = ({ val, fallback = "۔۔۔" }) => <strong>{val || fallback}</strong>;
 
@@ -86,7 +90,7 @@ export default function ContractTemplate({
 
           // ── Advance / Partial Payment ──
           <p style={{ margin: `${3 * scale}px 0`, textAlign: "justify" }}>
-            بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی نمبر <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> ماڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیزز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
+            بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> ماڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیزز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
             سواب فریق اول نے گاڑی مذکورہ بالامعہ کاغذات بدست فریق دوم بعوض مبلغ{" "}
             <F val={d.priceNum ? `${d.priceNum}` : ""} /> روپے{" "}
             (<F val={d.priceWords} /> روپے) فروخت کردی ہے۔اور سالم رقم سے مبلغ{" "}
@@ -104,26 +108,23 @@ export default function ContractTemplate({
               <>
                 بقایا رقم مبلغ{" "}
                 <F val={d.remainingNum ? `${d.remainingNum}` : ""} /> روپے{" "}
-                (<F val={d.remainingWords} /> روپے) فریق دوم مورخہ <F val={formatDate(d.dueDate)} /> کو ادا کرنے کا پابند وذمہ دار ہوگا۔ اور گاڑی کے جملہ کاغذات رجسٹریشن وغیرہ فریق اول مورخہ <F val={formatDate(d.dueDate)} /> بوقت وصولی بقایا رقم دینے کا پابند وذ مہ دار ہوگا۔
+                (<F val={d.remainingWords} /> روپے) فریق دوم مورخہ <F val={formatDate(d.dueDate)} /> کو ادا کرنے کا پابند وذمہ دار ہوگا۔ اور گاڑی کے جملہ کاغذات رجسٹریشن وغیرہ فریق اول مورخہ <F val={formatDate(d.dueDate)} /> بوقت وصولی بقایا رقم دینے کا پابند وذ مہ دار ہوگا۔{d.numberPlate ? <>{d.numberPlate}، </> : null}
               </>
             )}
 
-            {" "}گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے ۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے ۔ اور آج سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ <strong>FIR</strong> بذمہ فریق اول ہونگے اور آج کے بعد چالان، ٹیکس، ایکسیڈنٹ، <strong>FIR</strong> ، بذمہ فریق دوم ہوں گے۔ لہذا اقرار نامہ ہذا بعد سن وسمجھ لینے کے بعد مضمون کے بحق فریق دوم سندا تحریر وتکمیل ہے ۔
+            {" "}گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے ۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے ۔ اور {responsibilityText(d.responsibility)} سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ <strong>FIR</strong> بذمہ فریق اول ہونگے اور {responsibilityText(d.responsibility)} کے بعد چالان، ٹیکس، ایکسیڈنٹ، <strong>FIR</strong> ، بذمہ فریق دوم ہوں گے۔ لہذا اقرار نامہ ہذا بعد سن وسمجھ لینے کے بعد مضمون کے بحق فریق دوم سندا تحریر وتکمیل ہے ۔
           </p>
 
         ) : (
 
           // ── Full Payment ──
           <p style={{ margin: `${3 * scale}px 0`, textAlign: "justify" }}>
-            بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی نمبر <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> ماڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیزز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
+            بذریعہ تحریر اقرار کرکے لکھ دیتے ہیں کہ فریق اول کی گاڑی <F val={d.regNo} /> رجسٹریشن نمبر <F val={d.carModel} /> ماڈل <F val={d.modelYear} /> انجن نمبر <F val={d.engineNo} /> چیسیزز نمبر <F val={d.chassisNo} /> رنگ <F val={d.carColor} />، ملکیہ و مقبوضہ ہے۔
             سواب فریق اول نے گاڑی مذکورہ بالامعہ کاغذات بدست فریق دوم بعوض مبلغ{" "}
             <F val={d.priceNum ? `${d.priceNum}` : ""} /> روپے{" "}
             (<F val={d.priceWords} /> روپے) فروخت کردی ہے۔اور فریق اول نے سالم رقم مبلغ{" "}
             <F val={d.priceNum ? `${d.priceNum}` : ""} /> روپے{" "}
-            (<F val={d.priceWords} /> روپے) نقد روبرو گواہان ازاں فریق دوم سے وصول کرلیے ہیں۔ گاڑی بمعہ جملہ کاغذات رجسٹریشن کاپی، ٹرانسفر لیٹر،{" "}
-            {/* ── DYNAMIC NUMBER PLATE — blank = sentence omits it cleanly ── */}
-            {d.numberPlate ? <>{d.numberPlate}، </> : null}
-            حوالہ فریق دوم کردیے ہیں۔ گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے ۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے ۔ اور آج کی بعد فریق اول اور اس کے ورثاء کا گاڑی مذکورہ کے ساتھ تعلق واسطہ نہیں رہا ہے اور نہ ہوگا۔اور آج سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ <strong>FIR</strong> بذمہ فریق اول ہونگے اور آج کے بعد چالان، ٹیکس، ایکسیڈنٹ، <strong>FIR</strong> ، بذمہ فریق دوم ہوں گے۔ ٖلہِذا اقرار نامہ بعد سند وسمجھ لینے کے بعد مضمون بحق فریق دوم سندا تحریر و تکمیل ہے۔
+            (<F val={d.priceWords} /> روپے) نقد روبرو گواہان ازاں فریق دوم سے وصول کرلیے ہیں۔ {d.numberPlate ? <>{d.numberPlate} </> : null}۔ گاڑی کی ملکیت قانونی و واقعاتی لحاظ سے پاک و صاف ہے اور گاڑی کی چوری وغیرہ کی نہیں ہے جسکے لیے فریق اول ضامن وذمہ دار ہے ۔ اور فریق دوم نے گاڑی چیک اپ کرنے کے بعد موجودہ حالت میں وصول کر لی ہے ۔ اور {responsibilityText(d.responsibility)} کے بعد فریق اول اور اس کے ورثاء کا گاڑی مذکورہ کے ساتھ تعلق واسطہ نہیں رہا ہے اور نہ ہوگا۔اور {responsibilityText(d.responsibility)} سے قبل کے جملہ چالان ٹیکس ایکسیڈنٹ <strong>FIR</strong> بذمہ فریق اول ہونگے اور {responsibilityText(d.responsibility)} کے بعد چالان، ٹیکس، ایکسیڈنٹ، <strong>FIR</strong> ، بذمہ فریق دوم ہوں گے۔ ٖلہِذا اقرار نامہ بعد سند وسمجھ لینے کے بعد مضمون بحق فریق دوم سندا تحریر و تکمیل ہے۔
           </p>
 
         )}
@@ -131,7 +132,7 @@ export default function ContractTemplate({
         {/* ── Extra conditions (shown in both modes if filled) ── */}
         {d.conditions && d.conditions.trim() && (
           <p style={{ margin: `${6 * scale}px 0`, borderTop: `${0.5 * scale}px dashed #aaa`, paddingTop: `${6 * scale}px` }}>
-            <strong>شرائط:</strong> {d.conditions}
+            <strong>نوٹ:</strong> {d.conditions}
           </p>
         )}
 
