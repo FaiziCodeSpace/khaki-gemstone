@@ -17,11 +17,10 @@
 
 ---
 
----
-<h1 align="center" style="color:#CA0A7F;">Khaki Gemstone Backend Repo</h1>
-```
-https://github.com/FaiziCodeSpace/khaki-gemstone-Backend.git
-```
+## Repositories
+
+- Backend Repository: [Khaki Gemstone Backend](https://github.com/FaiziCodeSpace/khaki-gemstone-Backend.git)
+
 ---
 ## Overview
 
