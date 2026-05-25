@@ -17,6 +17,11 @@
 
 ---
 
+## Repositories
+
+- Backend Repository: [Khaki Gemstone Backend](https://github.com/FaiziCodeSpace/khaki-gemstone-Backend.git)
+
+---
 ## Overview
 
 Khaki Gemstone is a full-stack web platform designed to modernize the gemstone industry by integrating e-commerce, investment capabilities, and service-based interactions into a single ecosystem.
