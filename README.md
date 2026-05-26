@@ -22,6 +22,14 @@
 
 ---
 
+---
+
+## Repositories
+
+- Visit Live: [Click Now](https://khaki-gemstone-37sf.vercel.app/)
+
+---
+
 ## Overview
 
 Khaki Gemstone is a full-stack web platform designed to modernize the gemstone industry by integrating e-commerce, investment capabilities, and service-based interactions into a single ecosystem.
