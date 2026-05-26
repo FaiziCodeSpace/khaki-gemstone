@@ -10,9 +10,6 @@
   <a href="https://khaki-gemstone-37sf.vercel.app/">
     <img src="https://img.shields.io/badge/Visit-Live Site-CA0A7F?style=for-the-badge" />
   </a>
-  <a href="https://khakigemstone.com">
-    <img src="https://img.shields.io/badge/Visit-Website-CA0A7F?style=for-the-badge" />
-  </a>
   <img src="https://img.shields.io/badge/Stack-MERN-black?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge"/>
 </p>
