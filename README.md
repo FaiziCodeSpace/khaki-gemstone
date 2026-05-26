@@ -1,4 +1,4 @@
-<!-- ========================= -->
+[<!-- ========================= -->
 <!-- KHAKI GEMSTONE README -->
 <!-- ========================= -->
 
@@ -90,3 +90,4 @@ Frontend  → React.js
 Backend   → Node.js + Express.js
 Database  → MongoDB (Mongoose)
 Auth      → Role-Based Authentication
+](https://khaki-gemstone-37sf.vercel.app/)
