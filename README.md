@@ -6,10 +6,9 @@
 <p align="center">
   A Full-Stack Multi-Portal System for Gemstone Trading, Investment, and Agent-Based Services
 </p>
-
 <p align="center">
-  <a href="https://khakigemstone.com">
-    <img src="https://img.shields.io/badge/Visit-Website-CA0A7F?style=for-the-badge" />
+  <a href="https://khaki-gemstone-37sf.vercel.app/">
+    <img src="https://img.shields.io/badge/Visit-Live Site-CA0A7F?style=for-the-badge" />
   </a>
   <img src="https://img.shields.io/badge/Stack-MERN-black?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge"/>
@@ -19,9 +18,18 @@
 
 ## Repositories
 
-- Backend Repository: [Khaki Gemstone Backend](https://github.com/FaiziCodeSpace/khaki-gemstone-Backend.git)
+- Backend: [Khaki Gemstone Backend](https://github.com/FaiziCodeSpace/khaki-gemstone-Backend.git)
 
 ---
+
+---
+
+## Repositories
+
+- Visit Live: [Click Now](https://khaki-gemstone-37sf.vercel.app/)
+
+---
+
 ## Overview
 
 Khaki Gemstone is a full-stack web platform designed to modernize the gemstone industry by integrating e-commerce, investment capabilities, and service-based interactions into a single ecosystem.
@@ -89,4 +97,6 @@ A service-based module designed for real-time agent interaction, particularly fo
 Frontend  → React.js
 Backend   → Node.js + Express.js
 Database  → MongoDB (Mongoose)
-Auth      → Role-Based Authentication
+Auth      → Role-Based Authentication (JWT)
+Hosting   → Vercel (Frontend)
+```
