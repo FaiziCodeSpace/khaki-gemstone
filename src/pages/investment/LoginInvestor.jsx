@@ -207,7 +207,7 @@ const LoginInvestor = () => {
       {/* RIGHT SIDE: Decorative Image */}
       <aside className="hidden w-1/2 lg:block relative" aria-hidden="true">
         <img
-          src="/Images/Investor-side-img.png" 
+          src="/Images/Investor-side-img.jpg" 
           alt="Investor dashboard background"
           className="absolute inset-0 h-full w-full object-cover"
           loading="lazy"

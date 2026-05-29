@@ -5,7 +5,7 @@ export function ContentBlock() {
             {/* Left Image */}
             <img
                 className="hidden md:block h-[clamp(300px,45vw,561px)] w-[clamp(100px,30vw,366px)] object-cover"
-                src="./Images/ContentBlockTopImg.png"
+                src="./Images/ContentBlockTopImg.jpg"
                 alt="Premium natural gemstone collection display"
             />
 
@@ -52,7 +52,7 @@ export function ContentBlock() {
                     {/* Bottom Image */}
                     <img
                         className="w-full md:w-[clamp(150px,22vw,239px)] md:h-[clamp(163px,22vw,252px)] object-cover"
-                        src="./Images/ContentBlockBottomImg.png"
+                        src="./Images/ContentBlockBottomImg.jpg"
                         alt="Natural gemstone selection close-up"
                     />
 

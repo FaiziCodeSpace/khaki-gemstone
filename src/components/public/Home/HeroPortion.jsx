@@ -1,5 +1,5 @@
 import bgTexture from "../../../assets/textures/bgTexture.png"; 
-import heroPic from "../../../assets/images/hero.png";
+import heroPic from "../../../assets/images/hero.jpg";
 import { useNavigate } from "react-router-dom";
 import { InfiniteCardSlider } from "./InfiniteSlider";
 

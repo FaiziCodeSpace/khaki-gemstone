@@ -76,7 +76,7 @@ export function AboutUs() {
 
                             lg:z-20 
                         "
-                            src="./Images/AboutUs-Image.png"
+                            src="./Images/AboutUs-Image.jpg"
                             alt="Natural gemstone showcase"
                         />
 
@@ -101,7 +101,7 @@ export function AboutUs() {
                             lgxx:top-26 
                             opacity-70
                         "
-                            src="./Images/AboutUs-Background.png"
+                            src="./Images/AboutUs-Background.jpg"
                             alt="decorative gemstone background"
                         />
 

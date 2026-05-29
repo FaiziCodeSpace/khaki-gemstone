@@ -5,10 +5,10 @@ export function Categories() {
     const navigate = useNavigate();
 
     const categories = [
-        { name: "Rings", img: "./Images/Rings.png" },
-        { name: "Natural Stones", img: "./Images/Natural-Stones.png" },
-        { name: "Necklaces", img: "./Images/Necklaces.png" },
-        { name: "Pendents", img: "./Images/Pendents.png" },
+        { name: "Rings", img: "./Images/Rings.jpg" },
+        { name: "Natural Stones", img: "./Images/Natural-Stones.jpg" },
+        { name: "Necklaces", img: "./Images/Necklaces.jpg" },
+        { name: "Pendents", img: "./Images/Pendents.jpg" },
     ];
 
     // This function takes the category name and sends it to the URL of the Shop Page
