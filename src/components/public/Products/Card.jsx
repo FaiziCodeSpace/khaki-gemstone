@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function Card({ products }) {
     const [likedItems, setLikedItems] = useState({});
@@ -56,7 +56,7 @@ export function Card({ products }) {
                         <img
                             loading="lazy"
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                            src={`${API_URL}${item.imgs_src?.[0]}`}
+                            src={imgUrl(item.imgs_src?.[0])}
                             alt={`${item.name} - Authentic Natural Gemstone`}
                         />
                     </div>

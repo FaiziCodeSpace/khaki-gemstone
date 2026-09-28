@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAgentAuth } from "../../context/Agentauthcontext";
 import agentApi from "../../services/agentServices/api.agentService";
+import { imgUrl } from "../../utils/imgUrl";
 
 const STATUS_CONFIG = {
   online:  { dot: "bg-green-500", text: "text-green-700", bg: "bg-green-50",  border: "border-green-200",  label: "Online"  },
@@ -77,7 +78,7 @@ export default function StampSearch() {
           {agent && (
             <div className="flex items-center gap-2 shrink-0">
               {agent.pfp ? (
-                <img src={`${import.meta.env.VITE_API_URL?.replace("/api", "")}/${agent.pfp}`}
+                <img src={imgUrl(agent.pfp)}
                   alt={agent.fullName} className="w-7 h-7 rounded-full object-cover border border-slate-200"/>
               ) : (
                 <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-700">

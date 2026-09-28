@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loader2, TrendingUp, ShieldCheck } from 'lucide-react';
 import { fetchProduct } from '../../../services/productsService';
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function ProductDetails() {
     const { id } = useParams();
@@ -203,7 +203,7 @@ export function ProductDetails() {
                             src && (
                                 <div key={index} className="relative group overflow-hidden rounded-2xl border-4 border-white shadow-xl bg-gray-50">
                                     <img
-                                        src={`${API_URL}${src}`}
+                                        src={imgUrl(src)}
                                         alt="Documentation"
                                         className="w-full h-auto md:max-h-[600px] object-contain"
                                         onError={(e) => { e.target.style.display = 'none'; }}

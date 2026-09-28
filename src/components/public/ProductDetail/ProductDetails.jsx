@@ -5,8 +5,8 @@ import { addToCart, fetchCart } from '../../../services/cartService';
 import { getGuestCart, addToGuestCart } from '../../../utils/guestCart';
 import { CheckoutModal } from '../UI/CheckoutModal';
 import certificateBg from "../../../assets/images/certificate-bg.jpeg";
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function ProductDetails({ product }) {
   const navigate = useNavigate();
@@ -181,14 +181,14 @@ export function ProductDetails({ product }) {
           <div className="animate-fadeIn flex flex-col gap-4">
             {hasLabTestImg && (
               <img
-                src={`${API_URL}${product.lab_test_img_src}`}
+                src={imgUrl(product.lab_test_img_src)}
                 alt="Laboratory Test"
                 className="rounded-lg w-full h-auto md:h-[320px] object-cover border border-gray-200"
               />
             )}
             {hasCertificateImg ? (
               <img
-                src={`${API_URL}${product.certificate_img_src}`}
+                src={imgUrl(product.certificate_img_src)}
                 alt="Certificate"
                 className="rounded-lg w-full h-auto md:h-[320px] object-cover border border-gray-200"
               />

@@ -9,6 +9,7 @@ import UrduNarrator from "../../components/stampGenerator/UrduNarrator";
 import ExportButton from "../../components/stampGenerator/Exportbutton";
 import { useAgentAuth } from "../../context/Agentauthcontext";
 import agentApi from "../../services/agentServices/api.agentService";
+import { imgUrl } from "../../utils/imgUrl";
 
 // ── LocalStorage key (text fields) ──
 const LS_KEY = "iqrarnama_contract_draft";
@@ -480,7 +481,7 @@ export default function StampGeneratorApp() {
             {agent && (
               <div className="flex items-center gap-2 shrink-0">
                 {agent.pfp ? (
-                  <img src={`${import.meta.env.VITE_API_URL?.replace("/api", "")}/${agent.pfp}`}
+                  <img src={imgUrl(agent.pfp)}
                     alt="" className="w-7 h-7 rounded-full object-cover border border-slate-200" />
                 ) : (
                   <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-[10px] font-bold text-emerald-700">

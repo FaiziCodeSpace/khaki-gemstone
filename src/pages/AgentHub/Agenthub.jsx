@@ -13,9 +13,9 @@ import {
   Locate, Wifi, WifiOff, AlertCircle, CheckCircle2,
   Building2, Phone
 } from "lucide-react";
+import { imgUrl } from "../../utils/imgUrl";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
-const IMG_BASE = import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:8080";
 
 // Fix Leaflet default icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -44,7 +44,7 @@ const makeAgentIcon = (agent, isClosest) => {
     ? "box-shadow:0 0 0 3px rgba(22,163,74,0.4),0 4px 12px rgba(0,0,0,0.25)"
     : "box-shadow:0 2px 8px rgba(0,0,0,0.2)";
   const inner = agent.pfp
-    ? `<img src="${IMG_BASE}/${agent.pfp}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />`
+    ? `<img src="${imgUrl(agent.pfp)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />`
     : `<span style="color:#fff;font-size:${isClosest ? 18 : 15}px;font-weight:bold;line-height:1">${agent.fullName?.[0] || "A"}</span>`;
   const bg = agent.pfp ? "transparent" : (isClosest ? "#16a34a" : "#f59e0b");
   return new L.DivIcon({
@@ -175,7 +175,7 @@ function AgentSheet({ agent, distKm, userPos, onClose, onRate, ratingGiven }) {
           <div className="flex items-center gap-4 mb-5">
             <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-gray-100 shadow-sm">
               {agent.pfp ? (
-                <img src={`${IMG_BASE}/${agent.pfp}`} alt={agent.fullName} className="w-full h-full object-cover" />
+                <img src={imgUrl(agent.pfp)} alt={agent.fullName} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-2xl">
                   {agent.fullName?.[0]}
@@ -279,7 +279,7 @@ function AgentListCard({ agent, distKm, onSelect }) {
       className="w-full flex items-center gap-3 p-4 rounded-2xl border border-gray-100 bg-white hover:border-emerald-200 hover:shadow-sm transition-all text-left active:scale-[0.98]">
       <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-gray-100 shadow-sm">
         {agent.pfp ? (
-          <img src={`${IMG_BASE}/${agent.pfp}`} alt={agent.fullName} className="w-full h-full object-cover" />
+          <img src={imgUrl(agent.pfp)} alt={agent.fullName} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
             {agent.fullName?.[0]}
@@ -558,7 +558,7 @@ export default function AgentHub() {
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-emerald-500 shrink-0">
             {bargainer?.pfp ? (
-              <img src={`${IMG_BASE}/${bargainer.pfp}`} alt="" className="w-full h-full object-cover" />
+              <img src={imgUrl(bargainer.pfp)} alt="" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-emerald-500 flex items-center justify-center text-sm font-bold">
                 {bargainer?.fullName?.[0]}
@@ -614,7 +614,7 @@ export default function AgentHub() {
           className="mx-4 mt-3 bg-white rounded-2xl border border-emerald-200 p-3.5 flex items-center gap-3 cursor-pointer hover:shadow-md transition-all active:scale-[0.98] shadow-sm">
           <div className="w-11 h-11 rounded-xl overflow-hidden border border-emerald-100 shrink-0">
             {closestAgent.pfp ? (
-              <img src={`${IMG_BASE}/${closestAgent.pfp}`} alt="" className="w-full h-full object-cover" />
+              <img src={imgUrl(closestAgent.pfp)} alt="" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-emerald-500 flex items-center justify-center text-white font-bold">
                 {closestAgent.fullName?.[0]}
@@ -713,7 +713,7 @@ export default function AgentHub() {
                     <div className="min-w-[150px] text-center py-1">
                       <div className="w-12 h-12 rounded-xl overflow-hidden mx-auto mb-2 border border-gray-200">
                         {agent.pfp
-                          ? <img src={`${IMG_BASE}/${agent.pfp}`} alt="" className="w-full h-full object-cover" />
+                          ? <img src={imgUrl(agent.pfp)} alt="" className="w-full h-full object-cover" />
                           : <div className="w-full h-full bg-emerald-500 flex items-center justify-center text-white font-bold text-lg">{agent.fullName?.[0]}</div>
                         }
                       </div>

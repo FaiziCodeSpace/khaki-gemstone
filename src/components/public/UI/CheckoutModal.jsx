@@ -4,8 +4,8 @@ import { X, ShieldCheck, CreditCard, Wallet, MapPin, ShoppingBag, ArrowRight, Ch
 import { bookOrder } from '../../../services/adminServices/OrdersService';
 import { clearGuestCart, clearGuestItem } from '../../../utils/guestCart';
 import { clearCart, deleteFromCart } from '../../../services/cartService';
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
     const [loading, setLoading] = useState(false);
@@ -229,7 +229,7 @@ export function CheckoutModal({ isOpen, onClose, items, totalAmount, source }) {
                             <div key={item._id} className="flex gap-4 group">
                                 <div className="w-20 h-20 bg-white rounded-xl border border-gray-200 overflow-hidden flex-shrink-0 shadow-sm">
                                     <img
-                                        src={item.imgs_src?.[0] ? `${API_URL}${item.imgs_src[0]}` : '/placeholder.jpg'}
+                                        src={item.imgs_src?.[0] ? imgUrl(item.imgs_src[0]) : '/placeholder.jpg'}
                                         alt={item.name}
                                         className="w-full h-full object-cover"
                                     />

@@ -4,8 +4,8 @@ import { addToCart, fetchCart } from "../../../services/cartService";
 import { addToGuestCart, getGuestCart } from "../../../utils/guestCart";
 import { useNavigate, Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function Showcase() {
   const [products, setProducts] = useState([]);
@@ -131,7 +131,7 @@ export function Showcase() {
             >
               <img
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                src={`${API_URL}${product.imgs_src?.[0]}`}
+                src={imgUrl(product.imgs_src?.[0])}
                 alt={product.name}
               />
 

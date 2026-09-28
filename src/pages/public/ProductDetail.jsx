@@ -6,8 +6,8 @@ import { Footer } from "../../components/common/Footer";
 import { ProductDetails } from "../../components/public/ProductDetail/ProductDetails";
 import { ProductImages } from "../../components/public/ProductDetail/ProductImages";
 import { fetchProduct } from "../../services/productsService";
+import { imgUrl } from "../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function ProductDetailPage() {
   const { id } = useParams();
@@ -49,7 +49,7 @@ export function ProductDetailPage() {
   }
 
   // SEO image and URL
-  const seoImage = product.imgs_src?.[0] ? `${API_URL}${product.imgs_src[0]}` : "";
+  const seoImage = product.imgs_src?.[0] ? imgUrl(product.imgs_src[0]) : "";
   const shareUrl = `https://khakigemstone.com/product/${id}`;
   const displayPrice = product.publicPrice?.toLocaleString() ?? "Contact for price";
 

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function ProductImages({ product }) {
   // 1. Added safety check: use an empty array if product or imgs_src is missing
-  const images = product?.imgs_src?.map(img => `${API_URL}${img}`) || [];
+  const images = product?.imgs_src?.map(img => imgUrl(img)) || [];
   
   const [mainImage, setMainImage] = useState(images[0] || '');
   const [zoomPos, setZoomPos] = useState('0% 0%');

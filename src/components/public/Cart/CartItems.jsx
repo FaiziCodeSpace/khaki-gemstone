@@ -1,6 +1,6 @@
 import { Truck, X } from "lucide-react";
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function CartItems({ cartItems, onRemove }) {
   if (cartItems.length === 0) {
@@ -25,7 +25,7 @@ export function CartItems({ cartItems, onRemove }) {
               {/* Image */}
               <div className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] overflow-hidden rounded-2xl shrink-0">
                 <img
-                  src={`${API_URL}${item.imgs_src?.[0]}`}
+                  src={imgUrl(item.imgs_src?.[0])}
                   alt={item.name}
                   className="w-full h-full object-cover"
                 />

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Undo2, ChevronLeft, ChevronRight, MapPin, Package, TrendingUp, Circle, Loader2, Inbox } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 // --- Helpers ---
 const formatCurrency = (val) => `Rs ${Number(val).toLocaleString()}`;
@@ -123,7 +123,7 @@ function TableRow({ inv, onRefund, isProcessing }) {
         <tr onClick={() => handleRowClick(product._id)} className="group hover:bg-slate-50/80 transition-all button">
             <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
-                    <img src={`${API_URL}${product?.imgs_src?.[0] || '/placeholder.png'}`} className="w-10 h-10 rounded-xl object-cover ring-1 ring-slate-100" alt="" />
+                    <img src={imgUrl(product?.imgs_src?.[0] || '/placeholder.png')} className="w-10 h-10 rounded-xl object-cover ring-1 ring-slate-100" alt="" />
                     <div>
                         <p className="text-sm font-semibold text-slate-900">{product?.name}</p>
                         <p className="text-[10px] font-mono text-slate-400 uppercase">{investmentNumber}</p>
@@ -157,7 +157,7 @@ function MobileCard({ inv, onRefund, isProcessing }) {
         <div onClick={() => handleRowClick(product._id)} className="p-5 space-y-4">
             <div className="flex items-start justify-between">
                 <div className="flex gap-3">
-                    <img src={`${API_URL}${product?.imgs_src?.[0] || '/placeholder.png'}`} className="w-12 h-12 rounded-xl object-cover ring-1 ring-slate-100" alt="" />
+                    <img src={imgUrl(product?.imgs_src?.[0] || '/placeholder.png')} className="w-12 h-12 rounded-xl object-cover ring-1 ring-slate-100" alt="" />
                     <div>
                         <h3 className="text-sm font-bold text-slate-900">{product?.name}</h3>
                         <StatusBadge status={product?.status} className="mt-1" />

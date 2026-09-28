@@ -5,8 +5,8 @@ import {
 } from 'lucide-react';
 import { investorService } from '../../../services/investorServices/investmentService';
 import { useNavigate } from 'react-router-dom';
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export default function InvestmentOptions({
   availableProducts = [],
@@ -189,7 +189,7 @@ export default function InvestmentOptions({
                     <div className="relative w-10 h-10 shrink-0">
                       {product.imgs_src?.[0] ? (
                         <img
-                          src={`${API_URL}${product.imgs_src[0]}`}
+                          src={imgUrl(product.imgs_src[0])}
                           alt={product.name}
                           className="w-full h-full rounded-xl object-cover ring-1 ring-slate-200"
                         />
@@ -259,7 +259,7 @@ export default function InvestmentOptions({
             <div className="flex gap-4 mb-4">
               <div className="w-16 h-16 shrink-0">
                 {product.imgs_src?.[0] ? (
-                  <img src={`${API_URL}${product.imgs_src[0]}`} alt="" className="w-full h-full rounded-xl object-cover ring-1 ring-slate-200" />
+                  <img src={imgUrl(product.imgs_src[0])} alt="" className="w-full h-full rounded-xl object-cover ring-1 ring-slate-200" />
                 ) : (
                   <div className="w-full h-full rounded-xl bg-slate-100 flex items-center justify-center text-slate-300">
                     <ImageOff size={20} />

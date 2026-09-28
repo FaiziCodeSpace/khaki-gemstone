@@ -5,8 +5,8 @@ import {
   Calendar, RefreshCw, Filter, User, 
   Search, AlertCircle, Clock, Info 
 } from "lucide-react";
+import { imgUrl } from "../../utils/imgUrl";
 
-const IMG_BASE = import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:8080";
 
 const STATUS_BADGE = {
   pending: "bg-amber-50 text-amber-700 border-amber-200",
@@ -154,7 +154,7 @@ export default function BargainerApplications() {
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-14 h-14 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 shrink-0 shadow-sm">
                     {b.pfp ? (
-                      <img src={`${IMG_BASE}/${b.pfp}`} alt="" className="w-full h-full object-cover" />
+                      <img src={imgUrl(b.pfp)} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-emerald-100 text-emerald-700 font-black text-xl">
                         {b.fullName?.[0]}
@@ -232,7 +232,7 @@ export default function BargainerApplications() {
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-2xl overflow-hidden border border-gray-100 shrink-0">
                             {b.pfp ? (
-                              <img src={`${IMG_BASE}/${b.pfp}`} alt="" className="w-full h-full object-cover" />
+                              <img src={imgUrl(b.pfp)} alt="" className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold">
                                 {b.fullName?.[0]}

@@ -9,8 +9,8 @@ import {
 import { QRCodeCanvas } from "qrcode.react";
 import imageCompression from "browser-image-compression";
 import { createProduct, updateProduct, fetchProduct } from "../../../services/productsService";
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:5000";
 
 export default function FormBox() {
     const { productId } = useParams();
@@ -134,9 +134,9 @@ export default function FormBox() {
                     });
                     setTags(data.tags || []);
                     setPreviews({
-                        imgs_src: data.imgs_src?.map(path => `${API_URL}${path}`) || [],
-                        lab_test_img_src: data.lab_test_img_src ? `${API_URL}${data.lab_test_img_src}` : null,
-                        certificate_img_src: data.certificate_img_src ? `${API_URL}${data.certificate_img_src}` : null,
+                        imgs_src: data.imgs_src?.map(path => imgUrl(path)) || [],
+                        lab_test_img_src: data.lab_test_img_src ? imgUrl(data.lab_test_img_src) : null,
+                        certificate_img_src: data.certificate_img_src ? imgUrl(data.certificate_img_src) : null,
                     });
                 } catch (err) {
                     console.error("Fetch error:", err);

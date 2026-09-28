@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Share2, Loader2, ShieldCheck, Gem, MapPin } from 'lucide-react';
 import { fetchProduct } from '../../../services/productsService';
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export function ScanProductDetail() {
     const { id } = useParams();
@@ -243,7 +243,7 @@ export function ScanProductDetail() {
                                     className="relative group overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border-2 md:border-4 border-white shadow-xl md:shadow-2xl"
                                 >
                                     <img
-                                        src={`${API_URL}${src}`}
+                                        src={imgUrl(src)}
                                         alt={`Certificate part ${idx + 1}`}
                                         className="w-full h-auto object-cover max-h-[400px] md:max-h-[500px]"
                                         onError={(e) => { e.target.style.display = 'none'; }}

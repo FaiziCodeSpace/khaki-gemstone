@@ -7,8 +7,8 @@ import {
 } from "lucide-react";
 import { fetchAllProducts, deleteProduct } from "../../../services/productsService";
 import { sellInShop } from "../../../services/adminServices/OrdersService";
+import { imgUrl } from "../../../utils/imgUrl";
 
-const API_URL = import.meta.env.VITE_API_URL_IMG || "http://localhost:8080";
 
 export default function ProductTable() {
     const [products, setProducts] = useState([]);
@@ -148,7 +148,7 @@ export default function ProductTable() {
                         <form onSubmit={handleConfirmSell} className="p-6 space-y-4">
                             <div className="bg-pink-50/50 p-3 rounded-xl border border-pink-100 flex items-center gap-3">
                                 <div className="w-10 h-10 rounded bg-white border overflow-hidden">
-                                    <img src={`${API_URL}${sellModal.product.imgs_src?.[0]}`} className="w-full h-full object-cover" />
+                                    <img src={imgUrl(sellModal.product.imgs_src?.[0])} className="w-full h-full object-cover" />
                                 </div>
                                 <div>
                                     <p className="text-xs font-bold text-gray-900">{sellModal.product.name}</p>
@@ -274,7 +274,7 @@ export default function ProductTable() {
                                             <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
                                                 {product.imgs_src?.[0] ? (
                                                     <img 
-                                                        src={`${API_URL}${product.imgs_src[0]}`} 
+                                                        src={imgUrl(product.imgs_src[0])} 
                                                         alt={product.name}
                                                         className="w-full h-full object-cover"
                                                     />
@@ -379,7 +379,7 @@ export default function ProductTable() {
                                 <div className="flex items-center gap-3">
                                     <div className="w-14 h-14 rounded-lg bg-gray-100 overflow-hidden border border-gray-200 flex-shrink-0">
                                         {product.imgs_src?.[0] ? (
-                                            <img src={`${API_URL}${product.imgs_src[0]}`} className="w-full h-full object-cover" />
+                                            <img src={imgUrl(product.imgs_src[0])} className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-300"><Eye size={16}/></div>
                                         )}
