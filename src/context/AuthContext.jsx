@@ -17,8 +17,14 @@ export const AuthProvider = ({ children }) => {
         setAdmin(res.data.admin);
       }
     } catch (err) {
-      window.adminAccessToken = null;
-      setAdmin(null);
+      // Same rule as the interceptor: only a real 401/403 means the
+      // session is actually invalid. A network/server error should not
+      // sign the admin out — it should just fail this one check.
+      const status = err.response?.status;
+      if (status === 401 || status === 403) {
+        window.adminAccessToken = null;
+        setAdmin(null);
+      }
     } finally {
       setLoading(false); 
     }

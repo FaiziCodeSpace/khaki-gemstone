@@ -74,7 +74,14 @@ adminApi.interceptors.response.use(
         })
         .catch((err) => {
           processQueue(err, null);
-          window.adminAccessToken = null;
+          // A real "your session is invalid" response should log the user
+          // out. A network error or a 5xx from our own server is a
+          // transient hiccup, not an expired session — don't wipe the
+          // token over it, or a brief backend blip forces a real re-login.
+          const status = err.response?.status;
+          if (status === 401 || status === 403) {
+            window.adminAccessToken = null;
+          }
           reject(err);
         })
         .finally(() => {
