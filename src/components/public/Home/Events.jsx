@@ -134,7 +134,7 @@ export function Events() {
             {/* ===================== Visual Section ===================== */}
             <div className="flex-1 h-1/2 md:h-auto">
                 <img
-                    src="./Images/Events-Image.png"
+                    src="./Images/Events-Image.jpg"
                     alt="Featured Summer Gemstone Collection"
                     className="w-full h-full object-cover"
                 />
